@@ -1,0 +1,37 @@
+{
+  "app_name": "Network Manager",
+  "version": "1.0.0",
+  "network": {
+    "auto_detect_interface": true,
+    "scan_all_subnets": true,
+    "custom_subnet": "",
+    "scan_interval_seconds": 60,
+    "offline_threshold_seconds": 300,
+    "nmap_path": "C:\\Program Files (x86)\\Nmap\\nmap.exe",
+    "scan_method": "auto"
+  },
+  "monitoring": {
+    "auto_scan": true,
+    "notify_new_device": true,
+    "notify_status_change": true
+  },
+  "security": {
+    "active_router": "mock",
+    "enable_host_firewall": true,
+    "confirm_before_block": true
+  },
+  "ui": {
+    "theme": "dark",
+    "language": "vi",
+    "refresh_rate_ms": 1000
+  },
+  "database": {
+    "path": "data/network.db"
+  },
+  "logging": {
+    "level": "INFO",
+    "log_file": "data/logs/network_manager.log",
+    "max_bytes": 5242880,
+    "backup_count": 3
+  }
+}

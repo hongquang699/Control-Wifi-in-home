@@ -1,0 +1,41 @@
+{
+  "mock": {
+    "name": "Giả lập Router (Mock Mode)",
+    "type": "mock",
+    "enabled": true,
+    "description": "Dùng để kiểm thử chức năng chặn/bỏ chặn an toàn trong môi trường thử nghiệm"
+  },
+  "tplink": {
+    "name": "TP-Link Router",
+    "type": "tplink",
+    "host": "192.168.0.1",
+    "port": 80,
+    "username": "admin",
+    "password": "",
+    "token": "",
+    "use_https": false,
+    "enabled": false
+  },
+  "openwrt": {
+    "name": "OpenWrt Router",
+    "type": "openwrt",
+    "host": "192.168.1.1",
+    "port": 80,
+    "username": "root",
+    "password": "",
+    "use_ssh": false,
+    "ssh_port": 22,
+    "enabled": false
+  },
+  "mikrotik": {
+    "name": "MikroTik RouterOS",
+    "type": "mikrotik",
+    "host": "192.168.88.1",
+    "port": 8728,
+    "rest_port": 443,
+    "username": "admin",
+    "password": "",
+    "use_rest": true,
+    "enabled": false
+  }
+}
