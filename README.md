@@ -68,6 +68,9 @@ Control-wifi/
 ├── requirements.txt           # Python dependencies
 ├── README.md                  # Project documentation
 ├── LICENSE                    # MIT License
+├── assets/
+│   ├── logo.ico               # Windows application icon (multi-resolution)
+│   └── logo.png               # High-resolution master logo
 ├── config/
 │   ├── config.json            # Scanner, timing, and app configuration
 │   └── routers.json           # Router credentials and adapter profiles

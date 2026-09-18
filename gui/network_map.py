@@ -26,17 +26,23 @@ class NetworkMapView(QWidget):
         device_dao: DeviceDAO,
         event_dao: EventDAO,
         block_manager: BlockManager,
+        iface: Optional[NetworkInterface] = None,
         parent=None
     ):
         super().__init__(parent)
         self.device_dao = device_dao
         self.event_dao = event_dao
         self.block_manager = block_manager
-        self.iface = NetworkManagerCore.get_default_interface()
+        self.iface = iface or NetworkManagerCore.get_default_interface()
+        self._is_loaded = False
         self._init_ui()
         self.retranslate_ui()
-        self.refresh_map()
         i18n.language_changed.connect(self._on_lang_changed)
+
+    def ensure_loaded(self):
+        """Khởi tạo dữ liệu topology khi tab được mở (lazy loading)."""
+        if not self._is_loaded:
+            self.refresh_map()
 
     def _init_ui(self):
         layout = QVBoxLayout(self)
@@ -118,6 +124,7 @@ class NetworkMapView(QWidget):
         self.refresh_map()
 
     def refresh_map(self):
+        self._is_loaded = True
         self.tree.clear()
         if not self.iface:
             self.iface = NetworkManagerCore.get_default_interface()

@@ -13,6 +13,12 @@ $shortcut = $ws.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $exePath
 $shortcut.WorkingDirectory = $projectDir
 $shortcut.Description = 'Network Manager - Quản lý và Giám sát Mạng Nội bộ'
+
+$icoPath = Join-Path $projectDir 'assets\logo.ico'
+if (Test-Path $icoPath) {
+    $shortcut.IconLocation = "$icoPath,0"
+}
+
 $shortcut.Save()
 
 Write-Host "Đã tạo lối tắt thành công tại: $shortcutPath"

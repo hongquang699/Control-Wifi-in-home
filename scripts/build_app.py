@@ -47,7 +47,9 @@ def build():
         "--name=NetworkManager",
         "--windowed",                 # Không hiện cửa sổ console đen khi mở GUI
         "--onedir",                   # Tạo gói thư mục độc lập chạy ổn định nhất
+        "--icon=assets/logo.ico",     # Biểu tượng ứng dụng chính thức
         "--add-data=config;config",   # Đính kèm thư mục cấu hình
+        "--add-data=assets;assets",   # Đính kèm thư mục logo và assets
         "--hidden-import=PySide6",
         "--hidden-import=requests",
         "--hidden-import=psutil",
@@ -66,10 +68,12 @@ def build():
     # 4. Sao chép thêm config và tạo thư mục data trong dist/NetworkManager
     dist_dir = os.path.join("dist", "NetworkManager")
     if os.path.exists(dist_dir):
-        # Đảm bảo có thư mục config và data bên cạnh file .exe
+        # Đảm bảo có thư mục config, assets và data bên cạnh file .exe
         target_config = os.path.join(dist_dir, "config")
+        target_assets = os.path.join(dist_dir, "assets")
         target_data = os.path.join(dist_dir, "data", "logs")
         os.makedirs(target_config, exist_ok=True)
+        os.makedirs(target_assets, exist_ok=True)
         os.makedirs(target_data, exist_ok=True)
 
         for cfg_file in ["config.json", "routers.json"]:
@@ -77,6 +81,13 @@ def build():
             dst = os.path.join(target_config, cfg_file)
             if os.path.exists(src):
                 shutil.copy2(src, dst)
+
+        if os.path.exists("assets"):
+            for asset_file in os.listdir("assets"):
+                src_a = os.path.join("assets", asset_file)
+                dst_a = os.path.join(target_assets, asset_file)
+                if os.path.isfile(src_a):
+                    shutil.copy2(src_a, dst_a)
 
         db_src = os.path.join("data", "network.db")
         if os.path.exists(db_src):

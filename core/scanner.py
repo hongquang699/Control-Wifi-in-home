@@ -54,10 +54,10 @@ class NetworkScanner:
         if self.current_interface and self.current_interface.cidr:
             subnets.append(self.current_interface.cidr)
 
-        # Kiểm tra sự tồn tại của modem/router tổng ở các dải phổ biến
+        # Kiểm tra sự tồn tại của modem/router tổng ở các dải phổ biến đồng thời
         upstream_gateways = ["192.168.1.1", "192.168.0.1", "10.0.0.1"]
+        candidates = []
         for gw in upstream_gateways:
-            # Nếu gateway này chưa nằm trong subnet đã có
             already_in = False
             for s in subnets:
                 try:
@@ -66,17 +66,19 @@ class NetworkScanner:
                         break
                 except Exception:
                     pass
-            if already_in:
-                continue
+            if not already_in:
+                candidates.append(gw)
 
-            # Ping thử gateway
-            is_up, _ = ping_host(gw, timeout_ms=300)
-            if is_up:
-                parts = gw.split(".")
-                candidate_subnet = f"{parts[0]}.{parts[1]}.{parts[2]}.0/24"
-                if candidate_subnet not in subnets:
-                    subnets.append(candidate_subnet)
-                    logger.info(f"Phát hiện thêm dải mạng upstream/Wi-Fi tổng: {candidate_subnet} (Gateway: {gw})")
+        if candidates:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=len(candidates)) as pool:
+                results = pool.map(lambda g: (g, ping_host(g, timeout_ms=250)[0]), candidates)
+                for gw, is_up in results:
+                    if is_up:
+                        parts = gw.split(".")
+                        cand_subnet = f"{parts[0]}.{parts[1]}.{parts[2]}.0/24"
+                        if cand_subnet not in subnets:
+                            subnets.append(cand_subnet)
+                            logger.info(f"Phát hiện thêm dải mạng upstream/Wi-Fi tổng: {cand_subnet} (Gateway: {gw})")
 
         return subnets
 
@@ -189,8 +191,8 @@ class NetworkScanner:
         return unique_devices
 
     def _scan_with_nmap(self, subnets: List[str]) -> List[Device]:
-        """Quét đồng thời nhiều subnet bằng Nmap XML."""
-        cmd = [self.nmap_path, "-sn", "-n"] + subnets + ["-oX", "-"]
+        """Quét đồng thời nhiều subnet bằng Nmap XML với tham số tăng tốc T4 & min-rate."""
+        cmd = [self.nmap_path, "-sn", "-n", "-T4", "--min-rate", "300"] + subnets + ["-oX", "-"]
         code, stdout, stderr = run_cmd(cmd, timeout=60)
         
         if code != 0 or not stdout.strip():
@@ -258,6 +260,7 @@ class NetworkScanner:
         subnet: str,
         progress_callback: Optional[Callable[[int, str], None]] = None
     ) -> List[Device]:
+        """Quét mạng Native bằng Windows SendARP API siêu tốc (vài ms/host)."""
         devices: List[Device] = []
         try:
             network = ipaddress.IPv4Network(subnet, strict=False)
@@ -267,17 +270,54 @@ class NetworkScanner:
 
         target_hosts = hosts[:254] if len(hosts) > 254 else hosts
 
-        def do_ping(ip_str):
-            ping_host(ip_str, timeout_ms=300)
+        # 1. Thử dùng Windows API SendARP (nhanh hơn ping.exe gấp 50 lần)
+        try:
+            import ctypes
+            import socket
+            import struct
+            iphlpapi = ctypes.windll.iphlpapi
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
+            def probe_send_arp(target_ip: str):
+                try:
+                    dest = struct.unpack("<I", socket.inet_aton(target_ip))[0]
+                    mac_buf = (ctypes.c_ubyte * 6)()
+                    mac_len = ctypes.c_ulong(6)
+                    res = iphlpapi.SendARP(dest, 0, ctypes.byref(mac_buf), ctypes.byref(mac_len))
+                    if res == 0:
+                        mac_str = ":".join(f"{b:02X}" for b in mac_buf)
+                        return target_ip, mac_str
+                except Exception:
+                    pass
+                return target_ip, None
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=40) as pool:
+                arp_results = pool.map(probe_send_arp, target_hosts)
+                for ip_res, mac_res in arp_results:
+                    if mac_res and mac_res not in ("00:00:00:00:00:00", "FF:FF:FF:FF:FF:FF"):
+                        devices.append(Device(
+                            ip=ip_res,
+                            mac=mac_res,
+                            latency_ms=1.0,
+                            status="ONLINE"
+                        ))
+
+            if devices:
+                return devices
+        except Exception as e:
+            logger.warning(f"Lỗi quét SendARP nhanh: {e}")
+
+        # 2. Fallback sang multi-threaded ping + ARP table
+        def do_ping(ip_str):
+            ping_host(ip_str, timeout_ms=250)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=40) as executor:
             executor.map(do_ping, target_hosts)
 
         arp_entries = get_arp_table()
         for entry in arp_entries:
             ip = entry["ip"]
             mac = entry["mac"]
-            is_up, latency = ping_host(ip, timeout_ms=400)
+            is_up, latency = ping_host(ip, timeout_ms=300)
             if is_up:
                 devices.append(Device(
                     ip=ip,
@@ -289,13 +329,19 @@ class NetworkScanner:
         return devices
 
     def _get_local_mac(self) -> str:
-        ps_cmd = "Get-NetAdapter | Where-Object { $_.Status -eq 'Up' } | Select-Object -First 1 MacAddress | ConvertTo-Json"
-        code, stdout, _ = run_cmd(["powershell", "-NoProfile", "-Command", ps_cmd], timeout=3)
-        if code == 0 and "MacAddress" in stdout:
-            import json
-            try:
-                data = json.loads(stdout)
-                return normalize_mac(data.get("MacAddress", ""))
-            except Exception:
-                pass
+        """Lấy MAC address của máy cục bộ siêu tốc không cần mở PowerShell."""
+        if self.current_interface and self.current_interface.mac:
+            return self.current_interface.mac
+
+        try:
+            import psutil
+            addrs = psutil.net_if_addrs()
+            for _, snics in addrs.items():
+                for snic in snics:
+                    if snic.family == psutil.AF_LINK and snic.address:
+                        norm = normalize_mac(snic.address)
+                        if norm and norm not in ("00:00:00:00:00:00", "FF:FF:FF:FF:FF:FF"):
+                            return norm
+        except Exception:
+            pass
         return ""

@@ -2,6 +2,7 @@
 Cửa sổ chính ứng dụng Network Manager (MainWindow) - Hỗ trợ Song ngữ VI / EN.
 """
 
+import os
 import sys
 import json
 from PySide6.QtWidgets import (
@@ -9,7 +10,7 @@ from PySide6.QtWidgets import (
     QStackedWidget, QLabel, QFrame, QMessageBox, QStatusBar, QComboBox
 )
 from PySide6.QtCore import Qt, QSize, QTimer
-from PySide6.QtGui import QIcon, QFont, QColor
+from PySide6.QtGui import QIcon, QFont, QColor, QPixmap
 
 from database.database import Database
 from database.devices import DeviceDAO
@@ -77,6 +78,14 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(1024, 700)
         self.resize(1240, 820)
 
+        # Thiết lập Icon ứng dụng cho cửa sổ và taskbar
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        icon_path = os.path.join(base_dir, "assets", "logo.ico")
+        if not os.path.exists(icon_path):
+            icon_path = os.path.join(base_dir, "assets", "logo.png")
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
+
         # 1. Khởi tạo Database và Services
         self.db = Database.get_instance()
         self.device_dao = DeviceDAO(self.db)
@@ -136,7 +145,7 @@ class MainWindow(QMainWindow):
 
         # A. Sidebar Trái
         sidebar = QFrame()
-        sidebar.setFixedWidth(225)
+        sidebar.setFixedWidth(240)
         sidebar.setStyleSheet(f"background-color: {COLOR_BG_SIDEBAR}; border-right: 1px solid {COLOR_BORDER};")
         sidebar_layout = QVBoxLayout(sidebar)
         sidebar_layout.setContentsMargins(0, 22, 0, 18)
@@ -144,22 +153,31 @@ class MainWindow(QMainWindow):
 
         # Brand Header
         brand_card = QFrame()
-        brand_card.setStyleSheet("background: transparent; margin: 0 14px 16px 14px;")
+        brand_card.setStyleSheet("background: transparent; margin: 0 12px 16px 12px;")
         brand_card_layout = QVBoxLayout(brand_card)
-        brand_card_layout.setContentsMargins(6, 0, 6, 0)
+        brand_card_layout.setContentsMargins(4, 0, 4, 0)
         brand_card_layout.setSpacing(6)
 
         brand_top = QHBoxLayout()
-        lbl_logo = QLabel("🛡️")
+        brand_top.setSpacing(10)
+        lbl_logo = QLabel()
         lbl_logo.setAlignment(Qt.AlignCenter)
-        lbl_logo.setFixedSize(36, 36)
+        lbl_logo.setFixedSize(38, 38)
         lbl_logo.setStyleSheet("""
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4F46E5, stop:1 #06B6D4);
+            background-color: #0F172A;
+            border: 1px solid rgba(6, 182, 212, 0.4);
             border-radius: 10px;
-            font-size: 18px;
         """)
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        logo_png_path = os.path.join(base_dir, "assets", "logo.png")
+        if os.path.exists(logo_png_path):
+            pix = QPixmap(logo_png_path).scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            lbl_logo.setPixmap(pix)
+        else:
+            lbl_logo.setText("🏠")
+
         self.lbl_app_name = QLabel("NETWORK MANAGER")
-        self.lbl_app_name.setStyleSheet("font-size: 14px; font-weight: 800; color: #F8FAFC; letter-spacing: 1.2px;")
+        self.lbl_app_name.setStyleSheet("font-size: 13px; font-weight: 800; color: #F8FAFC; letter-spacing: 0.8px;")
         brand_top.addWidget(lbl_logo)
         brand_top.addWidget(self.lbl_app_name)
         brand_top.addStretch()
@@ -289,7 +307,7 @@ class MainWindow(QMainWindow):
         self.stack = QStackedWidget()
         self.view_dashboard = DashboardView(self.device_dao, self.event_dao, traffic_monitor=self.traffic_monitor)
         self.view_devices = DevicesView(self.device_dao, self.event_dao, self.block_manager)
-        self.view_map = NetworkMapView(self.device_dao, self.event_dao, self.block_manager)
+        self.view_map = NetworkMapView(self.device_dao, self.event_dao, self.block_manager, iface=self.current_iface)
         self.view_traffic = TrafficView(self.traffic_monitor)
         self.view_blocked = BlockedView(self.device_dao, self.event_dao, self.block_manager)
         self.view_settings = SettingsView(self.block_manager)

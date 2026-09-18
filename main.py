@@ -13,12 +13,16 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt
-from gui.app import MainWindow
-from services.discovery import NetworkDiscoveryService
-from core.network import NetworkManagerCore
-from core.logger import logger
+import os
+import sys
+import argparse
+
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 def run_cli_scan(subnet=None):
     """Chế độ quét CLI nhanh qua dòng lệnh."""
@@ -26,6 +30,7 @@ def run_cli_scan(subnet=None):
     print("      NETWORK MANAGER - CÔNG CỤ QUÉT & GIÁM SÁT MẠNG CỤC BỘ")
     print("=" * 65)
     
+    from core.network import NetworkManagerCore
     iface = NetworkManagerCore.get_default_interface()
     if iface:
         print(f"[*] Card mạng: {iface.alias}")
@@ -33,6 +38,7 @@ def run_cli_scan(subnet=None):
         print(f"[*] Router Gateway: {iface.gateway}")
     
     from core.scanner import NetworkScanner
+    from services.discovery import NetworkDiscoveryService
     scanner = NetworkScanner()
     detected_subnets = scanner.detect_active_subnets()
     target_subnets = subnet or (", ".join(detected_subnets))
@@ -63,11 +69,31 @@ def main():
         run_cli_scan(subnet=args.subnet)
         return
 
+    # Đăng ký AppUserModelID trên Windows để hiển thị logo riêng biệt trên thanh Taskbar
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("securitynetworktools.networkmanager.1.2")
+        except Exception:
+            pass
+
     # Khởi động giao diện PySide6
+    from PySide6.QtWidgets import QApplication
+    from PySide6.QtGui import QIcon
+    from gui.app import MainWindow
+
     app = QApplication(sys.argv)
     app.setApplicationName("Network Manager")
-    app.setApplicationVersion("1.0.0")
+    app.setApplicationVersion("1.2.0")
     app.setOrganizationName("SecurityNetworkTools")
+
+    # Thiết lập Logo biểu tượng ứng dụng toàn cục
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    icon_path = os.path.join(base_dir, "assets", "logo.ico")
+    if not os.path.exists(icon_path):
+        icon_path = os.path.join(base_dir, "assets", "logo.png")
+    if os.path.exists(icon_path):
+        app.setWindowIcon(QIcon(icon_path))
 
     # Áp dụng font chữ chuẩn hệ thống
     font = app.font()
