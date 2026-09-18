@@ -1,4 +1,4 @@
-﻿# Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -42,6 +42,7 @@ data/logs/
 # Development / scratch captures
 scratch_shots/
 scratch_shots_*/
+data/screenshots/
 
 # IDE & Editor files
 .vscode/

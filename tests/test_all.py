@@ -276,6 +276,51 @@ class TestNetworkManager(unittest.TestCase):
         self.assertIn("primary_net", dist)
         self.assertIn("secondary_net", dist)
 
+    def test_09_settings_view(self):
+        """Kiểm tra màn hình Cài đặt SettingsView (Cards, Scroll, Password toggle, Router test)."""
+        from PySide6.QtWidgets import QApplication, QLineEdit
+        from gui.settings import SettingsView
+
+        app = QApplication.instance() or QApplication(sys.argv)
+        view = SettingsView(self.block_manager)
+        self.assertIsNotNone(view)
+
+        # Kiểm tra ScrollArea và các Cards
+        self.assertIsNotNone(view.scroll_area)
+        self.assertIsNotNone(view.card_lang)
+        self.assertIsNotNone(view.card_scan)
+        self.assertIsNotNone(view.card_router)
+        self.assertIsNotNone(view.card_sec)
+        self.assertIsNotNone(view.action_bar)
+
+        # Kiểm tra tính năng ẩn/hiện mật khẩu router
+        self.assertEqual(view.txt_router_pass.echoMode(), QLineEdit.Password)
+        view._toggle_password_visibility()
+        self.assertEqual(view.txt_router_pass.echoMode(), QLineEdit.Normal)
+        view._toggle_password_visibility()
+        self.assertEqual(view.txt_router_pass.echoMode(), QLineEdit.Password)
+
+        # Kiểm tra thay đổi router adapter
+        view.cb_adapter.setCurrentIndex(0)  # mock
+        self.assertFalse(view.frame_mock_tip.isHidden())
+        view.cb_adapter.setCurrentIndex(1)  # tplink
+        self.assertTrue(view.frame_mock_tip.isHidden())
+        view.cb_adapter.setCurrentIndex(0)
+
+        # Kiểm tra kết nối adapter mock (không bật pop-up để test tự động chạy thông suốt)
+        view._test_router_connection(show_dialog=False)
+        self.assertIn("Kết nối Thành công", view.lbl_conn_status.text())
+
+        # Kiểm tra chuyển đổi ngôn ngữ trên SettingsView
+        from core.i18n import i18n
+        i18n.set_language("en")
+        self.assertIn("Settings", view.lbl_main_title.text())
+        i18n.set_language("vi")
+        self.assertIn("Cài đặt", view.lbl_main_title.text())
+
+        view.close()
+        app.processEvents()
+
 if __name__ == "__main__":
     result = unittest.main(exit=False)
     sys.exit(0 if result.result.wasSuccessful() else 1)
