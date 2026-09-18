@@ -15,6 +15,10 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
         pass
 
 def build():
+    # Đảm bảo thư mục làm việc luôn là thư mục gốc của dự án
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(project_root)
+
     print("=" * 60)
     print("   ĐANG ĐÓNG GÓI NETWORK MANAGER THÀNH WINDOWS EXECUTABLE")
     print("=" * 60)

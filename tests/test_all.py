@@ -49,6 +49,12 @@ class TestNetworkManager(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        import gc
+        del cls.block_manager
+        del cls.event_dao
+        del cls.device_dao
+        del cls.db
+        gc.collect()
         if os.path.exists(cls.test_db_path):
             try:
                 os.remove(cls.test_db_path)

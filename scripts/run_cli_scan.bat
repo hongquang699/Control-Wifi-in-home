@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 title Network Manager - Quét Mạng CLI
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 echo ================================================================
 echo         NETWORK MANAGER - TIẾN HÀNH QUÉT MẠNG NHANH

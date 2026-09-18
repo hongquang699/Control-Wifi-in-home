@@ -80,6 +80,8 @@ Control-wifi/
 │   ├── monitor.py             # State tracking and database synchronization
 │   ├── i18n.py                # Internationalization dictionary (VI / EN)
 │   └── logger.py              # Centralized rotating log system
+├── docs/
+│   └── screenshots/           # Application UI screenshots
 ├── gui/
 │   ├── app.py                 # Main window, navigation sidebar, and top bar
 │   ├── theme.py               # Modern dark theme styles & widgets (QSS)
@@ -96,6 +98,13 @@ Control-wifi/
 │   ├── openwrt.py             # OpenWrt (LuCI / ubus / iptables) adapter
 │   ├── mikrotik.py            # MikroTik RouterOS adapter
 │   └── mock.py                # Safe simulation mock adapter
+├── scripts/
+│   ├── build.bat              # One-click PyInstaller build script
+│   ├── build_app.py           # Automated packaging and deployment script
+│   ├── create_desktop_shortcut.bat # Desktop shortcut generator
+│   ├── create_shortcut.ps1    # PowerShell shortcut helper
+│   ├── run_cli_scan.bat       # Quick command-line network scan
+│   └── setup_env.bat          # Auto venv setup & dependency installer
 ├── security/
 │   ├── firewall.py            # Windows Host Firewall rule manager
 │   ├── blocker.py             # Unified BlockManager coordinator
@@ -108,6 +117,8 @@ Control-wifi/
 │   ├── discovery.py           # Multithreaded network discovery service
 │   ├── identification.py      # MAC OUI lookup & device classification
 │   └── scheduler.py           # Background periodic scan worker (QThread)
+├── tests/
+│   └── test_all.py            # Complete automated test suite
 ├── utils/
 │   ├── command.py             # Safe subprocess execution without console popups
 │   ├── network_utils.py       # Ping, ARP table parsing, reverse DNS
@@ -164,18 +175,18 @@ The project includes convenient `.bat` scripts for quick one-click operation on 
 | :--- | :--- |
 | **`run.bat`** | Launches the application (prioritizes standalone `.exe` if built, falls back to Python). |
 | **`run_admin.bat`** | Launches with Administrator privileges (optimal for Windows Firewall and raw packet scans). |
-| **`run_cli_scan.bat`** | Performs a fast terminal scan, printing discovered IP and MAC addresses in console. |
-| **`create_desktop_shortcut.bat`** | Creates a "Network Manager" shortcut icon directly on the Windows Desktop. |
-| **`build.bat`** | Packages the entire project into a standalone `NetworkManager.exe`. |
-| **`setup_env.bat`** | Automatically initializes virtualenv and installs dependencies on a fresh machine. |
+| **`scripts/run_cli_scan.bat`** | Performs a fast terminal scan, printing discovered IP and MAC addresses in console. |
+| **`scripts/create_desktop_shortcut.bat`** | Creates a "Network Manager" shortcut icon directly on the Windows Desktop. |
+| **`scripts/build.bat`** | Packages the entire project into a standalone `NetworkManager.exe`. |
+| **`scripts/setup_env.bat`** | Automatically initializes virtualenv and installs dependencies on a fresh machine. |
 
 ---
 
 ## Packaging Standalone Executable (`.exe` on Windows)
 
-1. Double-click **`build.bat`**, or execute in PowerShell:
+1. Double-click **`scripts/build.bat`**, or execute in PowerShell:
    ```powershell
-   python build_app.py
+   python scripts/build_app.py
    ```
 2. Upon completion, the standalone distribution folder is generated at:
    ```text

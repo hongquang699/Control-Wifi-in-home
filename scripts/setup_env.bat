@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 title Setup Network Manager Environment
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 echo ================================================================
 echo    CÀI ĐẶT MÔI TRƯỜNG & THƯ VIỆN CHO NETWORK MANAGER
