@@ -31,6 +31,7 @@ def build():
     try:
         if sys.platform == "win32":
             subprocess.run(["taskkill", "/F", "/IM", "NetworkManager.exe"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(["taskkill", "/F", "/IM", "nmap.exe"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception:
         pass
 

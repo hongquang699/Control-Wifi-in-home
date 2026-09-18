@@ -3,19 +3,13 @@
 Hỗ trợ cả giao diện đồ họa PySide6 và chế độ quét dòng lệnh CLI.
 """
 
-import sys
-import argparse
-
-if sys.stdout and hasattr(sys.stdout, "reconfigure"):
-    try:
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-    except Exception:
-        pass
-
 import os
 import sys
 import argparse
+
+# Đảm bảo thư mục làm việc luôn là thư mục chứa file thực thi khi chạy từ bản đóng gói .exe
+if getattr(sys, "frozen", False):
+    os.chdir(os.path.dirname(sys.executable))
 
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
     try:
