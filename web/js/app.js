@@ -256,25 +256,19 @@ let demoSearchTerm = "";
 
 // ===== MODULE: router.js =====
 /**
- * Module Điều Hướng Client-Side Router & Mobile Drawer
+ * Module Điều Hướng Client-Side Router & Dynamic Component Loader
  */
+
 // ==================== INITIALIZATION ====================
 document.addEventListener("DOMContentLoaded", () => {
-  initRouter();
-  applyLanguage(currentLang);
   setupLanguageSwitcher();
   setupMobileDrawer();
-  setupDashboardDemo();
-  setupDocsNavigation();
-  setupContactForm();
-  setupLightbox();
-  setupDownloadTracking();
-  initDemoWaveCanvas();
+  initRouter();
 });
 
-// ==================== CLIENT-SIDE ROUTER ====================
+// ==================== CLIENT-SIDE ROUTER & DYNAMIC LOADER ====================
 function initRouter() {
-  const handleRoute = () => {
+  const handleRoute = async () => {
     let hash = window.location.hash.replace("#/", "").replace("#", "") || "home";
     
     // Allowed pages
@@ -283,7 +277,54 @@ function initRouter() {
       hash = "home";
     }
 
-    // Toggle pages
+    const container = document.getElementById("pageContainer");
+    const loader = document.getElementById("pageLoader");
+
+    // Dynamic loading if page component not yet loaded into DOM
+    let targetPage = document.getElementById(`page-${hash}`);
+    if (!targetPage && container) {
+      if (loader) loader.classList.remove("hidden");
+      try {
+        const response = await fetch(`/html/components/${hash}.html`);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status} when fetching ${hash}.html`);
+        }
+        const html = await response.text();
+        container.insertAdjacentHTML("beforeend", html);
+        targetPage = document.getElementById(`page-${hash}`);
+      } catch (err) {
+        console.error("Component load error:", err);
+        container.insertAdjacentHTML("beforeend", `
+          <div id="page-${hash}" class="page-view py-20 text-center">
+            <div class="p-6 max-w-md mx-auto rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300">
+              <p class="font-bold">Lỗi tải trang / Load Error</p>
+              <p class="text-xs mt-2 text-slate-400">Không thể tải nội dung trang: ${hash}</p>
+              <button onclick="window.location.reload()" class="mt-4 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white">Thử lại (Reload)</button>
+            </div>
+          </div>
+        `);
+      } finally {
+        if (loader) loader.classList.add("hidden");
+      }
+    }
+
+    // Apply translations to DOM
+    applyLanguage(currentLang);
+
+    // View-specific initializations
+    if (hash === "dashboard") {
+      setupDashboardDemo();
+      initDemoWaveCanvas();
+    } else if (hash === "docs") {
+      setupDocsNavigation();
+    } else if (hash === "contact") {
+      setupContactForm();
+    } else if (hash === "download") {
+      setupDownloadTracking();
+    }
+    setupLightbox();
+
+    // Toggle pages visibility
     document.querySelectorAll(".page-view").forEach(page => {
       if (page.id === `page-${hash}`) {
         page.classList.remove("hidden");
@@ -305,7 +346,7 @@ function initRouter() {
     });
 
     // Dynamic document title update (Item 11)
-    const title = (pageTitles[currentLang] && pageTitles[currentLang][hash]) || pageTitles[currentLang].home;
+    const title = (pageTitles[currentLang] && pageTitles[currentLang][hash]) || (pageTitles[currentLang] && pageTitles[currentLang].home) || "Network Manager";
     document.title = title;
 
     // Google Analytics Event Tracking (Item 19)
@@ -468,16 +509,22 @@ let demoLogsData = [
   }
 ];
 
+let isDashboardDemoInitialized = false;
+
 function setupDashboardDemo() {
   renderDemoDevices();
   renderFullDevicesTable();
   renderAlerts();
   renderLogs();
   fetchLiveApiData();
+  updateRbacBadges();
+
+  if (isDashboardDemoInitialized) return;
+  isDashboardDemoInitialized = true;
+
   setupDevicesFilter();
   setupAlertsFilter();
   loadSavedSettings();
-  updateRbacBadges();
 
   // Sidebar Tabs Switching (8 items matching blueprint)
   document.querySelectorAll(".demo-nav-btn").forEach(btn => {
@@ -1454,10 +1501,14 @@ function initDemoWaveCanvas2() {
 
 
 
+let wave1Initialized = false;
+
 // ==================== LIVE WAVEFORM CANVAS ====================
 function initDemoWaveCanvas() {
+  if (wave1Initialized) return;
   const canvas = document.getElementById("demoWaveCanvas");
   if (!canvas) return;
+  wave1Initialized = true;
   const ctx = canvas.getContext("2d");
   let step = 0;
 

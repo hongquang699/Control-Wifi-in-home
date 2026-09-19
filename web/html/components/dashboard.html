@@ -91,14 +91,791 @@
           <!-- Main Content Area -->
           <div class="flex-1 p-6 overflow-y-auto">
             <!-- DEMO TABS INCLUDED HERE -->
-            <!-- include: demo/tab_overview.html -->
-            <!-- include: demo/tab_devices.html -->
-            <!-- include: demo/tab_networks.html -->
-            <!-- include: demo/tab_traffic.html -->
-            <!-- include: demo/tab_alerts.html -->
-            <!-- include: demo/tab_logs.html -->
-            <!-- include: demo/tab_settings.html -->
-            <!-- include: demo/tab_audit.html -->
+            <!-- 1. TAB DASHBOARD -->
+            <div id="demoTabDashboard" class="demo-tab-panel space-y-6">
+              <!-- Top Metrics Row: Online | Offline | Traffic | Uptime | CPU/RAM -->
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">ONLINE</div>
+                  <div id="demoOnlineCount" class="text-xl font-bold font-mono text-emerald-400 mt-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>6</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">OFFLINE</div>
+                  <div id="demoOfflineCount" class="text-xl font-bold font-mono text-slate-400 mt-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                    <span>1</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">BLOCKED</div>
+                  <div id="demoBlockedCount" class="text-xl font-bold font-mono text-rose-400 mt-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                    <span>0</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">TRAFFIC</div>
+                  <div id="demoDownloadSpeed" class="text-xs font-bold font-mono text-sky-400 mt-1 truncate">↓ 24.5 MB/s</div>
+                  <div id="demoUploadSpeed" class="text-[10px] font-mono text-indigo-400">↑ 8.2 MB/s</div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800 col-span-2 sm:col-span-1">
+                  <div class="text-[11px] text-slate-400 font-medium">CPU / RAM / UPTIME</div>
+                  <div class="text-xs font-bold font-mono text-amber-400 mt-1">CPU 14% | RAM 32%</div>
+                  <div class="text-[10px] font-mono text-slate-400">99.98% (14d 6h)</div>
+                </div>
+              </div>
+
+              <!-- Waveform Chart -->
+              <div class="p-4 rounded-2xl bg-[#0d1322] border border-slate-800">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+                    <span class="text-xs font-semibold text-white">Live Traffic Waveform Chart</span>
+                  </div>
+                  <div class="text-[11px] font-mono text-slate-400 flex items-center gap-3">
+                    <span class="text-sky-400">■ Download</span>
+                    <span class="text-indigo-400">■ Upload</span>
+                  </div>
+                </div>
+                <canvas id="demoWaveCanvas" width="800" height="70" class="w-full h-16 rounded-lg bg-slate-900/50"></canvas>
+              </div>
+
+              <!-- Toolbar Filters -->
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                  <button class="demo-filter px-3 py-1.5 rounded-lg text-xs font-medium border bg-sky-500/20 text-sky-300 border-sky-500/40" data-filter="all">Tất cả (7)</button>
+                  <button class="demo-filter px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400" data-filter="primary">192.168.1.x</button>
+                  <button class="demo-filter px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400" data-filter="secondary">192.168.110.x</button>
+                  <button class="demo-filter px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400" data-filter="blocked">Đang bị chặn</button>
+                </div>
+
+                <input id="demoSearchInput" type="text" placeholder="Tìm theo IP, MAC, Tên..." class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 w-52">
+              </div>
+
+              <!-- Devices Table -->
+              <div class="rounded-2xl border border-slate-800 overflow-x-auto bg-[#0d1322]">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-400 text-[11px] font-semibold uppercase">
+                      <th class="py-3 px-4">Thiết bị & Tên</th>
+                      <th class="py-3 px-4">IP Address</th>
+                      <th class="py-3 px-4">MAC Address</th>
+                      <th class="py-3 px-4">Vendor</th>
+                      <th class="py-3 px-4">Phương thức</th>
+                      <th class="py-3 px-4">Trạng thái</th>
+                      <th class="py-3 px-4 text-right">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="demoDevicesBody" class="divide-y divide-slate-800/60">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- 2. TAB DEVICES -->
+            <div id="demoTabDevices" class="demo-tab-panel hidden space-y-5">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div>
+                  <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>💻</span> Quản Lý Danh Sách Thiết Bị Mạng
+                  </h3>
+                  <p class="text-xs text-slate-400">Tự động phát hiện 100% thiết bị, tra cứu vendor OUI và điều khiển kết nối</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button id="btnScanNow" onclick="simulateNetworkScan()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white text-xs font-semibold hover:opacity-90 transition-all flex items-center gap-1.5 shadow-lg shadow-sky-500/20">
+                    <span id="scanSpinner" class="inline-block">⚡</span> <span>Quét mạng ngay</span>
+                  </button>
+                  <button onclick="refreshLiveDevices()" class="px-3 py-1.5 rounded-xl bg-slate-900 text-slate-300 text-xs font-medium border border-slate-800 hover:bg-slate-800 transition-all flex items-center gap-1.5">
+                    <span>🔄</span> Làm mới
+                  </button>
+                </div>
+              </div>
+
+              <!-- Scan Progress Bar (Animated) -->
+              <div id="scanProgressBarContainer" class="hidden p-3 rounded-xl bg-slate-900/90 border border-sky-500/30 space-y-2">
+                <div class="flex items-center justify-between text-xs font-mono">
+                  <span class="text-sky-400 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+                    <span id="scanProgressMsg">Đang phát gói tin ARP Ping đa luồng trên 192.168.1.0/24...</span>
+                  </span>
+                  <span id="scanProgressPercent" class="font-bold text-white">25%</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="scanProgressBar" class="h-full bg-gradient-to-r from-sky-500 to-indigo-500 w-1/4 transition-all duration-300"></div>
+                </div>
+              </div>
+
+              <!-- Filter & Search Toolbar -->
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                  <button class="dev-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-sky-500/20 text-sky-300 border-sky-500/40" data-dev-filter="all">Tất cả (<span id="devFilterCountAll">7</span>)</button>
+                  <button class="dev-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-dev-filter="primary">Wi-Fi Tổng (192.168.1.x)</button>
+                  <button class="dev-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-dev-filter="secondary">Router Phụ (192.168.110.x)</button>
+                  <button class="dev-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-dev-filter="blocked">Đang bị chặn</button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input id="devSearchInput" type="text" placeholder="Tìm theo IP, MAC, Tên..." class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 w-56">
+                </div>
+              </div>
+
+              <!-- Enhanced Devices Table -->
+              <div class="rounded-2xl border border-slate-800 overflow-x-auto bg-[#0d1322]">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-400 text-[11px] font-semibold uppercase">
+                      <th class="py-3 px-4">Thiết Bị & Tên</th>
+                      <th class="py-3 px-4">IP Address</th>
+                      <th class="py-3 px-4">MAC Address</th>
+                      <th class="py-3 px-4">Vendor</th>
+                      <th class="py-3 px-4">Dải Mạng & Kết Nối</th>
+                      <th class="py-3 px-4">Độ Trễ</th>
+                      <th class="py-3 px-4">Trạng Thái</th>
+                      <th class="py-3 px-4 text-right">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="demoDevicesTableFull" class="divide-y divide-slate-800/60">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- 3. TAB NETWORKS -->
+            <div id="demoTabNetworks" class="demo-tab-panel hidden space-y-6">
+              <div class="pb-3 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                  <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>🌐</span> Hạ Tầng Mạng & Sơ Đồ Topo Đa Tầng
+                  </h3>
+                  <p class="text-xs text-slate-400">Phân tích Subnet CIDR, định tuyến Internet và chẩn đoán gói tin</p>
+                </div>
+              </div>
+
+              <!-- Subnet Cards with IP Pool Usage -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20 font-mono">192.168.1.0/24</span>
+                    <span class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Trực tuyến
+                    </span>
+                  </div>
+                  <div class="font-bold text-white text-sm">Wi-Fi Tổng ISP / Modem Gateway Chính</div>
+                  <div class="text-xs text-slate-400 space-y-1 font-mono">
+                    <div class="flex justify-between"><span>Gateway IP:</span> <span class="text-sky-400 font-semibold">192.168.1.1</span></div>
+                    <div class="flex justify-between"><span>Giao diện mạng:</span> <span class="text-slate-300">Ethernet Controller #1</span></div>
+                    <div class="flex justify-between"><span>DHCP Pool:</span> <span class="text-slate-300">192.168.1.100 - 192.168.1.250</span></div>
+                    <div class="flex justify-between"><span>DNS Máy chủ:</span> <span class="text-slate-300">192.168.1.1, 8.8.8.8</span></div>
+                  </div>
+                  <!-- IP Usage Meter -->
+                  <div class="space-y-1 pt-1">
+                    <div class="flex justify-between text-[11px] font-mono">
+                      <span class="text-slate-400">IP Pool Sử Dụng:</span>
+                      <span class="text-sky-400 font-semibold">4 / 254 IPs (1.6%)</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div class="h-full bg-sky-500 rounded-full w-[2%]"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">192.168.110.0/24</span>
+                    <span class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Trực tuyến
+                    </span>
+                  </div>
+                  <div class="font-bold text-white text-sm">Router Phụ Gigabit (TP-Link AX55)</div>
+                  <div class="text-xs text-slate-400 space-y-1 font-mono">
+                    <div class="flex justify-between"><span>Gateway IP:</span> <span class="text-indigo-400 font-semibold">192.168.110.1</span></div>
+                    <div class="flex justify-between"><span>Uplink WAN IP:</span> <span class="text-slate-300">192.168.1.50 (VLAN 1)</span></div>
+                    <div class="flex justify-between"><span>DHCP Pool:</span> <span class="text-slate-300">192.168.110.10 - 192.168.110.200</span></div>
+                    <div class="flex justify-between"><span>DNS Máy chủ:</span> <span class="text-slate-300">192.168.110.1, 1.1.1.1</span></div>
+                  </div>
+                  <!-- IP Usage Meter -->
+                  <div class="space-y-1 pt-1">
+                    <div class="flex justify-between text-[11px] font-mono">
+                      <span class="text-slate-400">IP Pool Sử Dụng:</span>
+                      <span class="text-indigo-400 font-semibold">3 / 254 IPs (1.2%)</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div class="h-full bg-indigo-500 rounded-full w-[1.5%]"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Topology Map -->
+              <div class="p-5 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between">
+                  <div class="text-xs font-bold text-white flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                    <span>Sơ Đồ Phân Bổ Nút Mạng (Click vào thiết bị để xem lộ trình Hop Path)</span>
+                  </div>
+                  <span class="text-[11px] text-slate-400 font-mono">2 Tầng • 7 Nút Kết Nối</span>
+                </div>
+
+                <!-- Interactive SVG Topology Diagram -->
+                <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 overflow-x-auto">
+                  <div class="min-w-[640px] flex flex-col items-center space-y-4 py-2 select-none">
+                    <!-- Level 0: Internet -->
+                    <div class="flex items-center justify-center">
+                      <div onclick="selectTopologyNode('internet')" class="topo-node cursor-pointer px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-sky-500/20 border border-emerald-500/40 text-white text-xs font-bold flex items-center gap-2 hover:scale-105 transition-all shadow-lg shadow-emerald-500/10" data-node="internet">
+                        <span class="text-base">☁️</span>
+                        <span>Internet Toàn Cầu (WAN Gateway)</span>
+                      </div>
+                    </div>
+
+                    <div class="text-slate-600 font-mono text-xs">▼ (Đường truyền ISP Cáp Quang)</div>
+
+                    <!-- Level 1: Primary Modem -->
+                    <div class="flex items-center justify-center">
+                      <div onclick="selectTopologyNode('modem')" class="topo-node cursor-pointer px-5 py-2.5 rounded-2xl bg-sky-500/20 border border-sky-500/50 text-white text-xs font-bold flex items-center gap-2 hover:scale-105 transition-all shadow-lg shadow-sky-500/10" data-node="modem">
+                        <span class="text-base">🌐</span>
+                        <span>Modem Tổng ISP (192.168.1.1)</span>
+                      </div>
+                    </div>
+
+                    <div class="w-3/4 flex justify-between items-center text-slate-600 font-mono text-xs px-8">
+                      <span>↙ (Wi-Fi 5GHz)</span>
+                      <span>| (Dây LAN 1Gbps)</span>
+                      <span>↘ (Wi-Fi 2.4GHz)</span>
+                    </div>
+
+                    <!-- Level 2: Direct Devices & Sub-Router -->
+                    <div class="w-full flex items-center justify-around gap-2 text-xs">
+                      <div onclick="selectTopologyNode('macbook')" class="topo-node cursor-pointer p-3 rounded-xl bg-slate-900 border border-slate-800 text-center hover:border-sky-500 hover:scale-105 transition-all w-36" data-node="macbook">
+                        <div class="text-base">💻</div>
+                        <div class="font-bold text-white text-[11px] truncate">MacBook Pro M2</div>
+                        <div class="text-[10px] font-mono text-sky-400">192.168.1.189</div>
+                      </div>
+
+                      <div onclick="selectTopologyNode('subrouter')" class="topo-node cursor-pointer p-3.5 rounded-2xl bg-indigo-500/20 border-2 border-indigo-500/60 text-center hover:scale-105 transition-all w-48 shadow-lg shadow-indigo-500/20" data-node="subrouter">
+                        <div class="text-base">📡</div>
+                        <div class="font-bold text-white text-xs truncate">Router Phụ TP-Link</div>
+                        <div class="text-[10px] font-mono text-indigo-400">192.168.110.1</div>
+                        <div class="text-[9px] text-slate-400 mt-0.5">(Uplink: 192.168.1.2)</div>
+                      </div>
+
+                      <div onclick="selectTopologyNode('iphone')" class="topo-node cursor-pointer p-3 rounded-xl bg-slate-900 border border-slate-800 text-center hover:border-sky-500 hover:scale-105 transition-all w-36" data-node="iphone">
+                        <div class="text-base">📱</div>
+                        <div class="font-bold text-white text-[11px] truncate">iPhone 15 Pro</div>
+                        <div class="text-[10px] font-mono text-sky-400">192.168.1.115</div>
+                      </div>
+                    </div>
+
+                    <div class="text-slate-600 font-mono text-xs">▼ (Các thiết bị dưới quyền Router Phụ)</div>
+
+                    <!-- Level 3: Secondary Subnet Devices -->
+                    <div class="w-3/4 flex items-center justify-center gap-4 text-xs">
+                      <div onclick="selectTopologyNode('tv')" class="topo-node cursor-pointer p-3 rounded-xl bg-slate-900 border border-slate-800 text-center hover:border-indigo-500 hover:scale-105 transition-all w-36" data-node="tv">
+                        <div class="text-base">📺</div>
+                        <div class="font-bold text-white text-[11px] truncate">Samsung 4K TV</div>
+                        <div class="text-[10px] font-mono text-indigo-400">192.168.110.45</div>
+                      </div>
+
+                      <div onclick="selectTopologyNode('cam')" class="topo-node cursor-pointer p-3 rounded-xl bg-slate-900 border border-slate-800 text-center hover:border-indigo-500 hover:scale-105 transition-all w-36" data-node="cam">
+                        <div class="text-base">📹</div>
+                        <div class="font-bold text-white text-[11px] truncate">Ezviz Security Cam</div>
+                        <div class="text-[10px] font-mono text-indigo-400">192.168.110.88</div>
+                      </div>
+
+                      <div onclick="selectTopologyNode('esp')" class="topo-node cursor-pointer p-3 rounded-xl bg-slate-900 border border-slate-800 text-center hover:border-indigo-500 hover:scale-105 transition-all w-36" data-node="esp">
+                        <div class="text-base">🔌</div>
+                        <div class="font-bold text-white text-[11px] truncate">ESP32 Smart Relay</div>
+                        <div class="text-[10px] font-mono text-indigo-400">192.168.110.99</div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- Dynamic Node Detail / Hop Route Banner -->
+                <div id="topoHopInfoBanner" class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sky-400 font-bold">Lộ trình gói tin (Hop Path):</span>
+                    <span id="topoHopRouteText" class="font-mono text-slate-300">Samsung 4K TV ➔ Router Phụ (192.168.110.1) ➔ Modem Tổng (192.168.1.1) ➔ Internet</span>
+                  </div>
+                  <span id="topoHopStatus" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 w-fit">2 Hops • 5 ms RTT</span>
+                </div>
+              </div>
+
+              <!-- Live Ping Tool -->
+              <div class="p-5 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-white flex items-center gap-2">
+                    <span>⚡</span> Công Cụ Chẩn Đoán Ping Trực Tiếp (ICMP Echo)
+                  </h4>
+                  <span class="text-[11px] text-slate-400 font-mono">Đo độ trễ RTT mili-giây</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input id="pingTargetInput" type="text" value="192.168.1.1" placeholder="Nhập địa chỉ IP..." class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono focus:outline-none focus:border-sky-500 w-48">
+                  <button onclick="runPingTest()" class="px-4 py-1.5 rounded-xl bg-sky-500/20 text-sky-300 text-xs font-semibold border border-sky-500/40 hover:bg-sky-500/30 transition-all flex items-center gap-1.5">
+                    <span id="pingBtnSpinner">⚡</span> <span>Kiểm Tra Ping</span>
+                  </button>
+                  <button onclick="document.getElementById('pingTargetInput').value='8.8.8.8'; runPingTest();" class="px-2.5 py-1.5 rounded-xl bg-slate-900 text-slate-400 text-xs hover:text-white border border-slate-800">
+                    Ping Google DNS (8.8.8.8)
+                  </button>
+                  <button onclick="document.getElementById('pingTargetInput').value='192.168.110.1'; runPingTest();" class="px-2.5 py-1.5 rounded-xl bg-slate-900 text-slate-400 text-xs hover:text-white border border-slate-800">
+                    Ping Router Phụ (192.168.110.1)
+                  </button>
+                </div>
+                <div id="pingConsoleOutput" class="p-3 rounded-xl bg-slate-950 font-mono text-[11px] text-slate-300 border border-slate-800/80 space-y-1">
+                  <div class="text-slate-500">Sẵn sàng kiểm tra. Nhấn "Kiểm Tra Ping" để đo độ trễ tới máy chủ đích.</div>
+                </div>
+              </div>
+            </div>
+            <!-- 4. TAB TRAFFIC -->
+            <div id="demoTabTraffic" class="demo-tab-panel hidden space-y-6">
+              <div class="pb-3 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                  <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>📈</span> Giám Sát Lưu Lượng Thời Gian Thực & QoS
+                  </h3>
+                  <p class="text-xs text-slate-400">Biểu đồ sóng băng thông đa luồng, xếp hạng Top Talkers và phân bổ dịch vụ</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button id="btnToggleWavePause" onclick="toggleWaveAnimation()" class="px-3 py-1.5 rounded-xl bg-slate-900 text-slate-300 text-xs font-medium border border-slate-800 hover:bg-slate-800 transition-all flex items-center gap-1.5">
+                    <span id="wavePauseIcon">⏸️</span> <span id="wavePauseText">Tạm dừng</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Top Metrics Cards -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">DOWNLOAD HIỆN TẠI</div>
+                  <div id="trafficLiveDown" class="text-xl font-bold font-mono text-sky-400 mt-1">24.5 MB/s</div>
+                  <div class="text-[10px] text-slate-500 font-mono">Băng thông đạt 42% công suất</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">UPLOAD HIỆN TẠI</div>
+                  <div id="trafficLiveUp" class="text-xl font-bold font-mono text-indigo-400 mt-1">8.2 MB/s</div>
+                  <div class="text-[10px] text-slate-500 font-mono">Băng thông đạt 18% công suất</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">DOWNLOAD ĐỈNH (PEAK)</div>
+                  <div class="text-xl font-bold font-mono text-emerald-400 mt-1">68.4 MB/s</div>
+                  <div class="text-[10px] text-slate-500 font-mono">Ghi nhận lúc 09:12:44</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">TỔNG LƯU LƯỢNG 24H</div>
+                  <div class="text-xl font-bold font-mono text-purple-400 mt-1">14.8 GB</div>
+                  <div class="text-[10px] text-slate-500 font-mono">↓ 11.2 GB • ↑ 3.6 GB</div>
+                </div>
+              </div>
+
+              <!-- Main Waveform Canvas Card with Filters -->
+              <div class="p-5 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                    <span class="text-xs font-bold text-white">Biểu Đồ Sóng Băng Thông Động Thời Gian Thực</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs font-mono">
+                    <span class="text-sky-400 flex items-center gap-1">■ Download (Cyan)</span>
+                    <span class="text-purple-400 flex items-center gap-1">■ Upload (Purple)</span>
+                  </div>
+                </div>
+                <canvas id="demoWaveCanvas2" width="800" height="130" class="w-full h-32 rounded-xl bg-slate-950/60"></canvas>
+                <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400 pt-1">
+                  <div class="flex items-center gap-2">
+                    <span>Giao diện mạng:</span>
+                    <select class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-white text-xs">
+                      <option>Tất cả giao diện (ALL)</option>
+                      <option>Wi-Fi 6 Adapter (Intel AX200)</option>
+                      <option>Ethernet Controller (Realtek GbE)</option>
+                    </select>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span>Khung thời gian:</span>
+                    <button class="px-2 py-1 rounded bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/30">30s</button>
+                    <button class="px-2 py-1 rounded bg-slate-900 text-slate-400 hover:text-white border border-slate-800">60s</button>
+                    <button class="px-2 py-1 rounded bg-slate-900 text-slate-400 hover:text-white border border-slate-800">5m</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2-Column: Top Talkers & Protocol Distribution -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Top Talkers -->
+                <div class="p-4 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                      <span>🔥</span> Top Thiết Bị Tiêu Thụ Băng Thông (Top Talkers)
+                    </h4>
+                    <span class="text-[11px] text-slate-400 font-mono">Tải về / Tải lên</span>
+                  </div>
+                  <div class="space-y-3 text-xs">
+                    <div>
+                      <div class="flex justify-between font-mono mb-1">
+                        <span class="text-white font-semibold">1. MacBook Pro M2 (Nam)</span>
+                        <span class="text-sky-400 font-bold">14.2 MB/s (58%)</span>
+                      </div>
+                      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-sky-500 to-indigo-500 w-[58%]"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between font-mono mb-1">
+                        <span class="text-white font-semibold">2. Samsung Smart 4K TV</span>
+                        <span class="text-indigo-400 font-bold">7.8 MB/s (32%)</span>
+                      </div>
+                      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-[32%]"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between font-mono mb-1">
+                        <span class="text-white font-semibold">3. iPhone 15 Pro Max</span>
+                        <span class="text-emerald-400 font-bold">1.9 MB/s (8%)</span>
+                      </div>
+                      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-emerald-500 w-[8%]"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between font-mono mb-1">
+                        <span class="text-white font-semibold">4. Ezviz Security Cam</span>
+                        <span class="text-amber-400 font-bold">0.6 MB/s (2%)</span>
+                      </div>
+                      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-amber-500 w-[2%]"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Protocol Breakdown -->
+                <div class="p-4 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                      <span>📊</span> Phân Bổ Giao Thức Mạng (Protocol QoS)
+                    </h4>
+                    <span class="text-[11px] text-slate-400 font-mono">Dữ liệu phân tích DPI</span>
+                  </div>
+                  <div class="space-y-3 text-xs">
+                    <div>
+                      <div class="flex justify-between font-mono mb-1">
+                        <span class="text-slate-300">HTTPS / Web Browsing (Cổng 443)</span>
+                        <span class="text-sky-400 font-bold">68%</span>
+                      </div>
+                      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-sky-400 w-[68%]"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between font-mono mb-1">
+                        <span class="text-slate-300">Video Streaming (Netflix/YouTube HLS)</span>
+                        <span class="text-purple-400 font-bold">22%</span>
+                      </div>
+                      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-purple-400 w-[22%]"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between font-mono mb-1">
+                        <span class="text-slate-300">DNS & Time Sync (Cổng 53/123)</span>
+                        <span class="text-emerald-400 font-bold">6%</span>
+                      </div>
+                      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-emerald-400 w-[6%]"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between font-mono mb-1">
+                        <span class="text-slate-300">IoT MQTT / RTSP Camera Stream</span>
+                        <span class="text-amber-400 font-bold">4%</span>
+                      </div>
+                      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-amber-400 w-[4%]"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- 5. TAB ALERTS -->
+            <div id="demoTabAlerts" class="demo-tab-panel hidden space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div>
+                  <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>🔔</span> Cảnh Báo An Ninh Mạng & Xung Đột
+                  </h3>
+                  <p class="text-xs text-slate-400">Phát hiện thiết bị lạ xâm nhập, xung đột địa chỉ IP và bất thường băng thông</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="simulateSecurityAlert()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 text-xs font-semibold border border-amber-500/40 hover:bg-amber-500/30 transition-all flex items-center gap-1.5">
+                    <span>⚡</span> Mô phỏng sự cố mới
+                  </button>
+                  <button onclick="clearAllAlerts()" class="px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 text-xs hover:text-white border border-slate-800 transition-all">
+                    Đánh dấu đã đọc
+                  </button>
+                </div>
+              </div>
+
+              <!-- Alert Filter Pills -->
+              <div class="flex flex-wrap items-center gap-2">
+                <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-sky-500/20 text-sky-300 border-sky-500/40" data-alert-filter="all">Tất cả (<span id="alertCountTotal">4</span>)</button>
+                <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-alert-filter="CRITICAL">Critical (0)</button>
+                <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-alert-filter="WARNING">Warning (1)</button>
+                <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-alert-filter="SUCCESS">Success (1)</button>
+                <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-alert-filter="INFO">Info (2)</button>
+              </div>
+
+              <!-- Alerts List Container -->
+              <div class="rounded-2xl border border-slate-800 overflow-hidden bg-[#0d1322] divide-y divide-slate-800/60" id="demoAlertsList">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+            <!-- 6. TAB LOGS -->
+            <div id="demoTabLogs" class="demo-tab-panel hidden space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div>
+                  <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>📜</span> Nhật Ký Hoạt Động & Kiểm Toán (Audit Logs)
+                  </h3>
+                  <p class="text-xs text-slate-400">Ghi nhận 100% sự kiện kết nối, ngắt kết nối và các thao tác bảo mật vào SQLite</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="exportLogsToCSV()" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/40 hover:bg-emerald-500/30 transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
+                    <span>📥</span> Xuất file CSV
+                  </button>
+                  <button onclick="clearLogsTable()" class="px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 text-xs hover:text-white border border-slate-800 transition-all">
+                    Xóa nhật ký
+                  </button>
+                </div>
+              </div>
+
+              <!-- Filter & Search Toolbar for Logs -->
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                  <select id="logTypeFilter" onchange="filterLogs()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white">
+                    <option value="ALL">Tất cả sự kiện</option>
+                    <option value="DEVICE_JOINED">Gia nhập mạng (JOIN)</option>
+                    <option value="DEVICE_LEFT">Ngắt kết nối (LEFT)</option>
+                    <option value="DEVICE_BLOCKED">Chặn thiết bị (BLOCK)</option>
+                    <option value="DEVICE_UNBLOCKED">Bỏ chặn (UNBLOCK)</option>
+                    <option value="SCAN_COMPLETED">Quét mạng hoàn thành</option>
+                  </select>
+                </div>
+                <input id="logSearchInput" oninput="filterLogs()" type="text" placeholder="Tìm theo IP, MAC hoặc mô tả..." class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 w-60">
+              </div>
+
+              <!-- Logs Table -->
+              <div class="rounded-2xl border border-slate-800 overflow-x-auto bg-[#0d1322]">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-400 text-[11px] font-semibold uppercase">
+                      <th class="py-3 px-4">Thời Gian</th>
+                      <th class="py-3 px-4">Loại Sự Kiện</th>
+                      <th class="py-3 px-4">Địa Chỉ IP / MAC</th>
+                      <th class="py-3 px-4">Mô Tả Chi Tiết</th>
+                      <th class="py-3 px-4 text-right">Trạng Thái</th>
+                    </tr>
+                  </thead>
+                  <tbody id="demoLogsTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px]">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- 7. TAB SETTINGS -->
+            <div id="demoTabSettings" class="demo-tab-panel hidden space-y-6">
+              <div class="pb-3 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                  <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>⚙️</span> Cấu Hình Hệ Thống & Quản Trị Router
+                  </h3>
+                  <p class="text-xs text-slate-400">Tùy chỉnh thông số Router phần cứng, chu kỳ quét và cơ chế bảo vệ mạng</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Card 1: Router Hardware Integration -->
+                <div class="p-4 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-4">
+                  <div class="font-bold text-white text-xs flex items-center justify-between">
+                    <span>📡 Quản Trị Router & Chặn Phần Cứng</span>
+                    <span id="routerConnStatusBadge" class="text-[10px] text-emerald-400 font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">● Đã Sẵn Sàng</span>
+                  </div>
+                  <div class="space-y-3 text-xs">
+                    <div>
+                      <label class="text-slate-400 block mb-1">Loại Router Adapter:</label>
+                      <select id="cfgRouterType" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white text-xs">
+                        <option value="mock">Mock Router (Giả lập kiểm thử không rủi ro)</option>
+                        <option value="tplink">TP-Link Archer / Deco Series (HTTP/JSON-RPC)</option>
+                        <option value="openwrt">OpenWrt LuCI REST API</option>
+                        <option value="mikrotik">MikroTik RouterOS API</option>
+                      </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                      <div>
+                        <label class="text-slate-400 block mb-1">IP Router Gateway:</label>
+                        <input id="cfgRouterHost" type="text" value="192.168.1.1" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white font-mono text-xs">
+                      </div>
+                      <div>
+                        <label class="text-slate-400 block mb-1">Cổng Quản Trị (Port):</label>
+                        <input id="cfgRouterPort" type="number" value="80" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white font-mono text-xs">
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                      <div>
+                        <label class="text-slate-400 block mb-1">Tên Đăng Nhập:</label>
+                        <input id="cfgRouterUser" type="text" value="admin" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white font-mono text-xs">
+                      </div>
+                      <div>
+                        <label class="text-slate-400 block mb-1">Mật Khẩu:</label>
+                        <div class="relative">
+                          <input id="cfgRouterPass" type="password" value="RouterAdmin@2026" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white font-mono text-xs pr-8">
+                          <button type="button" onclick="togglePasswordVisibility()" class="absolute right-2 top-1.5 text-slate-400 hover:text-white">
+                            <span id="passToggleIcon">👁️</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="pt-1">
+                      <button id="btnTestRouter" onclick="testRouterConnection()" class="w-full py-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-sky-500 text-slate-200 text-xs font-semibold transition-all flex items-center justify-center gap-2">
+                        <span id="testRouterSpinner">⚡</span> <span>Kiểm Tra Kết Nối Router</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 2: Scan & Firewall Security -->
+                <div class="p-4 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-4">
+                  <div class="font-bold text-white text-xs">🛡️ Quét Mạng & Tường Lửa Bảo Mật</div>
+                  <div class="space-y-3 text-xs">
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                      <div>
+                        <div class="text-white font-medium">Đồng bộ Windows Defender Firewall</div>
+                        <div class="text-[10px] text-slate-400">Khóa cổng 2 chiều Inbound/Outbound khi chặn</div>
+                      </div>
+                      <input id="cfgFirewallSync" type="checkbox" checked class="accent-sky-500 w-4 h-4 cursor-pointer">
+                    </div>
+
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                      <div>
+                        <div class="text-white font-medium">Tự động phát hiện dải mạng</div>
+                        <div class="text-[10px] text-slate-400">Tìm kiếm interface hoạt động và tính Subnet CIDR</div>
+                      </div>
+                      <input id="cfgAutoDetect" type="checkbox" checked class="accent-sky-500 w-4 h-4 cursor-pointer">
+                    </div>
+
+                    <div class="p-2 rounded-lg bg-slate-900/60 border border-slate-800 space-y-1">
+                      <div class="flex items-center justify-between">
+                        <span class="text-white font-medium">Tần suất quét ngầm:</span>
+                        <span id="cfgIntervalValue" class="font-mono text-sky-400 font-bold text-xs">60 giây</span>
+                      </div>
+                      <input id="cfgIntervalRange" type="range" min="10" max="300" step="10" value="60" oninput="document.getElementById('cfgIntervalValue').textContent = this.value + ' giây'" class="w-full accent-sky-500 cursor-pointer">
+                      <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                        <span>10s</span>
+                        <span>Chu kỳ quét định kỳ</span>
+                        <span>300s</span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                      <div>
+                        <div class="text-white font-medium">Xác nhận trước khi gửi lệnh chặn</div>
+                        <div class="text-[10px] text-slate-400">Bật hộp thoại hỏi lại để tránh chặn nhầm thiết bị</div>
+                      </div>
+                      <input id="cfgConfirmBlock" type="checkbox" checked class="accent-sky-500 w-4 h-4 cursor-pointer">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Save Action Bar -->
+              <div class="flex items-center justify-between p-4 rounded-2xl bg-[#0d1322] border border-slate-800">
+                <div class="text-xs text-slate-400 font-mono">
+                  💡 Cấu hình được lưu an toàn vào cơ sở dữ liệu và localStorage
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="resetDefaultSettings()" class="px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold transition-all">
+                    Khôi Phục Mặc Định
+                  </button>
+                  <button onclick="saveAllSettings()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-sky-500 text-white font-semibold text-xs hover:opacity-90 transition-all shadow-lg shadow-sky-500/20">
+                    💾 Lưu Cài Đặt
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- 8. TAB AUDIT LOGS (Chỉ Admin) -->
+            <div id="demoTabAudit" class="demo-tab-panel hidden space-y-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div>
+                  <h3 class="font-bold text-white text-base flex items-center gap-2">
+                    <span>🛡️</span> <span>Nhật Ký Kiểm Toán Bảo Mật (Audit & Compliance Log)</span>
+                  </h3>
+                  <p class="text-xs text-slate-400">Ghi vết toàn diện sự kiện xác thực, WAF block, rate limit, chặn thiết bị và sao lưu dữ liệu</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button id="btnBackupDb" onclick="triggerDatabaseBackup()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer">
+                    <span id="backupSpinner">💾</span> <span>Sao Lưu DB Ngay</span>
+                  </button>
+                  <button onclick="refreshAuditLogs()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-500 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer">
+                    <span>🔄</span> <span>Làm Mới Log</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Stat Badges -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">TỔNG SỰ KIỆN AUDIT</div>
+                  <div id="auditTotalCount" class="text-xl font-bold font-mono text-sky-400 mt-1">--</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">SỰ KIỆN WAF / CHẶN</div>
+                  <div id="auditWafCount" class="text-xl font-bold font-mono text-rose-400 mt-1">--</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">ĐĂNG NHẬP & PHIÊN</div>
+                  <div id="auditLoginCount" class="text-xl font-bold font-mono text-emerald-400 mt-1">--</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">BẢN SAO LƯU DATABASE</div>
+                  <div id="auditBackupCount" class="text-xl font-bold font-mono text-amber-400 mt-1">--</div>
+                </div>
+              </div>
+
+              <!-- Audit Events Table -->
+              <div class="rounded-2xl border border-slate-800 bg-[#0d1322] overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs font-mono">
+                    <thead class="bg-slate-900/90 text-slate-400 border-b border-slate-800">
+                      <tr>
+                        <th class="py-3 px-3.5 font-semibold">Thời Gian</th>
+                        <th class="py-3 px-3.5 font-semibold">Loại Sự Kiện</th>
+                        <th class="py-3 px-3.5 font-semibold">Tác Nhân</th>
+                        <th class="py-3 px-3.5 font-semibold">IP Client</th>
+                        <th class="py-3 px-3.5 font-semibold">Trạng Thái</th>
+                        <th class="py-3 px-3.5 font-semibold font-sans">Chi Tiết An Toàn (Masked Secret)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="auditEventsTableBody" class="divide-y divide-slate-800/60">
+                      <!-- Dynamically rendered -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -86,16 +86,22 @@ let demoLogsData = [
   }
 ];
 
+let isDashboardDemoInitialized = false;
+
 function setupDashboardDemo() {
   renderDemoDevices();
   renderFullDevicesTable();
   renderAlerts();
   renderLogs();
   fetchLiveApiData();
+  updateRbacBadges();
+
+  if (isDashboardDemoInitialized) return;
+  isDashboardDemoInitialized = true;
+
   setupDevicesFilter();
   setupAlertsFilter();
   loadSavedSettings();
-  updateRbacBadges();
 
   // Sidebar Tabs Switching (8 items matching blueprint)
   document.querySelectorAll(".demo-nav-btn").forEach(btn => {

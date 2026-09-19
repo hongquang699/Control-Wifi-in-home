@@ -68,10 +68,14 @@ function initDemoWaveCanvas2() {
 
 
 
+let wave1Initialized = false;
+
 // ==================== LIVE WAVEFORM CANVAS ====================
 function initDemoWaveCanvas() {
+  if (wave1Initialized) return;
   const canvas = document.getElementById("demoWaveCanvas");
   if (!canvas) return;
+  wave1Initialized = true;
   const ctx = canvas.getContext("2d");
   let step = 0;
 

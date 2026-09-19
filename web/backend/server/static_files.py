@@ -26,6 +26,8 @@ def serve_static_resource(handler, base_dir: str, path: str):
         file_path = os.path.join(base_dir, "html", "index.html")
     elif rel_path in ("privacy-policy.html", "thank-you.html", "404.html"):
         file_path = os.path.join(base_dir, "html", rel_path)
+    elif rel_path.startswith("components/"):
+        file_path = os.path.join(base_dir, "html", rel_path)
     else:
         file_path = os.path.join(base_dir, rel_path)
 
