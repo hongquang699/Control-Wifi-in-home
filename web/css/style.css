@@ -300,3 +300,14 @@ body {
   transform: translateY(-2px);
 }
 
+/* =========================================
+   FLATICON UICONS - Icon Alignment Fix
+   ========================================= */
+[class^="fi-"],
+[class*=" fi-"] {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: middle;
+}
