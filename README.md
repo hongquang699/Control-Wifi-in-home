@@ -42,33 +42,43 @@ Hệ thống hỗ trợ **100% song ngữ Tiếng Việt 🇻🇳 và English �
 
 ---
 
-## 🛡️ Hệ Thống Bảo Mật Đa Lớp (Multi-Layer Security)
+## 🛡️ Hệ Thống Bảo Mật Độc Lập & Chuyên Sâu (Dedicated Security Architecture)
 
-Máy chủ Web & REST API tích hợp kiến trúc bảo mật nhiều tầng phòng thủ:
+Hệ thống được trang bị 2 gói bảo mật chuyên biệt độc lập cho cả **Web Server (`web/security/`)** và **Desktop App (`app/security/`)**, đáp ứng các tiêu chuẩn phòng thủ chiều sâu (Defense-in-Depth) theo khuyến nghị của OWASP và CIS Benchmark:
 
 ```text
-INTERNET
-   │
-   ▼
-┌───────────────────────────────────────────────┐
-│ Lớp 1: HTTP Security Headers (CSP, HSTS, ...)  │
-├───────────────────────────────────────────────┤
-│ Lớp 2: WAF (Chống SQLi, XSS, Path Traversal)  │
-├───────────────────────────────────────────────┤
-│ Lớp 3: Rate Limiting (Sliding Window IP Guard)│
-├───────────────────────────────────────────────┤
-│ Lớp 4: REST API Router & Parameter Validator   │
-├───────────────────────────────────────────────┤
-│ Lớp 5: Secure Static File Server              │
-├───────────────────────────────────────────────┤
-│ Lớp 6: Audit Logging Engine (web/logs/audit/) │
-└───────────────────────────────────────────────┘
+               KIẾN TRÚC PHÒNG THỦ ĐA TẦNG (DEFENSE-IN-DEPTH)
+
+  ┌───────────────────────────────────────────────┐  ┌───────────────────────────────────────────────┐
+  │         WEB SECURITY SUITE (web/security/)    │  │         APP SECURITY SUITE (app/security/)    │
+  ├───────────────────────────────────────────────┤  ├───────────────────────────────────────────────┤
+  │ 1. Enterprise Security Headers (CSP, HSTS...) │  │ 1. Safe Exec Engine (Zero Command Injection)  │
+  │ 2. OWASP Top 10 WAF (SQLi, XSS, RCE, Bots)    │  │ 2. Hardware-Bound Vault (MachineGuid Encrypt) │
+  │ 3. Sliding-Window Rate Limiter & Auto-Jail    │  │ 3. Granular RBAC (Admin, Operator, Viewer)    │
+  │ 4. Anti-CSRF Token / Double-Submit Cookies    │  │ 4. File & DB HMAC-SHA256 Integrity Guard      │
+  │ 5. Deep Recursive Input Sanitizer             │  │ 5. Anti-ARP Spoofing & Poisoning Monitor      │
+  │ 6. PBKDF2-HMAC-SHA256 (600,000 rounds) Crypto │  │ 6. Bidirectional Windows Host Firewall        │
+  │ 7. Chained-Hash Audit Logger (Tamper-evident) │  │ 7. Multi-Layer Blocker & Forensic Audit Logger│
+  └───────────────────────────────────────────────┘  └───────────────────────────────────────────────┘
 ```
 
-1. **Content Security Policy (CSP)**: Whitelist an toàn cho tài nguyên nội bộ, Google Fonts, Tailwind CDN, Flaticon CDN. Ngăn chặn triệt để tấn công XSS và chèn script lạ.
-2. **Web Application Firewall (WAF)**: Tự động kiểm tra payload và URL query, phát hiện và chặn đứng SQL Injection, XSS, Path Traversal (`../`), và Command Injection.
-3. **Sliding-Window Rate Limiter**: Giới hạn tần suất request theo IP (API chung: 100 req/min, Tải file: 10 req/min).
-4. **Audit Logging**: Ghi nhật ký đầy đủ sự kiện truy cập, chặn WAF, vượt ngưỡng rate limit vào file audit an toàn.
+### 1. Web Security Suite (`web/security/`)
+- **`waf.py` - OWASP Top 10 WAF Engine**: Phát hiện và chặn đứng tấn công SQL Injection, Cross-Site Scripting (XSS), Path Traversal (`../`, `..\\`), Remote Code Execution (RCE), và các công cụ quét tự động độc hại (sqlmap, nikto, wpscan,...).
+- **`rate_limiter.py` - Sliding-Window Rate Limiter & Auto-Jail**: Giới hạn tần suất request theo IP (100 req/min cho API, 10 req/min cho download). Khi phát hiện dấu hiệu tấn công dồn dập hoặc vi phạm WAF liên tiếp, hệ thống tự động đưa IP vào danh sách **Auto-Jail** (cấm truy cập với thời gian phạt tăng theo cấp số nhân).
+- **`headers.py` - Military-Grade Security Headers**: Thiết lập Content Security Policy (CSP) nghiêm ngặt (whitelist tài nguyên), HSTS (`includeSubDomains; preload`), X-Frame-Options (`DENY`), X-Content-Type-Options (`nosniff`), Referrer-Policy và Cache-Control chống rò rỉ dữ liệu.
+- **`csrf.py` - Anti-CSRF Guard**: Xác thực token bảo mật ngẫu nhiên cao (Double-Submit Cookie & Header `X-CSRF-Token`) trên toàn bộ các endpoint thay đổi trạng thái (POST, PUT, DELETE).
+- **`sanitizer.py` - Deep Recursive Sanitizer**: Làm sạch sâu dữ liệu đầu vào JSON và biểu mẫu, loại bỏ null bytes (`\x00`), chống Prototype Pollution (`__proto__`, `constructor`), và mã hóa HTML an toàn.
+- **`crypto.py` - PBKDF2-HMAC-SHA256 & Constant-Time Crypto**: Băm mật khẩu với 600,000 vòng lặp kèm salt ngẫu nhiên 32-byte, sinh token bảo mật bằng `secrets`, ký và xác thực HMAC dữ liệu, so sánh thời gian bất biến `hmac.compare_digest` chống Timing Attacks.
+- **`audit.py` - Chained-Hash Audit Logger**: Nhật ký kiểm toán bảo mật với cơ chế băm xâu chuỗi (tương tự Blockchain log), mỗi bản ghi liên kết mã băm của bản ghi trước đó, hỗ trợ hàm `verify_log_integrity()` phát hiện mọi hành vi sửa đổi hoặc xóa nhật ký.
+
+### 2. App Security Suite (`app/security/`)
+- **`safe_exec.py` - Safe Subprocess Execution**: Loại bỏ hoàn toàn lỗ hổng Command Injection bằng cách cấm tuyệt đối `shell=True`, sử dụng danh sách tham số dạng list, kiểm tra whitelist nhị phân (`netsh`, `route`, `arp`, `ping`, `nmap`), và xác thực chặt chẽ IP / MAC qua regex và thư viện chuẩn `ipaddress`.
+- **`vault.py` - Hardware-Bound Credentials Vault**: Mã hóa mật khẩu đăng nhập router bằng khóa dẫn xuất từ thông tin định danh phần cứng máy tính (Windows `MachineGuid` kết hợp entropy hệ thống), ngăn chặn đánh cắp file cấu hình mang sang máy khác giải mã.
+- **`rbac.py` - Role-Based Access Control (RBAC)**: Phân quyền chặt chẽ 3 cấp độ (*Admin, Operator, Viewer*). Cung cấp các decorator `@require_role` và `@require_permission` kiểm soát quyền chặn/bỏ chặn thiết bị, quét mạng và thay đổi cấu hình.
+- **`integrity.py` - File & Database HMAC-SHA256 Guard**: Giám sát tính toàn vẹn của cơ sở dữ liệu `network.db`, cấu hình `config.json`, và danh sách router `routers.json`, tự động phát hiện nếu file bị can thiệp trái phép.
+- **`arp_guard.py` - Anti-ARP Spoofing Monitor**: Giám sát bảng ARP của Windows theo thời gian thực, phát hiện hành vi đầu độc ARP (thay đổi MAC Gateway bất thường hoặc trùng lặp địa chỉ MAC trên mạng).
+- **`firewall.py` - Bidirectional Host Firewall**: Điều khiển tường lửa Windows (Inbound & Outbound) thông qua động cơ thực thi an toàn `safe_run_command`.
+- **`blocker.py` & `audit_logger.py` - Multi-Layer Access Control & Forensic Log**: Tích hợp kiểm tra quyền RBAC, giải mã an toàn từ Vault, thực thi chặn đa tầng (Router ACL + Host Firewall), và ghi log pháp chứng `data/audit_compliance.log`.
 
 ---
 
@@ -88,56 +98,45 @@ Control-wifi/
 │   ├── core/                       # Lõi quét mạng, phân tích topo, đo băng thông, i18n
 │   ├── gui/                        # Giao diện người dùng PySide6 hiện đại
 │   ├── router/                     # Bộ điều khiển Router (TP-Link, OpenWrt, MikroTik, Mock)
-│   ├── security/                   # Module tích hợp Windows Host Firewall
+│   ├── security/                   # GÓI BẢO MẬT ĐỘC LẬP CHO DESKTOP
+│   │   ├── __init__.py             # Export facade an toàn
+│   │   ├── safe_exec.py            # Chống Command Injection, kiểm tra IP/MAC
+│   │   ├── vault.py                # Két mã hóa mật khẩu theo phần cứng máy tính
+│   │   ├── rbac.py                 # Kiểm soát truy cập dựa trên vai trò (RBAC)
+│   │   ├── integrity.py            # Kiểm tra toàn vẹn file cấu hình & DB (HMAC-SHA256)
+│   │   ├── arp_guard.py            # Phát hiện ARP Poisoning / Spoofing
+│   │   ├── firewall.py             # Tường lửa Windows 2 chiều an toàn
+│   │   ├── blocker.py              # Bộ điều phối chặn đa tầng tích hợp RBAC
+│   │   └── audit_logger.py         # Nhật ký kiểm toán pháp chứng
 │   ├── services/                   # Dịch vụ định danh OUI, background scheduler
 │   ├── database/                   # SQLite database & DAO
 │   ├── config/                     # File cấu hình JSON
-│   ├── assets/                     # Icon, logo phần mềm
-│   └── tests/                      # Bộ kiểm thử ứng dụng (test_all.py)
+│   ├── assets/                     # Icon vector SVG, logo phần mềm
+│   └── tests/                      # Bộ kiểm thử (test_all.py, test_app_security.py)
 │
 └── web/                            # PHÂN HỆ WEB & REST API SERVER
     ├── backend/                    # Máy chủ HTTP đa luồng bảo mật
     │   ├── main.py                 # Điểm khởi động web server
     │   ├── server/                 # Handler xử lý request & static file an toàn
     │   ├── api/                    # Router định tuyến REST API (/api/v1/...)
-    │   ├── middleware/             # WAF, Rate Limiter, Security Headers CSP
+    │   ├── middleware/             # Middleware điều phối
     │   ├── services/               # Dịch vụ tải file an toàn & audit log
-    │   └── tests/                  # Bộ kiểm thử bảo mật backend (test_security.py)
-    ├── html/                       # Giao diện Web SPA
-    │   ├── index.html              # Trang chủ SPA hoàn chỉnh (được biên dịch tự động)
-    │   ├── 404.html                # Trang lỗi 404
-    │   ├── thank-you.html          # Trang cảm ơn sau khi gửi biểu mẫu
-    │   ├── privacy-policy.html     # Chính sách bảo mật
-    │   └── components/             # Các khối component HTML độc lập
-    │       ├── head.html           # Thẻ meta, CDN, font, CSP
-    │       ├── navbar.html         # Thanh menu điều hướng & nút đổi ngôn ngữ
-    │       ├── home.html           # Trang chủ (Hero, Metrics, Flow, Reviews)
-    │       ├── about.html          # Trang giới thiệu (Case Studies, Core Team)
-    │       ├── features.html       # 7 card mô tả tính năng chi tiết
-    │       ├── dashboard.html      # Giao diện Dashboard demo trực quan
-    │       ├── download.html       # Khu vực tải phần mềm & SHA-256
-    │       ├── docs.html           # Tài liệu kỹ thuật, API spec, 5 FAQs
-    │       ├── news.html           # Tin tức phiên bản & lộ trình phát triển
-    │       ├── contact.html        # Biểu mẫu liên hệ & kênh hỗ trợ
-    │       ├── modals.html         # Hộp thoại chi tiết thiết bị & lightbox
-    │       └── footer.html         # Chân trang & lưu ý pháp lý
-    ├── js/                         # Bộ mã JavaScript
-    │   ├── app.js                  # Tệp JS tổng hợp (được biên dịch tự động)
-    │   └── modules/                # Các module chức năng tách rời
-    │       ├── i18n.js             # Từ điển song ngữ toàn diện (Việt - Anh)
-    │       ├── router.js           # Bộ điều hướng client-side & dynamic loader
-    │       ├── demo_devices.js     # Quản lý bảng thiết bị & bộ lọc
-    │       ├── demo_live.js        # Đồng bộ thời gian thực qua REST API
-    │       ├── demo_traffic.js     # Vẽ biểu đồ sóng lưu lượng canvas
-    │       ├── demo_alerts.js      # Hệ thống thông báo cảnh báo
-    │       ├── demo_settings.js    # Cài đặt giao diện & thông số router
-    │       └── ui_helpers.js       # Toast, lightbox, sao chép mã SHA-256
+    │   └── tests/                  # Bộ kiểm thử (test_security.py, test_web_security.py)
+    ├── security/                   # GÓI BẢO MẬT ĐỘC LẬP CHO WEB SERVER
+    │   ├── __init__.py             # Export facade an toàn
+    │   ├── crypto.py               # PBKDF2-HMAC-SHA256 (600,000 rounds) & constant-time
+    │   ├── waf.py                  # OWASP Top 10 WAF (SQLi, XSS, RCE, Bot Filter)
+    │   ├── rate_limiter.py         # Sliding-Window Rate Limiter & Auto-Jail
+    │   ├── headers.py              # Military-Grade Security Headers (CSP, HSTS)
+    │   ├── csrf.py                 # Chống tấn công CSRF (Double-Submit Token)
+    │   ├── sanitizer.py            # Làm sạch dữ liệu JSON, ngăn Prototype Pollution
+    │   └── audit.py                # Chained-Hash Audit Logger (Blockchain-style log)
+    ├── html/                       # Giao diện Web SPA (8 trang component)
+    ├── js/                         # Bộ mã JavaScript SPA mô đun hóa
     ├── css/                        # Stylesheet, Dark Tech theme & Glassmorphism
     ├── downloads/                  # Thư mục chứa file cài đặt phân phối
     └── scripts/                    # Scripts build tự động hóa
-        ├── build_html.py           # Ghép nối các component HTML thành index.html
-        ├── build_js.py             # Ghép nối các module JS thành app.js
-        └── build_all.py            # Trình biên dịch toàn bộ tài nguyên web
+```
 ```
 
 ---

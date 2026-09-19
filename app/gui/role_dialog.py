@@ -29,6 +29,11 @@ class CurrentRoleManager:
 
     def set_role(self, role: str):
         self.current_role = role
+        try:
+            from security.rbac import rbac_manager
+            rbac_manager.set_role(role)
+        except Exception:
+            pass
         for cb in self.subscribers:
             try:
                 cb(role)

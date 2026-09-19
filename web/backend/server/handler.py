@@ -9,6 +9,19 @@ import os
 import urllib.parse
 from typing import Dict, Any, Optional
 
+try:
+    from web.security import (
+        waf_engine, rate_limiter as web_rate_limiter,
+        apply_security_headers as apply_web_security_headers,
+        csrf_protector, audit_logger as sec_audit_logger
+    )
+except ImportError:
+    from security import (
+        waf_engine, rate_limiter as web_rate_limiter,
+        apply_security_headers as apply_web_security_headers,
+        csrf_protector, audit_logger as sec_audit_logger
+    )
+
 from backend.middleware.security_headers import apply_security_headers
 from backend.middleware.waf import inspect_request
 from backend.middleware.rate_limit import rate_limiter
@@ -32,6 +45,7 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         """Gắn tự động toàn bộ Security Headers trước khi gửi response."""
+        apply_web_security_headers(self, is_api_response=self.path.startswith("/api/"))
         apply_security_headers(self)
         super().end_headers()
 
@@ -67,52 +81,47 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
         path = parsed.path
         query = parsed.query
 
-        # 1. Kiểm tra WAF (SQLi, XSS, Path Traversal, Command Injection)
-        waf_res = inspect_request(path, query, body_text)
-        if waf_res:
-            audit_logger.log_event(
-                "WAF_BLOCKED",
-                actor="unknown",
-                ip=client_ip,
-                status="BLOCKED",
-                details={
-                    "path": path,
-                    "attack_type": waf_res.attack_type,
-                    "pattern": waf_res.matched_pattern
-                }
+        # 1. Kiểm tra WAF Chuyên Biệt (web.security.waf_engine)
+        is_safe, rule_name, reason = waf_engine.inspect_request(
+            path=self.path,
+            headers=dict(self.headers),
+            body=body_text,
+            method=self.command
+        )
+        if not is_safe:
+            web_rate_limiter.record_security_violation(client_ip, weight=3)
+            sec_audit_logger.log_security_event(
+                event_type="WAF_ATTACK_BLOCKED",
+                actor="anonymous",
+                ip_address=client_ip,
+                details=f"Rule: {rule_name} | {reason}",
+                severity="HIGH"
             )
             self.send_json(
                 {
                     "error": "Yêu cầu bị từ chối bởi hệ thống WAF bảo mật (403 Forbidden).",
-                    "reason": f"Phát hiện dấu hiệu tấn công: {waf_res.attack_type}",
+                    "reason": reason,
+                    "rule": rule_name,
                     "client_ip": client_ip
                 },
                 status=403
             )
             return False
 
-        # 2. Kiểm tra Rate Limiting
-        zone = "api"
-        max_req = 100
-        if path == "/api/v1/auth/login":
-            zone = "login"
-            max_req = 5
-        elif path.startswith("/downloads/"):
-            zone = "downloads"
-            max_req = 10
-
-        is_limited, retry_after = rate_limiter.is_rate_limited(client_ip, zone=zone, max_requests=max_req)
-        if is_limited:
-            audit_logger.log_event(
-                "RATE_LIMIT_HIT",
-                actor="unknown",
-                ip=client_ip,
-                status="BLOCKED",
-                details={"zone": zone, "retry_after": retry_after}
+        # 2. Kiểm tra Rate Limiting & Auto-Jail (web.security.rate_limiter)
+        allowed, retry_after, jail_reason = web_rate_limiter.is_allowed(client_ip, endpoint=path)
+        if not allowed:
+            sec_audit_logger.log_security_event(
+                event_type="RATE_LIMIT_HIT",
+                actor="anonymous",
+                ip_address=client_ip,
+                details=jail_reason or f"Rate limit exceeded on {path}",
+                severity="WARNING"
             )
             self.send_json(
                 {
                     "error": "Quá nhiều yêu cầu trong thời gian ngắn (429 Too Many Requests).",
+                    "reason": jail_reason,
                     "retry_after_seconds": retry_after,
                     "client_ip": client_ip
                 },
