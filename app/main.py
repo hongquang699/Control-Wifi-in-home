@@ -11,6 +11,10 @@ import argparse
 if getattr(sys, "frozen", False):
     os.chdir(os.path.dirname(sys.executable))
 
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+if APP_DIR not in sys.path:
+    sys.path.insert(0, APP_DIR)
+
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")

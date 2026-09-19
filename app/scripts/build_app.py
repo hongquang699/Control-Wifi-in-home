@@ -95,7 +95,9 @@ def build():
             shutil.copy2(db_src, os.path.join(dist_dir, "data", "network.db"))
 
         # Sao chép file run.bat và README vào thư mục dist
-        shutil.copy2("README.md", os.path.join(dist_dir, "README.md"))
+        readme_src = "README.md" if os.path.exists("README.md") else os.path.join("..", "README.md")
+        if os.path.exists(readme_src):
+            shutil.copy2(readme_src, os.path.join(dist_dir, "README.md"))
         if os.path.exists("run.bat"):
             shutil.copy2("run.bat", os.path.join(dist_dir, "run.bat"))
 
