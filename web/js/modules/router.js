@@ -112,12 +112,22 @@ function initRouter() {
 function applyLanguage(lang) {
   currentLang = lang;
   localStorage.setItem("nm_lang", lang);
+  document.documentElement.lang = lang;
   const dict = i18nData[lang] || i18nData.vi;
 
+  // Text content translation
   document.querySelectorAll("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
     if (dict[key]) {
       el.textContent = dict[key];
+    }
+  });
+
+  // Placeholder translation
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    if (dict[key]) {
+      el.placeholder = dict[key];
     }
   });
 
@@ -132,7 +142,10 @@ function applyLanguage(lang) {
     langLabel.textContent = lang === "vi" ? "Tiếng Việt" : "English";
   }
 
-  renderDemoDevices();
+  // Refresh dynamic tables with current language
+  if (typeof renderDemoDevices === "function") renderDemoDevices();
+  if (typeof renderFullDevicesTable === "function") renderFullDevicesTable();
+  if (typeof renderAlerts === "function") renderAlerts();
 }
 
 function setupLanguageSwitcher() {

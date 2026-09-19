@@ -3,9 +3,9 @@
         
         <!-- Breadcrumb (Item 5) -->
         <nav class="flex items-center gap-2 text-xs font-mono text-slate-400" aria-label="Breadcrumb">
-          <a href="#/home" class="hover:text-sky-400">Trang chủ</a>
+          <a href="#/home" class="hover:text-sky-400" data-i18n="breadcrumb_home">Trang chủ</a>
           <span>/</span>
-          <span class="text-sky-400 font-semibold">Tải xuống</span>
+          <span class="text-sky-400 font-semibold" data-i18n="nav_download">Tải xuống</span>
         </nav>
 
         <!-- Header -->
@@ -25,9 +25,9 @@
           
           <div class="glass-card p-6 rounded-3xl border border-white/10 flex flex-col justify-between text-center">
             <div>
-              <div class="text-3xl mb-3">🪟</div>
+              <div class="mb-3"><i class="fi fi-brands-windows text-sky-400 text-3xl"></i></div>
               <h3 class="text-lg font-bold text-white mb-1">Windows x64</h3>
-              <p class="text-xs text-slate-400 mb-4">Windows 10 / 11 (64-bit)</p>
+              <p class="text-xs text-slate-400 mb-4" data-i18n="download_win_desc">Windows 10 / 11 (64-bit)</p>
               <div class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-sky-400 mb-6">
                 NetworkManager-v1.0.0-windows-x64.zip • 45.2 MB
               </div>
@@ -39,9 +39,9 @@
 
           <div class="glass-card p-6 rounded-3xl border border-white/10 flex flex-col justify-between text-center">
             <div>
-              <div class="text-3xl mb-3">🐧</div>
+              <div class="mb-3"><i class="fi fi-brands-linux text-amber-400 text-3xl"></i></div>
               <h3 class="text-lg font-bold text-white mb-1">Linux x64</h3>
-              <p class="text-xs text-slate-400 mb-4">Ubuntu, Debian, Fedora, Arch</p>
+              <p class="text-xs text-slate-400 mb-4" data-i18n="download_linux_desc">Ubuntu, Debian, Fedora, Arch</p>
               <div class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-sky-400 mb-6">
                 NetworkManager-v1.0.0-linux-x64.tar.gz • 38.6 MB
               </div>
@@ -53,9 +53,9 @@
 
           <div class="glass-card p-6 rounded-3xl border border-white/10 flex flex-col justify-between text-center">
             <div>
-              <div class="text-3xl mb-3">🍎</div>
+              <div class="mb-3"><i class="fi fi-brands-apple text-slate-200 text-3xl"></i></div>
               <h3 class="text-lg font-bold text-white mb-1">macOS Apple Silicon</h3>
-              <p class="text-xs text-slate-400 mb-4">macOS 12.0+ (M1 / M2 / M3 / M4)</p>
+              <p class="text-xs text-slate-400 mb-4" data-i18n="download_mac_desc">macOS 12.0+ (M1 / M2 / M3 / M4)</p>
               <div class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-sky-400 mb-6">
                 NetworkManager-v1.0.0-darwin-arm64.dmg • 42.1 MB
               </div>
@@ -73,7 +73,7 @@
             <div>
               <h2 class="text-lg font-bold text-white flex items-center gap-2">
                 <i class="fi fi-rr-lock text-amber-400 text-base"></i>
-                <span>Mã Băm SHA-256 (Checksum)</span>
+                <span data-i18n="download_checksum_title">Mã Băm SHA-256 (Checksum)</span>
               </h2>
               <p class="text-xs text-slate-400 mt-1">Kiểm tra tính toàn vẹn và độ tin cậy của file tải về trước khi cài đặt.</p>
             </div>
@@ -86,7 +86,7 @@
                 <div class="text-slate-400 font-semibold mb-1">Windows:</div>
                 <div class="text-sky-300 break-all select-all text-[11px]">8c5c757467ddd568debc7a2b3536fbfdf87604c603f917b546f002d240cace19</div>
               </div>
-              <button onclick="copyText('8c5c757467ddd568debc7a2b3536fbfdf87604c603f917b546f002d240cace19', this)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors self-start sm:self-auto flex-shrink-0">Copy</button>
+              <button onclick="copyText('8c5c757467ddd568debc7a2b3536fbfdf87604c603f917b546f002d240cace19', this)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors self-start sm:self-auto flex-shrink-0" data-i18n="download_copy_btn">Sao chép SHA-256</button>
             </div>
 
             <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -94,7 +94,7 @@
                 <div class="text-slate-400 font-semibold mb-1">Linux:</div>
                 <div class="text-sky-300 break-all select-all text-[11px]">2c9c6844a9877983371abe9c1426e73c0625179946190dd73a3b7f4876d191b0</div>
               </div>
-              <button onclick="copyText('2c9c6844a9877983371abe9c1426e73c0625179946190dd73a3b7f4876d191b0', this)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors self-start sm:self-auto flex-shrink-0">Copy</button>
+              <button onclick="copyText('2c9c6844a9877983371abe9c1426e73c0625179946190dd73a3b7f4876d191b0', this)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors self-start sm:self-auto flex-shrink-0" data-i18n="download_copy_btn">Sao chép SHA-256</button>
             </div>
 
             <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -102,7 +102,7 @@
                 <div class="text-slate-400 font-semibold mb-1">macOS:</div>
                 <div class="text-sky-300 break-all select-all text-[11px]">8b3d9b0fb7ff19856e551953d585c38392dd02b374db2ddd7799f1649ff59e04</div>
               </div>
-              <button onclick="copyText('8b3d9b0fb7ff19856e551953d585c38392dd02b374db2ddd7799f1649ff59e04', this)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors self-start sm:self-auto flex-shrink-0">Copy</button>
+              <button onclick="copyText('8b3d9b0fb7ff19856e551953d585c38392dd02b374db2ddd7799f1649ff59e04', this)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors self-start sm:self-auto flex-shrink-0" data-i18n="download_copy_btn">Sao chép SHA-256</button>
             </div>
           </div>
         </div>
@@ -110,7 +110,7 @@
         <!-- Changelog -->
         <div class="glass-card p-8 rounded-3xl border border-white/10 space-y-4">
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            <span>📋</span>
+            <i class="fi fi-rr-document-signed text-sky-400"></i>
             <span>Changelog — Version 1.0.0</span>
           </h2>
           <ul class="space-y-2 text-xs text-slate-300 leading-relaxed list-disc list-inside">

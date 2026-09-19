@@ -3,9 +3,9 @@
         
         <!-- Breadcrumb (Item 5) -->
         <nav class="flex items-center gap-2 text-xs font-mono text-slate-400" aria-label="Breadcrumb">
-          <a href="#/home" class="hover:text-sky-400">Trang chủ</a>
+          <a href="#/home" class="hover:text-sky-400" data-i18n="breadcrumb_home">Trang chủ</a>
           <span>/</span>
-          <span class="text-sky-400 font-semibold">Giới thiệu</span>
+          <span class="text-sky-400 font-semibold" data-i18n="nav_about">Giới thiệu</span>
         </nav>
 
         <div class="text-center max-w-3xl mx-auto">
@@ -29,41 +29,38 @@
         <div class="glass-card p-8 rounded-3xl border border-white/10 space-y-6">
           <h2 class="text-xl font-bold text-white flex items-center gap-2">
             <span class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-bold">★</span>
-            <span>Các Trường Hợp Triển Khai Thực Tế (Case Studies)</span>
+            <span data-i18n="about_case_title">Các Trường Hợp Triển Khai Thực Tế (Case Studies)</span>
           </h2>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
             
             <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
               <div class="text-sky-400 font-bold text-sm flex items-center gap-1.5">
-                <i class="fi fi-rr-coffee text-sky-400"></i> Chuỗi Cà Phê 3 Tầng
+                <i class="fi fi-rr-coffee text-sky-400"></i> <span data-i18n="about_case_1_title">Chuỗi Cà Phê 3 Tầng</span>
               </div>
-              <div class="text-slate-400 text-[11px]">Hạ tầng: 1 Modem ISP + 3 Access Point</div>
-              <p class="text-slate-300 leading-relaxed">
-                <strong>Thách thức:</strong> 150+ khách kết nối đồng thời, khách câu trộm băng thông làm ảnh hưởng hệ thống thanh toán POS.<br>
-                <strong>Giải pháp:</strong> Network Manager phân tách rõ ràng dải IP từng tầng và khóa ngay các thiết bị tải torrent ngầm.
+              <div class="text-slate-400 text-[11px]" data-i18n="about_case_1_infra">Hạ tầng: 1 Modem ISP + 3 Access Point</div>
+              <p class="text-slate-300 leading-relaxed" data-i18n="about_case_1_desc">
+                150+ khách kết nối đồng thời. Hệ thống phân tách dải IP từng tầng và khóa ngay các thiết bị tải lậu băng thông.
               </p>
             </div>
 
             <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
               <div class="text-emerald-400 font-bold text-sm flex items-center gap-1.5">
-                <i class="fi fi-rr-building text-emerald-400"></i> Doanh Nghiệp Tech 50 Máy
+                <i class="fi fi-rr-building text-emerald-400"></i> <span data-i18n="about_case_2_title">Doanh Nghiệp Tech 50 Máy</span>
               </div>
-              <div class="text-slate-400 text-[11px]">Hạ tầng: Mạng nội bộ văn phòng</div>
-              <p class="text-slate-300 leading-relaxed">
-                <strong>Thách thức:</strong> Nhân viên mang thiết bị lạ (BYOD) tiềm ẩn mã độc, cần bảo vệ máy chủ database nội bộ.<br>
-                <strong>Giải pháp:</strong> Tự động đồng bộ quy tắc tường lửa 2 chiều Windows Host Firewall, cô lập máy lạ tức thì.
+              <div class="text-slate-400 text-[11px]" data-i18n="about_case_2_infra">Hạ tầng: Mạng nội bộ văn phòng</div>
+              <p class="text-slate-300 leading-relaxed" data-i18n="about_case_2_desc">
+                Nhân viên mang thiết bị lạ (BYOD). Hệ thống tự động đồng bộ tường lửa và cô lập máy lạ tức thì.
               </p>
             </div>
 
             <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
               <div class="text-amber-400 font-bold text-sm flex items-center gap-1.5">
-                <i class="fi fi-rr-home text-amber-400"></i> Căn Hộ Smarthome 40+ IoT
+                <i class="fi fi-rr-home text-amber-400"></i> <span data-i18n="about_case_3_title">Căn Hộ Smarthome 40+ IoT</span>
               </div>
-              <div class="text-slate-400 text-[11px]">Hạ tầng: Router phụ 192.168.110.x</div>
-              <p class="text-slate-300 leading-relaxed">
-                <strong>Thách thức:</strong> Camera Ezviz, công tắc đèn thông minh ESP32 thỉnh thoảng mất kết nối không rõ nguyên nhân.<br>
-                <strong>Giải pháp:</strong> Giám sát độ trễ ping liên tục, lập sơ đồ Internet Hop Path và gửi cảnh báo khi rớt mạng.
+              <div class="text-slate-400 text-[11px]" data-i18n="about_case_3_infra">Hạ tầng: Router phụ 192.168.110.x</div>
+              <p class="text-slate-300 leading-relaxed" data-i18n="about_case_3_desc">
+                Giám sát độ trễ camera Ezviz, công tắc ESP32 liên tục, vẽ sơ đồ hop route và báo động khi rớt mạng.
               </p>
             </div>
 
@@ -80,23 +77,23 @@
             <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
               <div class="text-emerald-400 font-bold mb-1 text-sm flex items-center gap-1.5">
                 <i class="fi fi-rr-shield-check text-emerald-400 text-sm"></i>
-                <span>An Ninh Tuyệt Đối</span>
+                <span data-i18n="about_goal_1_title">An Ninh Tuyệt Đối</span>
               </div>
-              <p class="text-slate-300">Phát hiện lập tức thiết bị lạ xâm nhập mạng Wi-Fi và phát cảnh báo an ninh.</p>
+              <p class="text-slate-300" data-i18n="about_goal_1_desc">Phát hiện lập tức thiết bị lạ xâm nhập mạng Wi-Fi và phát cảnh báo an ninh tức thì.</p>
             </div>
             <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
               <div class="text-sky-400 font-bold mb-1 text-sm flex items-center gap-1.5">
                 <i class="fi fi-rr-bolt text-sky-400 text-sm"></i>
-                <span>Kiểm Soát 1 Cú Nhấp</span>
+                <span data-i18n="about_goal_2_title">Kiểm Soát 1 Cú Nhấp</span>
               </div>
-              <p class="text-slate-300">Gửi lệnh chặn MAC ACL trực tiếp đến Router TP-Link, OpenWrt, MikroTik.</p>
+              <p class="text-slate-300" data-i18n="about_goal_2_desc">Gửi lệnh chặn MAC ACL trực tiếp đến Router TP-Link, OpenWrt, MikroTik.</p>
             </div>
             <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
               <div class="text-amber-400 font-bold mb-1 text-sm flex items-center gap-1.5">
                 <i class="fi fi-rr-chart-histogram text-amber-400 text-sm"></i>
-                <span>Trực Quan Hóa Hoàn Toàn</span>
+                <span data-i18n="about_goal_3_title">Trực Quan Hóa Hoàn Toàn</span>
               </div>
-              <p class="text-slate-300">Lập bản đồ Internet Hop Path và biểu đồ sóng băng thông thời gian thực.</p>
+              <p class="text-slate-300" data-i18n="about_goal_3_desc">Lập bản đồ Internet Hop Path và biểu đồ sóng băng thông thời gian thực.</p>
             </div>
           </div>
         </div>
@@ -105,7 +102,7 @@
         <div class="glass-card p-8 rounded-3xl border border-white/10 space-y-6">
           <h2 class="text-xl font-bold text-white flex items-center gap-2">
             <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold"><i class="fi fi-rr-users-alt text-xs"></i></span>
-            <span>Đội Ngũ Kỹ Sư Phát Triển (Core Team)</span>
+            <span data-i18n="about_team_title">Đội Ngũ Kỹ Sư Phát Triển (Core Team)</span>
           </h2>
           
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-xs">
