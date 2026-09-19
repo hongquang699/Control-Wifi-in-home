@@ -210,5 +210,13 @@ EN_TRANSLATIONS = {
     "show_pass": "Show password",
     "hide_pass": "Hide password",
     "card_sec_firewall_hint": "Configure Windows Firewall rules to block bidirectional traffic with blacklisted devices.",
-    "card_sec_confirm_hint": "Prompt for user confirmation dialog before executing device block commands on the router."
+    "card_sec_confirm_hint": "Prompt for user confirmation dialog before executing device block commands on the router.",
+    "card_update_title": "Software Updates",
+    "card_update_sub": "Check for the latest software releases and security patches from GitHub.",
+    "update_cur_ver": "Current Version:",
+    "update_btn_check": "Check for Updates",
+    "update_btn_view_release": "View GitHub Release",
+    "update_status_latest": "You are running the latest version (v2.0.0 Cyberpunk Edition).",
+    "update_status_checking": "Connecting to GitHub server to check for updates...",
+    "update_status_available": "A new version is available: {version}!"
 }

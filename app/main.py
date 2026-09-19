@@ -82,7 +82,7 @@ def main():
 
     app = QApplication(sys.argv)
     app.setApplicationName("Network Manager")
-    app.setApplicationVersion("1.2.0")
+    app.setApplicationVersion("2.0.0")
     app.setOrganizationName("SecurityNetworkTools")
 
     # Thiết lập Logo biểu tượng ứng dụng toàn cục

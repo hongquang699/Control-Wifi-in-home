@@ -20,6 +20,7 @@ from gui.settings.card_language import LanguageSettingsCard
 from gui.settings.card_scan import ScanSettingsCard
 from gui.settings.card_router import RouterSettingsCard
 from gui.settings.card_security import SecuritySettingsCard
+from gui.settings.card_update import UpdateSettingsCard
 from gui.settings.action_bar import SettingsActionBar
 
 class SettingsView(QWidget):
@@ -141,13 +142,15 @@ class SettingsView(QWidget):
         self.card_router = RouterSettingsCard()
         grid.addWidget(self.card_router, 1)
 
-        # Right Column: Scan & Security Cards
+        # Right Column: Scan & Security & Update Cards
         right_col = QVBoxLayout()
         right_col.setSpacing(18)
         self.card_scan = ScanSettingsCard()
         self.card_sec = SecuritySettingsCard()
+        self.card_update = UpdateSettingsCard()
         right_col.addWidget(self.card_scan)
         right_col.addWidget(self.card_sec)
+        right_col.addWidget(self.card_update)
         right_col.addStretch()
         grid.addLayout(right_col, 1)
 
@@ -231,6 +234,7 @@ class SettingsView(QWidget):
         self.card_scan.retranslate_ui()
         self.card_router.retranslate_ui()
         self.card_sec.retranslate_ui()
+        self.card_update.retranslate_ui()
         self.action_bar.retranslate_ui()
 
     def _on_lang_changed(self, lang: str):

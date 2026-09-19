@@ -210,5 +210,13 @@ VI_TRANSLATIONS = {
     "show_pass": "Hiện mật khẩu",
     "hide_pass": "Ẩn mật khẩu",
     "card_sec_firewall_hint": "Tự động thiết lập quy tắc tường lửa Windows để chặn gói tin 2 chiều với thiết bị trong Blacklist.",
-    "card_sec_confirm_hint": "Bật thông báo pop-up yêu cầu xác nhận của người dùng trước khi gửi lệnh cấm truy cập lên router."
+    "card_sec_confirm_hint": "Bật thông báo pop-up yêu cầu xác nhận của người dùng trước khi gửi lệnh cấm truy cập lên router.",
+    "card_update_title": "Cập Nhật Phiên Bản Phần Mềm",
+    "card_update_sub": "Kiểm tra phiên bản mới nhất từ máy chủ phát hành và nâng cấp tính năng bảo mật.",
+    "update_cur_ver": "Phiên bản hiện tại:",
+    "update_btn_check": "Kiểm tra bản mới",
+    "update_btn_view_release": "Xem bản phát hành GitHub",
+    "update_status_latest": "Bạn đang sử dụng phiên bản tối ưu mới nhất (v2.0.0 Cyberpunk Edition).",
+    "update_status_checking": "Đang kết nối tới máy chủ GitHub kiểm tra phiên bản...",
+    "update_status_available": "Đã có bản cập nhật mới: {version}!"
 }

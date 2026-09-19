@@ -7,6 +7,7 @@
 
 ### 📌 [👉 Click here to switch to English Documentation (README.md) 👈](README.md)
 
+[![Version](https://img.shields.io/badge/Phiên%20Bản-v2.0.0%20Cyberpunk-purple.svg)](https://github.com/hongquang699/Control-Wifi-in-home/releases)
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
 [![PySide6](https://img.shields.io/badge/GUI-PySide6%20Qt6-brightgreen.svg)](https://pypi.org/project/PySide6/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)

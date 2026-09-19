@@ -54,6 +54,11 @@ def build():
         "--hidden-import=PySide6",
         "--hidden-import=requests",
         "--hidden-import=psutil",
+        "--hidden-import=security",
+        "--hidden-import=services",
+        "--hidden-import=core",
+        "--hidden-import=database",
+        "--hidden-import=router",
         "--clean",
         "-y",
         "main.py"
