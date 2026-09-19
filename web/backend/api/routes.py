@@ -15,6 +15,14 @@ from ..services.audit_service import audit_logger
 from ..services.download_service import download_service
 from ..services.backup_service import backup_service
 
+try:
+    from web.security import audit_logger as sec_audit_logger
+except ImportError:
+    try:
+        from security import audit_logger as sec_audit_logger
+    except ImportError:
+        sec_audit_logger = None
+
 class APIRouter:
     def __init__(self, devices_data: list, settings_data: dict, logs_data: list, alerts_data: list):
         self.devices = devices_data
@@ -307,5 +315,32 @@ class APIRouter:
 
             backup_res = backup_service.create_backup(actor=actor, client_ip=client_ip)
             return {"status": "SUCCESS", "message": "Sao lưu cơ sở dữ liệu thành công", "backup": backup_res}, 200
+
+        # 8. Báo cáo can thiệp mã nguồn Client (Anti-Tamper & DevTools Guard)
+        if path == "/api/v1/security/client-tamper-report":
+            event_type = body.get("event_type", "UNKNOWN_TAMPER_EVENT") if isinstance(body, dict) else "UNKNOWN"
+            details = body.get("details", {}) if isinstance(body, dict) else {}
+            user_agent = body.get("user_agent", "") if isinstance(body, dict) else ""
+
+            audit_logger.log_event(
+                "CLIENT_TAMPER_DETECTED",
+                actor=actor,
+                ip=client_ip,
+                status="WARNING",
+                details={
+                    "event_type": event_type,
+                    "details": details,
+                    "user_agent": user_agent
+                }
+            )
+            if sec_audit_logger:
+                sec_audit_logger.log_security_event(
+                    event_type="CLIENT_ANTI_TAMPER_ALERT",
+                    actor=actor,
+                    ip_address=client_ip,
+                    details=f"Event: {event_type} | Data: {details}",
+                    severity="WARNING"
+                )
+            return {"status": "SUCCESS", "message": "Đã ghi nhận sự kiện an ninh máy khách"}, 200
 
         return {"error": "Endpoint POST không tồn tại"}, 404

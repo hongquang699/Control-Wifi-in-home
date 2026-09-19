@@ -37,9 +37,17 @@ window.testRouterConnection = function() {
   }, 750);
 };
 
+window.toggleAntiTamperState = function(enabled) {
+  if (window.NetworkManagerSecurity && typeof window.NetworkManagerSecurity.toggleProtection === 'function') {
+    window.NetworkManagerSecurity.toggleProtection(enabled);
+  }
+  showToast(enabled ? "Đã bật chế độ chống can thiệp mã nguồn Chrome!" : "Đã tạm dừng chế độ chống can thiệp mã nguồn Chrome.");
+};
+
 window.saveAllSettings = async function() {
   if (!checkRolePermission("OPERATOR")) return;
 
+  const antiTamperEl = document.getElementById("cfgAntiTamper");
   const config = {
     router_type: document.getElementById("cfgRouterType").value,
     router_host: document.getElementById("cfgRouterHost").value,
@@ -48,7 +56,8 @@ window.saveAllSettings = async function() {
     firewall_sync: document.getElementById("cfgFirewallSync").checked,
     auto_detect: document.getElementById("cfgAutoDetect").checked,
     scan_interval: document.getElementById("cfgIntervalRange").value,
-    confirm_block: document.getElementById("cfgConfirmBlock").checked
+    confirm_block: document.getElementById("cfgConfirmBlock").checked,
+    anti_tamper: antiTamperEl ? antiTamperEl.checked : true
   };
 
   try {
@@ -77,6 +86,11 @@ window.resetDefaultSettings = function() {
   document.getElementById("cfgIntervalRange").value = 60;
   document.getElementById("cfgIntervalValue").textContent = "60 giây";
   document.getElementById("cfgConfirmBlock").checked = true;
+  const antiTamperEl = document.getElementById("cfgAntiTamper");
+  if (antiTamperEl) {
+    antiTamperEl.checked = true;
+    window.toggleAntiTamperState(true);
+  }
 
   localStorage.removeItem("nm_demo_settings");
   showToast("Đã khôi phục cài đặt mặc định của hệ thống.");
@@ -98,6 +112,15 @@ function loadSavedSettings() {
         document.getElementById("cfgIntervalValue").textContent = cfg.scan_interval + " giây";
       }
       if (cfg.confirm_block !== undefined) document.getElementById("cfgConfirmBlock").checked = cfg.confirm_block;
+      if (cfg.anti_tamper !== undefined) {
+        const antiTamperEl = document.getElementById("cfgAntiTamper");
+        if (antiTamperEl) {
+          antiTamperEl.checked = cfg.anti_tamper;
+          if (window.NetworkManagerSecurity) {
+            window.NetworkManagerSecurity.toggleProtection(cfg.anti_tamper);
+          }
+        }
+      }
     }
   } catch (e) {}
 }

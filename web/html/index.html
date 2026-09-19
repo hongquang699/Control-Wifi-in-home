@@ -85,6 +85,34 @@
   }
   </script>
 
+  <!-- Client-Side Early Anti-Tamper Bootstrapper -->
+  <script>
+    (function(){
+      // Chặn các phím tắt nguy hiểm từ giai đoạn nạp DOM ban đầu
+      window.addEventListener('keydown', function(e){
+        var k = e.key || '', c = e.keyCode || 0;
+        var ctrl = e.ctrlKey || e.metaKey, s = e.shiftKey, a = e.altKey;
+        if (k === 'F12' || c === 123 ||
+            (ctrl && s && (k==='I'||k==='i'||k==='J'||k==='j'||k==='C'||k==='c'||c===73||c===74||c===67)) ||
+            (ctrl && a && (k==='I'||k==='i'||k==='J'||k==='j'||k==='C'||k==='c'||c===73||c===74||c===67)) ||
+            (ctrl && (k==='U'||k==='u'||k==='S'||k==='s'||c===85||c===83))) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }, true);
+      // Chặn menu chuột phải kiểm tra mã trên các vùng nhạy cảm
+      window.addEventListener('contextmenu', function(e){
+        var t = e.target ? (e.target.tagName || '').toUpperCase() : '';
+        if (t !== 'INPUT' && t !== 'TEXTAREA') {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }, true);
+    })();
+  </script>
+
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="../css/style.css">
 </head>

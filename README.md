@@ -70,6 +70,7 @@ Hệ thống được trang bị 2 gói bảo mật chuyên biệt độc lập 
 - **`sanitizer.py` - Deep Recursive Sanitizer**: Làm sạch sâu dữ liệu đầu vào JSON và biểu mẫu, loại bỏ null bytes (`\x00`), chống Prototype Pollution (`__proto__`, `constructor`), và mã hóa HTML an toàn.
 - **`crypto.py` - PBKDF2-HMAC-SHA256 & Constant-Time Crypto**: Băm mật khẩu với 600,000 vòng lặp kèm salt ngẫu nhiên 32-byte, sinh token bảo mật bằng `secrets`, ký và xác thực HMAC dữ liệu, so sánh thời gian bất biến `hmac.compare_digest` chống Timing Attacks.
 - **`audit.py` - Chained-Hash Audit Logger**: Nhật ký kiểm toán bảo mật với cơ chế băm xâu chuỗi (tương tự Blockchain log), mỗi bản ghi liên kết mã băm của bản ghi trước đó, hỗ trợ hàm `verify_log_integrity()` phát hiện mọi hành vi sửa đổi hoặc xóa nhật ký.
+- **`anti_tamper.js` - Chrome Client Anti-Tamper & DevTools Guard**: Khóa phím tắt `F12`, `Ctrl+Shift+I/J/C`, `Ctrl+U`, `Ctrl+S`, vô hiệu hóa chuột phải kiểm tra phần tử (Inspect Element), phát hiện DevTools qua kích thước và getter traps, bẫy Anti-Debugging, DOM MutationObserver triệt tiêu thẻ script lạ, đóng băng Object.prototype và in biểu ngữ cảnh báo Self-XSS.
 
 ### 2. App Security Suite (`app/security/`)
 - **`safe_exec.py` - Safe Subprocess Execution**: Loại bỏ hoàn toàn lỗ hổng Command Injection bằng cách cấm tuyệt đối `shell=True`, sử dụng danh sách tham số dạng list, kiểm tra whitelist nhị phân (`netsh`, `route`, `arp`, `ping`, `nmap`), và xác thực chặt chẽ IP / MAC qua regex và thư viện chuẩn `ipaddress`.

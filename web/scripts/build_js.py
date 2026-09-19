@@ -19,6 +19,7 @@ MODULES_DIR = os.path.join(JS_DIR, "modules")
 OUTPUT_FILE = os.path.join(JS_DIR, "app.js")
 
 MODULE_ORDER = [
+    "anti_tamper.js",
     "i18n.js",
     "router.js",
     "demo_dashboard.js",

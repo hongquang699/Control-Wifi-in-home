@@ -103,6 +103,17 @@
                       </div>
                       <input id="cfgConfirmBlock" type="checkbox" checked class="accent-sky-500 w-4 h-4 cursor-pointer">
                     </div>
+
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                      <div>
+                        <div class="text-white font-medium flex items-center gap-1.5">
+                          <span>Chống thay đổi code trên Chrome</span>
+                          <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 font-mono">DevTools Guard</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400">Khóa F12, Inspect, chặn chuột phải & MutationObserver</div>
+                      </div>
+                      <input id="cfgAntiTamper" type="checkbox" checked onchange="toggleAntiTamperState(this.checked)" class="accent-sky-500 w-4 h-4 cursor-pointer">
+                    </div>
                   </div>
                 </div>
               </div>
