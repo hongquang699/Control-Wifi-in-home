@@ -1,0 +1,67 @@
+<!-- 2. TAB DEVICES -->
+            <div id="demoTabDevices" class="demo-tab-panel hidden space-y-5">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div>
+                  <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>💻</span> Quản Lý Danh Sách Thiết Bị Mạng
+                  </h3>
+                  <p class="text-xs text-slate-400">Tự động phát hiện 100% thiết bị, tra cứu vendor OUI và điều khiển kết nối</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button id="btnScanNow" onclick="simulateNetworkScan()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white text-xs font-semibold hover:opacity-90 transition-all flex items-center gap-1.5 shadow-lg shadow-sky-500/20">
+                    <span id="scanSpinner" class="inline-block">⚡</span> <span>Quét mạng ngay</span>
+                  </button>
+                  <button onclick="refreshLiveDevices()" class="px-3 py-1.5 rounded-xl bg-slate-900 text-slate-300 text-xs font-medium border border-slate-800 hover:bg-slate-800 transition-all flex items-center gap-1.5">
+                    <span>🔄</span> Làm mới
+                  </button>
+                </div>
+              </div>
+
+              <!-- Scan Progress Bar (Animated) -->
+              <div id="scanProgressBarContainer" class="hidden p-3 rounded-xl bg-slate-900/90 border border-sky-500/30 space-y-2">
+                <div class="flex items-center justify-between text-xs font-mono">
+                  <span class="text-sky-400 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+                    <span id="scanProgressMsg">Đang phát gói tin ARP Ping đa luồng trên 192.168.1.0/24...</span>
+                  </span>
+                  <span id="scanProgressPercent" class="font-bold text-white">25%</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="scanProgressBar" class="h-full bg-gradient-to-r from-sky-500 to-indigo-500 w-1/4 transition-all duration-300"></div>
+                </div>
+              </div>
+
+              <!-- Filter & Search Toolbar -->
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                  <button class="dev-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-sky-500/20 text-sky-300 border-sky-500/40" data-dev-filter="all">Tất cả (<span id="devFilterCountAll">7</span>)</button>
+                  <button class="dev-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-dev-filter="primary">Wi-Fi Tổng (192.168.1.x)</button>
+                  <button class="dev-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-dev-filter="secondary">Router Phụ (192.168.110.x)</button>
+                  <button class="dev-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-dev-filter="blocked">Đang bị chặn</button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input id="devSearchInput" type="text" placeholder="Tìm theo IP, MAC, Tên..." class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 w-56">
+                </div>
+              </div>
+
+              <!-- Enhanced Devices Table -->
+              <div class="rounded-2xl border border-slate-800 overflow-x-auto bg-[#0d1322]">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-400 text-[11px] font-semibold uppercase">
+                      <th class="py-3 px-4">Thiết Bị & Tên</th>
+                      <th class="py-3 px-4">IP Address</th>
+                      <th class="py-3 px-4">MAC Address</th>
+                      <th class="py-3 px-4">Vendor</th>
+                      <th class="py-3 px-4">Dải Mạng & Kết Nối</th>
+                      <th class="py-3 px-4">Độ Trễ</th>
+                      <th class="py-3 px-4">Trạng Thái</th>
+                      <th class="py-3 px-4 text-right">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="demoDevicesTableFull" class="divide-y divide-slate-800/60">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>

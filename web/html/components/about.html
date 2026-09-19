@@ -1,0 +1,129 @@
+<div id="page-about" class="page-view hidden py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        
+        <!-- Breadcrumb (Item 5) -->
+        <nav class="flex items-center gap-2 text-xs font-mono text-slate-400" aria-label="Breadcrumb">
+          <a href="#/home" class="hover:text-sky-400">Trang chủ</a>
+          <span>/</span>
+          <span class="text-sky-400 font-semibold">Giới thiệu</span>
+        </nav>
+
+        <div class="text-center max-w-3xl mx-auto">
+          <div class="text-xs font-bold font-mono text-sky-400 uppercase tracking-wider mb-2">ABOUT NETWORK MANAGER</div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3" data-i18n="about_title">Giới Thiệu Hệ Thống Quản Lý Mạng</h1>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed" data-i18n="about_desc">Tổng quan về mục tiêu, kiến trúc phân tầng 3 lớp và các công nghệ cốt lõi của Network Manager.</p>
+        </div>
+
+        <!-- 1. Hệ thống là gì? -->
+        <div class="glass-card p-8 rounded-3xl border border-white/10 space-y-3">
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-bold">1</span>
+            <span data-i18n="about_q1">Hệ thống Network Manager là gì?</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed" data-i18n="about_a1">
+            Network Manager là bộ giải pháp phần mềm quản trị và giám sát mạng nội bộ (LAN/WLAN) chuyên nghiệp. Khác với các công cụ quét IP thông thường, hệ thống tích hợp khả năng phân tích đa tầng (Multi-tier Topology), bóc tách rõ ràng giữa Modem Tổng ISP và Router Phụ, xác định phương thức liên kết Wi-Fi/LAN và cung cấp khả năng chặn thiết bị trực tiếp tại Router phần cứng.
+          </p>
+        </div>
+
+        <!-- CASE STUDIES SECTION (Item 6: Case studies) -->
+        <div class="glass-card p-8 rounded-3xl border border-white/10 space-y-6">
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-bold">★</span>
+            <span>Các Trường Hợp Triển Khai Thực Tế (Case Studies)</span>
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+            
+            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="text-sky-400 font-bold text-sm">☕ Chuỗi Cà Phê 3 Tầng</div>
+              <div class="text-slate-400 text-[11px]">Hạ tầng: 1 Modem ISP + 3 Access Point</div>
+              <p class="text-slate-300 leading-relaxed">
+                <strong>Thách thức:</strong> 150+ khách kết nối đồng thời, khách câu trộm băng thông làm ảnh hưởng hệ thống thanh toán POS.<br>
+                <strong>Giải pháp:</strong> Network Manager phân tách rõ ràng dải IP từng tầng và khóa ngay các thiết bị tải torrent ngầm.
+              </p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="text-emerald-400 font-bold text-sm">🏢 Doanh Nghiệp Tech 50 Máy</div>
+              <div class="text-slate-400 text-[11px]">Hạ tầng: Mạng nội bộ văn phòng</div>
+              <p class="text-slate-300 leading-relaxed">
+                <strong>Thách thức:</strong> Nhân viên mang thiết bị lạ (BYOD) tiềm ẩn mã độc, cần bảo vệ máy chủ database nội bộ.<br>
+                <strong>Giải pháp:</strong> Tự động đồng bộ quy tắc tường lửa 2 chiều Windows Host Firewall, cô lập máy lạ tức thì.
+              </p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="text-amber-400 font-bold text-sm">🏡 Căn Hộ Smarthome 40+ IoT</div>
+              <div class="text-slate-400 text-[11px]">Hạ tầng: Router phụ 192.168.110.x</div>
+              <p class="text-slate-300 leading-relaxed">
+                <strong>Thách thức:</strong> Camera Ezviz, công tắc đèn thông minh ESP32 thỉnh thoảng mất kết nối không rõ nguyên nhân.<br>
+                <strong>Giải pháp:</strong> Giám sát độ trễ ping liên tục, lập sơ đồ Internet Hop Path và gửi cảnh báo khi rớt mạng.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 2. Mục tiêu -->
+        <div class="glass-card p-8 rounded-3xl border border-white/10">
+          <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">2</span>
+            <span data-i18n="about_q2">Mục Tiêu Của Hệ Thống</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+              <div class="text-emerald-400 font-bold mb-1 text-sm">🛡️ An Ninh Tuyệt Đối</div>
+              <p class="text-slate-300">Phát hiện lập tức thiết bị lạ xâm nhập mạng Wi-Fi và phát cảnh báo an ninh.</p>
+            </div>
+            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+              <div class="text-sky-400 font-bold mb-1 text-sm">⚡ Kiểm Soát 1 Cú Nhấp</div>
+              <p class="text-slate-300">Gửi lệnh chặn MAC ACL trực tiếp đến Router TP-Link, OpenWrt, MikroTik.</p>
+            </div>
+            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+              <div class="text-amber-400 font-bold mb-1 text-sm">📊 Trực Quan Hóa Hoàn Toàn</div>
+              <p class="text-slate-300">Lập bản đồ Internet Hop Path và biểu đồ sóng băng thông thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TEAM SECTION (Item 20: Team photo / contributors) -->
+        <div class="glass-card p-8 rounded-3xl border border-white/10 space-y-6">
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">👥</span>
+            <span>Đội Ngũ Kỹ Sư Phát Triển (Core Team)</span>
+          </h2>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-xs">
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-xl font-bold text-white mb-3 shadow-lg">
+                HQ
+              </div>
+              <h3 class="font-bold text-white text-sm">Nguyễn Hồng Quang</h3>
+              <p class="text-sky-400 text-[11px] font-mono mb-2">Lead Core Architect</p>
+              <p class="text-slate-400 text-[11px]">Chịu trách nhiệm kiến trúc bộ lõi Nmap ARP, thuật toán phân tích đa tầng và giao tiếp Router.</p>
+            </div>
+
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-xl font-bold text-white mb-3 shadow-lg">
+                DN
+              </div>
+              <h3 class="font-bold text-white text-sm">Vũ Đình Nam</h3>
+              <p class="text-emerald-400 text-[11px] font-mono mb-2">Security & Firewall Specialist</p>
+              <p class="text-slate-400 text-[11px]">Phát triển cơ chế điều khiển Tường lửa Windows 2 chiều và cơ sở dữ liệu kiểm toán SQLite.</p>
+            </div>
+
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-purple-500 to-pink-600 flex items-center justify-center text-xl font-bold text-white mb-3 shadow-lg">
+                LM
+              </div>
+              <h3 class="font-bold text-white text-sm">Lê Hoàng Minh</h3>
+              <p class="text-purple-400 text-[11px] font-mono mb-2">UI/UX & Frontend Engineer</p>
+              <p class="text-slate-400 text-[11px]">Thiết kế giao diện Dark Theme PySide6 và hệ thống website phân phối đa nền tảng.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAGE 3: TÍNH NĂNG (FEATURES) -->

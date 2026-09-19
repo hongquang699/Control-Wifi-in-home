@@ -1,0 +1,88 @@
+<!-- 1. TAB DASHBOARD -->
+            <div id="demoTabDashboard" class="demo-tab-panel space-y-6">
+              <!-- Top Metrics Row: Online | Offline | Traffic | Uptime | CPU/RAM -->
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">ONLINE</div>
+                  <div id="demoOnlineCount" class="text-xl font-bold font-mono text-emerald-400 mt-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>6</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">OFFLINE</div>
+                  <div id="demoOfflineCount" class="text-xl font-bold font-mono text-slate-400 mt-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                    <span>1</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">BLOCKED</div>
+                  <div id="demoBlockedCount" class="text-xl font-bold font-mono text-rose-400 mt-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                    <span>0</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">TRAFFIC</div>
+                  <div id="demoDownloadSpeed" class="text-xs font-bold font-mono text-sky-400 mt-1 truncate">↓ 24.5 MB/s</div>
+                  <div id="demoUploadSpeed" class="text-[10px] font-mono text-indigo-400">↑ 8.2 MB/s</div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800 col-span-2 sm:col-span-1">
+                  <div class="text-[11px] text-slate-400 font-medium">CPU / RAM / UPTIME</div>
+                  <div class="text-xs font-bold font-mono text-amber-400 mt-1">CPU 14% | RAM 32%</div>
+                  <div class="text-[10px] font-mono text-slate-400">99.98% (14d 6h)</div>
+                </div>
+              </div>
+
+              <!-- Waveform Chart -->
+              <div class="p-4 rounded-2xl bg-[#0d1322] border border-slate-800">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+                    <span class="text-xs font-semibold text-white">Live Traffic Waveform Chart</span>
+                  </div>
+                  <div class="text-[11px] font-mono text-slate-400 flex items-center gap-3">
+                    <span class="text-sky-400">■ Download</span>
+                    <span class="text-indigo-400">■ Upload</span>
+                  </div>
+                </div>
+                <canvas id="demoWaveCanvas" width="800" height="70" class="w-full h-16 rounded-lg bg-slate-900/50"></canvas>
+              </div>
+
+              <!-- Toolbar Filters -->
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                  <button class="demo-filter px-3 py-1.5 rounded-lg text-xs font-medium border bg-sky-500/20 text-sky-300 border-sky-500/40" data-filter="all">Tất cả (7)</button>
+                  <button class="demo-filter px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400" data-filter="primary">192.168.1.x</button>
+                  <button class="demo-filter px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400" data-filter="secondary">192.168.110.x</button>
+                  <button class="demo-filter px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400" data-filter="blocked">Đang bị chặn</button>
+                </div>
+
+                <input id="demoSearchInput" type="text" placeholder="Tìm theo IP, MAC, Tên..." class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 w-52">
+              </div>
+
+              <!-- Devices Table -->
+              <div class="rounded-2xl border border-slate-800 overflow-x-auto bg-[#0d1322]">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-400 text-[11px] font-semibold uppercase">
+                      <th class="py-3 px-4">Thiết bị & Tên</th>
+                      <th class="py-3 px-4">IP Address</th>
+                      <th class="py-3 px-4">MAC Address</th>
+                      <th class="py-3 px-4">Vendor</th>
+                      <th class="py-3 px-4">Phương thức</th>
+                      <th class="py-3 px-4">Trạng thái</th>
+                      <th class="py-3 px-4 text-right">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="demoDevicesBody" class="divide-y divide-slate-800/60">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>

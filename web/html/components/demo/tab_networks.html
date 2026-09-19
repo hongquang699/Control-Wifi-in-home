@@ -1,0 +1,186 @@
+<!-- 3. TAB NETWORKS -->
+            <div id="demoTabNetworks" class="demo-tab-panel hidden space-y-6">
+              <div class="pb-3 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                  <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>🌐</span> Hạ Tầng Mạng & Sơ Đồ Topo Đa Tầng
+                  </h3>
+                  <p class="text-xs text-slate-400">Phân tích Subnet CIDR, định tuyến Internet và chẩn đoán gói tin</p>
+                </div>
+              </div>
+
+              <!-- Subnet Cards with IP Pool Usage -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20 font-mono">192.168.1.0/24</span>
+                    <span class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Trực tuyến
+                    </span>
+                  </div>
+                  <div class="font-bold text-white text-sm">Wi-Fi Tổng ISP / Modem Gateway Chính</div>
+                  <div class="text-xs text-slate-400 space-y-1 font-mono">
+                    <div class="flex justify-between"><span>Gateway IP:</span> <span class="text-sky-400 font-semibold">192.168.1.1</span></div>
+                    <div class="flex justify-between"><span>Giao diện mạng:</span> <span class="text-slate-300">Ethernet Controller #1</span></div>
+                    <div class="flex justify-between"><span>DHCP Pool:</span> <span class="text-slate-300">192.168.1.100 - 192.168.1.250</span></div>
+                    <div class="flex justify-between"><span>DNS Máy chủ:</span> <span class="text-slate-300">192.168.1.1, 8.8.8.8</span></div>
+                  </div>
+                  <!-- IP Usage Meter -->
+                  <div class="space-y-1 pt-1">
+                    <div class="flex justify-between text-[11px] font-mono">
+                      <span class="text-slate-400">IP Pool Sử Dụng:</span>
+                      <span class="text-sky-400 font-semibold">4 / 254 IPs (1.6%)</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div class="h-full bg-sky-500 rounded-full w-[2%]"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">192.168.110.0/24</span>
+                    <span class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Trực tuyến
+                    </span>
+                  </div>
+                  <div class="font-bold text-white text-sm">Router Phụ Gigabit (TP-Link AX55)</div>
+                  <div class="text-xs text-slate-400 space-y-1 font-mono">
+                    <div class="flex justify-between"><span>Gateway IP:</span> <span class="text-indigo-400 font-semibold">192.168.110.1</span></div>
+                    <div class="flex justify-between"><span>Uplink WAN IP:</span> <span class="text-slate-300">192.168.1.50 (VLAN 1)</span></div>
+                    <div class="flex justify-between"><span>DHCP Pool:</span> <span class="text-slate-300">192.168.110.10 - 192.168.110.200</span></div>
+                    <div class="flex justify-between"><span>DNS Máy chủ:</span> <span class="text-slate-300">192.168.110.1, 1.1.1.1</span></div>
+                  </div>
+                  <!-- IP Usage Meter -->
+                  <div class="space-y-1 pt-1">
+                    <div class="flex justify-between text-[11px] font-mono">
+                      <span class="text-slate-400">IP Pool Sử Dụng:</span>
+                      <span class="text-indigo-400 font-semibold">3 / 254 IPs (1.2%)</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div class="h-full bg-indigo-500 rounded-full w-[1.5%]"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Topology Map -->
+              <div class="p-5 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between">
+                  <div class="text-xs font-bold text-white flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                    <span>Sơ Đồ Phân Bổ Nút Mạng (Click vào thiết bị để xem lộ trình Hop Path)</span>
+                  </div>
+                  <span class="text-[11px] text-slate-400 font-mono">2 Tầng • 7 Nút Kết Nối</span>
+                </div>
+
+                <!-- Interactive SVG Topology Diagram -->
+                <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 overflow-x-auto">
+                  <div class="min-w-[640px] flex flex-col items-center space-y-4 py-2 select-none">
+                    <!-- Level 0: Internet -->
+                    <div class="flex items-center justify-center">
+                      <div onclick="selectTopologyNode('internet')" class="topo-node cursor-pointer px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-sky-500/20 border border-emerald-500/40 text-white text-xs font-bold flex items-center gap-2 hover:scale-105 transition-all shadow-lg shadow-emerald-500/10" data-node="internet">
+                        <span class="text-base">☁️</span>
+                        <span>Internet Toàn Cầu (WAN Gateway)</span>
+                      </div>
+                    </div>
+
+                    <div class="text-slate-600 font-mono text-xs">▼ (Đường truyền ISP Cáp Quang)</div>
+
+                    <!-- Level 1: Primary Modem -->
+                    <div class="flex items-center justify-center">
+                      <div onclick="selectTopologyNode('modem')" class="topo-node cursor-pointer px-5 py-2.5 rounded-2xl bg-sky-500/20 border border-sky-500/50 text-white text-xs font-bold flex items-center gap-2 hover:scale-105 transition-all shadow-lg shadow-sky-500/10" data-node="modem">
+                        <span class="text-base">🌐</span>
+                        <span>Modem Tổng ISP (192.168.1.1)</span>
+                      </div>
+                    </div>
+
+                    <div class="w-3/4 flex justify-between items-center text-slate-600 font-mono text-xs px-8">
+                      <span>↙ (Wi-Fi 5GHz)</span>
+                      <span>| (Dây LAN 1Gbps)</span>
+                      <span>↘ (Wi-Fi 2.4GHz)</span>
+                    </div>
+
+                    <!-- Level 2: Direct Devices & Sub-Router -->
+                    <div class="w-full flex items-center justify-around gap-2 text-xs">
+                      <div onclick="selectTopologyNode('macbook')" class="topo-node cursor-pointer p-3 rounded-xl bg-slate-900 border border-slate-800 text-center hover:border-sky-500 hover:scale-105 transition-all w-36" data-node="macbook">
+                        <div class="text-base">💻</div>
+                        <div class="font-bold text-white text-[11px] truncate">MacBook Pro M2</div>
+                        <div class="text-[10px] font-mono text-sky-400">192.168.1.189</div>
+                      </div>
+
+                      <div onclick="selectTopologyNode('subrouter')" class="topo-node cursor-pointer p-3.5 rounded-2xl bg-indigo-500/20 border-2 border-indigo-500/60 text-center hover:scale-105 transition-all w-48 shadow-lg shadow-indigo-500/20" data-node="subrouter">
+                        <div class="text-base">📡</div>
+                        <div class="font-bold text-white text-xs truncate">Router Phụ TP-Link</div>
+                        <div class="text-[10px] font-mono text-indigo-400">192.168.110.1</div>
+                        <div class="text-[9px] text-slate-400 mt-0.5">(Uplink: 192.168.1.2)</div>
+                      </div>
+
+                      <div onclick="selectTopologyNode('iphone')" class="topo-node cursor-pointer p-3 rounded-xl bg-slate-900 border border-slate-800 text-center hover:border-sky-500 hover:scale-105 transition-all w-36" data-node="iphone">
+                        <div class="text-base">📱</div>
+                        <div class="font-bold text-white text-[11px] truncate">iPhone 15 Pro</div>
+                        <div class="text-[10px] font-mono text-sky-400">192.168.1.115</div>
+                      </div>
+                    </div>
+
+                    <div class="text-slate-600 font-mono text-xs">▼ (Các thiết bị dưới quyền Router Phụ)</div>
+
+                    <!-- Level 3: Secondary Subnet Devices -->
+                    <div class="w-3/4 flex items-center justify-center gap-4 text-xs">
+                      <div onclick="selectTopologyNode('tv')" class="topo-node cursor-pointer p-3 rounded-xl bg-slate-900 border border-slate-800 text-center hover:border-indigo-500 hover:scale-105 transition-all w-36" data-node="tv">
+                        <div class="text-base">📺</div>
+                        <div class="font-bold text-white text-[11px] truncate">Samsung 4K TV</div>
+                        <div class="text-[10px] font-mono text-indigo-400">192.168.110.45</div>
+                      </div>
+
+                      <div onclick="selectTopologyNode('cam')" class="topo-node cursor-pointer p-3 rounded-xl bg-slate-900 border border-slate-800 text-center hover:border-indigo-500 hover:scale-105 transition-all w-36" data-node="cam">
+                        <div class="text-base">📹</div>
+                        <div class="font-bold text-white text-[11px] truncate">Ezviz Security Cam</div>
+                        <div class="text-[10px] font-mono text-indigo-400">192.168.110.88</div>
+                      </div>
+
+                      <div onclick="selectTopologyNode('esp')" class="topo-node cursor-pointer p-3 rounded-xl bg-slate-900 border border-slate-800 text-center hover:border-indigo-500 hover:scale-105 transition-all w-36" data-node="esp">
+                        <div class="text-base">🔌</div>
+                        <div class="font-bold text-white text-[11px] truncate">ESP32 Smart Relay</div>
+                        <div class="text-[10px] font-mono text-indigo-400">192.168.110.99</div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- Dynamic Node Detail / Hop Route Banner -->
+                <div id="topoHopInfoBanner" class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sky-400 font-bold">Lộ trình gói tin (Hop Path):</span>
+                    <span id="topoHopRouteText" class="font-mono text-slate-300">Samsung 4K TV ➔ Router Phụ (192.168.110.1) ➔ Modem Tổng (192.168.1.1) ➔ Internet</span>
+                  </div>
+                  <span id="topoHopStatus" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 w-fit">2 Hops • 5 ms RTT</span>
+                </div>
+              </div>
+
+              <!-- Live Ping Tool -->
+              <div class="p-5 rounded-2xl bg-[#0d1322] border border-slate-800 space-y-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-white flex items-center gap-2">
+                    <span>⚡</span> Công Cụ Chẩn Đoán Ping Trực Tiếp (ICMP Echo)
+                  </h4>
+                  <span class="text-[11px] text-slate-400 font-mono">Đo độ trễ RTT mili-giây</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input id="pingTargetInput" type="text" value="192.168.1.1" placeholder="Nhập địa chỉ IP..." class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono focus:outline-none focus:border-sky-500 w-48">
+                  <button onclick="runPingTest()" class="px-4 py-1.5 rounded-xl bg-sky-500/20 text-sky-300 text-xs font-semibold border border-sky-500/40 hover:bg-sky-500/30 transition-all flex items-center gap-1.5">
+                    <span id="pingBtnSpinner">⚡</span> <span>Kiểm Tra Ping</span>
+                  </button>
+                  <button onclick="document.getElementById('pingTargetInput').value='8.8.8.8'; runPingTest();" class="px-2.5 py-1.5 rounded-xl bg-slate-900 text-slate-400 text-xs hover:text-white border border-slate-800">
+                    Ping Google DNS (8.8.8.8)
+                  </button>
+                  <button onclick="document.getElementById('pingTargetInput').value='192.168.110.1'; runPingTest();" class="px-2.5 py-1.5 rounded-xl bg-slate-900 text-slate-400 text-xs hover:text-white border border-slate-800">
+                    Ping Router Phụ (192.168.110.1)
+                  </button>
+                </div>
+                <div id="pingConsoleOutput" class="p-3 rounded-xl bg-slate-950 font-mono text-[11px] text-slate-300 border border-slate-800/80 space-y-1">
+                  <div class="text-slate-500">Sẵn sàng kiểm tra. Nhấn "Kiểm Tra Ping" để đo độ trễ tới máy chủ đích.</div>
+                </div>
+              </div>
+            </div>

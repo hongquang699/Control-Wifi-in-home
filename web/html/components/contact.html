@@ -1,0 +1,109 @@
+<div id="page-contact" class="page-view hidden py-12">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        
+        <!-- Breadcrumb (Item 5) -->
+        <nav class="flex items-center gap-2 text-xs font-mono text-slate-400" aria-label="Breadcrumb">
+          <a href="#/home" class="hover:text-sky-400">Trang chủ</a>
+          <span>/</span>
+          <span class="text-sky-400 font-semibold">Liên hệ</span>
+        </nav>
+
+        <div class="text-center max-w-2xl mx-auto">
+          <div class="text-xs font-bold font-mono text-sky-400 uppercase tracking-wider mb-1">GET IN TOUCH</div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight" data-i18n="contact_title">Liên Hệ & Hỗ Trợ Kỹ Thuật</h1>
+          <p class="text-xs sm:text-sm text-slate-300 mt-2" data-i18n="contact_desc">Đội ngũ kỹ thuật luôn sẵn sàng hỗ trợ cài đặt, cấu hình router và tiếp nhận phản hồi.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <!-- Contact Info & Response Promise (Item 8) -->
+          <div class="space-y-4">
+            <div class="glass-card p-6 rounded-3xl border border-white/10 space-y-4">
+              <h3 class="text-base font-bold text-white">Kênh Hỗ Trợ Chính Thức</h3>
+              <div class="space-y-3 text-xs">
+                <div class="flex items-center gap-3 text-slate-300">
+                  <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-sky-400">🐙</span>
+                  <div>
+                    <div class="font-semibold text-white">GitHub Repository</div>
+                    <a href="https://github.com/hongquang699/Control-Wifi-in-home" target="_blank" rel="noreferrer" class="text-sky-400 hover:underline">hongquang699/Control-Wifi</a>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 text-slate-300">
+                  <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-emerald-400">📧</span>
+                  <div>
+                    <div class="font-semibold text-white">Email Kỹ Thuật</div>
+                    <div class="text-slate-400 font-mono">support@networkmanager.local</div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Response Time Promise Box (Item 8) -->
+              <div class="p-4 rounded-xl bg-sky-500/10 border border-sky-500/20 text-xs text-sky-200 mt-4 space-y-1">
+                <div class="font-bold flex items-center gap-1.5 text-sky-300">
+                  <span>⚡ Cam Kết Phản Hồi:</span>
+                </div>
+                <div>Phản hồi kỹ thuật trong vòng <strong>2 giờ làm việc</strong>.</div>
+                <div>Độ tin cậy hạ tầng: <strong>99.98% Uptime SLA</strong>.</div>
+              </div>
+            </div>
+
+            <!-- MAPS & DIRECTIONS CARD (Item 14) -->
+            <div class="glass-card p-6 rounded-3xl border border-white/10 space-y-3">
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <span>📍</span>
+                <span>Văn Phòng Kỹ Thuật</span>
+              </h3>
+              <div class="text-xs text-slate-300 space-y-2">
+                <p><strong>Địa chỉ:</strong> Tòa nhà Công Nghệ, Khu Công Nghệ Cao, Quận Cầu Giấy, Hà Nội.</p>
+                <p class="text-slate-400 text-[11px]"><strong>Chỉ dẫn đường đi:</strong> Cách bến xe Mỹ Đình 1.2km, gần trục đường Duy Tân - Phạm Hùng.</p>
+              </div>
+              <a href="https://maps.google.com/?q=Hanoi+Tech+Hub" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-xs font-semibold text-sky-400 hover:underline mt-2">
+                <span>Mở bản đồ Google Maps ➔</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Contact Form with auto redirect to Thank You page (Item 4) -->
+          <div class="md:col-span-2 glass-card p-8 rounded-3xl border border-white/10">
+            <form id="contactForm" class="space-y-4 text-xs">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-slate-300 font-semibold mb-1">Họ và tên</label>
+                  <input type="text" required placeholder="Nguyễn Văn A" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 focus:outline-none focus:border-sky-500">
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-semibold mb-1">Email</label>
+                  <input type="email" required placeholder="name@example.com" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 focus:outline-none focus:border-sky-500">
+                </div>
+              </div>
+              <div>
+                <label class="block text-slate-300 font-semibold mb-1">Chủ đề</label>
+                <input type="text" required placeholder="Hỗ trợ cấu hình router / Đề xuất tính năng" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 focus:outline-none focus:border-sky-500">
+              </div>
+              <div>
+                <label class="block text-slate-300 font-semibold mb-1">Nội dung tin nhắn</label>
+                <textarea rows="4" required placeholder="Nhập câu hỏi hoặc nội dung bạn cần hỗ trợ..." class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 focus:outline-none focus:border-sky-500"></textarea>
+              </div>
+              <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-sky-500/20 transition-all">
+                Gửi Tin Nhắn Hỗ Trợ ➔
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==================== STICKY MOBILE CTA (Item 9) ==================== -->
+  <aside aria-label="Mobile Action Bar" class="fixed bottom-0 inset-x-0 z-40 xl:hidden bg-[#0d1322]/95 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between gap-3 shadow-2xl">
+    <a href="#/download" class="flex-1 py-2.5 rounded-xl bg-sky-500 text-white text-xs font-bold text-center shadow-lg shadow-sky-500/25">
+      ⬇ Tải xuống v1.0
+    </a>
+    <a href="#/dashboard" class="flex-1 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold text-center">
+      ⚡ Thử Demo Live
+    </a>
+  </aside>
+
+  <!-- ==================== FOOTER ==================== -->

@@ -1,0 +1,33 @@
+<!-- 5. TAB ALERTS -->
+            <div id="demoTabAlerts" class="demo-tab-panel hidden space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div>
+                  <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>🔔</span> Cảnh Báo An Ninh Mạng & Xung Đột
+                  </h3>
+                  <p class="text-xs text-slate-400">Phát hiện thiết bị lạ xâm nhập, xung đột địa chỉ IP và bất thường băng thông</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="simulateSecurityAlert()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 text-xs font-semibold border border-amber-500/40 hover:bg-amber-500/30 transition-all flex items-center gap-1.5">
+                    <span>⚡</span> Mô phỏng sự cố mới
+                  </button>
+                  <button onclick="clearAllAlerts()" class="px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 text-xs hover:text-white border border-slate-800 transition-all">
+                    Đánh dấu đã đọc
+                  </button>
+                </div>
+              </div>
+
+              <!-- Alert Filter Pills -->
+              <div class="flex flex-wrap items-center gap-2">
+                <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-sky-500/20 text-sky-300 border-sky-500/40" data-alert-filter="all">Tất cả (<span id="alertCountTotal">4</span>)</button>
+                <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-alert-filter="CRITICAL">Critical (0)</button>
+                <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-alert-filter="WARNING">Warning (1)</button>
+                <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-alert-filter="SUCCESS">Success (1)</button>
+                <button class="alert-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 border-slate-800 text-slate-400 hover:text-white" data-alert-filter="INFO">Info (2)</button>
+              </div>
+
+              <!-- Alerts List Container -->
+              <div class="rounded-2xl border border-slate-800 overflow-hidden bg-[#0d1322] divide-y divide-slate-800/60" id="demoAlertsList">
+                <!-- Populated by JS -->
+              </div>
+            </div>

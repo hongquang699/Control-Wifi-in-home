@@ -1,4 +1,13 @@
 /**
+ * Network Manager - Web Application Client Bundle
+ * Tự động tạo từ các module độc lập trong web/js/modules/
+ */
+
+// ===== MODULE: i18n.js =====
+/**
+ * Module Bản Địa Hóa & Từ Điển Song Ngữ (i18n & Mock Data)
+ */
+/**
  * Network Manager - Interactive Application & Router Engine
  * Supports 8-Page Routing, Bilingual Switching, Live Dashboard Simulation, Waveform Canvas, Checksum Copy
  */
@@ -245,6 +254,10 @@ let currentLang = localStorage.getItem("nm_lang") || "vi";
 let activeDemoFilter = "all";
 let demoSearchTerm = "";
 
+// ===== MODULE: router.js =====
+/**
+ * Module Điều Hướng Client-Side Router & Mobile Drawer
+ */
 // ==================== INITIALIZATION ====================
 document.addEventListener("DOMContentLoaded", () => {
   initRouter();
@@ -366,6 +379,10 @@ function setupMobileDrawer() {
   });
 }
 
+// ===== MODULE: demo_dashboard.js =====
+/**
+ * Module Điều Khiển Dashboard Tổng Quan & Quản Lý Tab
+ */
 // ==================== DASHBOARD DEMO ====================
 // ==================== DASHBOARD DEMO ENGINE ====================
 let activeDevSubnetFilter = "all";
@@ -554,6 +571,11 @@ function switchDemoTab(tab) {
 // ----------------------------------------------------
 // TAB 2: DEVICES ENGINE
 // ----------------------------------------------------
+
+// ===== MODULE: demo_devices.js =====
+/**
+ * Module Quản Lý Thiết Bị, Quét Mạng & Modal Chi Tiết
+ */
 function setupDevicesFilter() {
   document.querySelectorAll(".dev-filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -758,6 +780,11 @@ window.toggleModalBlock = function() {
 // ----------------------------------------------------
 // TAB 3: NETWORKS & TOPOLOGY ENGINE
 // ----------------------------------------------------
+
+// ===== MODULE: demo_networks.js =====
+/**
+ * Module Hạ Tầng Mạng, Sơ Đồ Topo Đa Tầng & Live Ping Tool
+ */
 window.selectTopologyNode = function(nodeKey) {
   document.querySelectorAll(".topo-node").forEach(n => {
     n.classList.remove("ring-2", "ring-sky-400", "shadow-sky-500/30");
@@ -863,26 +890,11 @@ window.runPingTest = function() {
 // ----------------------------------------------------
 // TAB 4: TRAFFIC CONTROLS
 // ----------------------------------------------------
-window.toggleWaveAnimation = function() {
-  isWaveAnimationPaused = !isWaveAnimationPaused;
-  const icon = document.getElementById("wavePauseIcon");
-  const text = document.getElementById("wavePauseText");
-  if (icon && text) {
-    if (isWaveAnimationPaused) {
-      icon.textContent = "▶️";
-      text.textContent = "Tiếp tục";
-      showToast("Đã tạm dừng đồ thị sóng băng thông");
-    } else {
-      icon.textContent = "⏸️";
-      text.textContent = "Tạm dừng";
-      showToast("Đã kích hoạt lại đồ thị sóng băng thông");
-    }
-  }
-};
 
-// ----------------------------------------------------
-// TAB 5: ALERTS ENGINE
-// ----------------------------------------------------
+// ===== MODULE: demo_alerts.js =====
+/**
+ * Module Trung Tâm Cảnh Báo An Ninh Mạng & Mô Phỏng Sự Cố
+ */
 function setupAlertsFilter() {
   document.querySelectorAll(".alert-filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -986,6 +998,11 @@ window.clearAllAlerts = function() {
 // ----------------------------------------------------
 // TAB 6: LOGS ENGINE & CSV EXPORT
 // ----------------------------------------------------
+
+// ===== MODULE: demo_logs.js =====
+/**
+ * Module Nhật Ký Hoạt Động & Xuất Tệp CSV Thực Tế
+ */
 function renderLogs() {
   const tbody = document.getElementById("demoLogsTableBody");
   if (!tbody) return;
@@ -1065,6 +1082,11 @@ window.clearLogsTable = function() {
 // ----------------------------------------------------
 // TAB 7: SETTINGS ENGINE
 // ----------------------------------------------------
+
+// ===== MODULE: demo_settings.js =====
+/**
+ * Module Cấu Hình Hệ Thống & Quản Trị Router
+ */
 window.togglePasswordVisibility = function() {
   const input = document.getElementById("cfgRouterPass");
   const icon = document.getElementById("passToggleIcon");
@@ -1196,6 +1218,10 @@ async function fetchLiveApiData() {
   fetchLiveTraffic();
 }
 
+// ===== MODULE: demo_live.js =====
+/**
+ * Module Đồng Bộ Dữ Liệu Thời Gian Thực Qua REST API
+ */
 window.refreshLiveDevices = function() {
   showToast(currentLang === "vi" ? "Đang đồng bộ danh sách thiết bị từ REST API..." : "Syncing devices from REST API...");
   fetchLiveApiData();
@@ -1356,6 +1382,32 @@ window.toggleDemoBlock = async function(id) {
 };
 
 let wave2Initialized = false;
+
+// ===== MODULE: demo_traffic.js =====
+/**
+ * Module Giám Sát Lưu Lượng Mạng & Biểu Đồ Sóng Waveform Canvas
+ */
+window.toggleWaveAnimation = function() {
+  isWaveAnimationPaused = !isWaveAnimationPaused;
+  const icon = document.getElementById("wavePauseIcon");
+  const text = document.getElementById("wavePauseText");
+  if (icon && text) {
+    if (isWaveAnimationPaused) {
+      icon.textContent = "▶️";
+      text.textContent = "Tiếp tục";
+      showToast("Đã tạm dừng đồ thị sóng băng thông");
+    } else {
+      icon.textContent = "⏸️";
+      text.textContent = "Tạm dừng";
+      showToast("Đã kích hoạt lại đồ thị sóng băng thông");
+    }
+  }
+};
+
+// ----------------------------------------------------
+// TAB 5: ALERTS ENGINE
+// ----------------------------------------------------
+
 function initDemoWaveCanvas2() {
   if (wave2Initialized) return;
   const canvas = document.getElementById("demoWaveCanvas2");
@@ -1449,6 +1501,10 @@ function initDemoWaveCanvas() {
   requestAnimationFrame(draw);
 }
 
+// ===== MODULE: pages_extra.js =====
+/**
+ * Module Hỗ Trợ Trang Tài Liệu, Liên Hệ, Tải Xuống & Lightbox
+ */
 // ==================== DOCS TABS ====================
 function setupDocsNavigation() {
   document.querySelectorAll(".doc-tab").forEach(tab => {
@@ -1559,6 +1615,11 @@ function setupLightbox() {
   });
 }
 
+// ===== MODULE: toast.js =====
+/**
+ * Module Thông Báo Toast Nổi & Copy Clipboard
+ */
+
 // ==================== TOAST NOTIFICATIONS ====================
 function showToast(message) {
   let container = document.getElementById("toastContainer");
@@ -1587,6 +1648,10 @@ function showToast(message) {
   }, 3000);
 }
 
+// ===== MODULE: auth.js =====
+/**
+ * Module Bảo Mật Đa Lớp, Xác Thực RBAC, Audit Log & Sao Lưu CSDL
+ */
 // =========================================================================
 // MULTI-LAYER SECURITY & RBAC AUTHORIZATION CONTROLLER
 // =========================================================================
@@ -1825,4 +1890,3 @@ window.triggerDatabaseBackup = async function() {
     refreshAuditLogs();
   }
 };
-

@@ -1,0 +1,105 @@
+<div id="page-dashboard" class="page-view hidden py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        
+        <!-- Breadcrumb (Item 5) -->
+        <nav class="flex items-center gap-2 text-xs font-mono text-slate-400" aria-label="Breadcrumb">
+          <a href="#/home" class="hover:text-sky-400">Trang chủ</a>
+          <span>/</span>
+          <span class="text-sky-400 font-semibold">Dashboard Demo</span>
+        </nav>
+
+        <div class="text-center max-w-2xl mx-auto mb-4">
+          <div class="text-xs font-bold font-mono text-emerald-400 uppercase tracking-wider mb-1">
+            INTERACTIVE PLAYGROUND
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight" data-i18n="demo_title">
+            Dashboard Quản Lý Mạng Minh Họa
+          </h1>
+          <p class="text-xs text-slate-400 mt-1" data-i18n="demo_desc">
+            Bố cục Dashboard thực tế với Sidebar, chỉ số Online/Offline, CPU/RAM, biểu đồ sóng và thao tác Chặn/Bỏ chặn trực tiếp.
+          </p>
+        </div>
+
+        <!-- 2-Column Blueprint: Sidebar + Content -->
+        <div class="rounded-3xl border border-white/10 overflow-hidden shadow-2xl flex flex-col lg:flex-row min-h-[640px] bg-[#0b0f19]">
+          
+          <!-- Sidebar -->
+          <aside class="w-full lg:w-64 bg-[#0d1322] border-r border-slate-800 p-5 flex flex-col justify-between select-none">
+            <div>
+              <div class="pb-4 mb-4 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-bold font-mono text-sm">
+                    NM
+                  </span>
+                  <div>
+                    <div class="font-extrabold text-sm text-white tracking-wider">NETWORK</div>
+                    <div class="font-extrabold text-xs text-sky-400">MANAGER</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Menu Items matching ASCII blueprint -->
+              <nav id="demoNavMenu" class="space-y-1 text-xs">
+                <button data-demo-tab="dashboard" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-sky-500/20 text-sky-300 font-semibold border border-sky-500/30 text-left">
+                  <span>📊</span> <span>Dashboard</span>
+                </button>
+                <button data-demo-tab="devices" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
+                  <span>💻</span> <span>Devices</span>
+                </button>
+                <button data-demo-tab="networks" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
+                  <span>🌐</span> <span>Networks</span>
+                </button>
+                <button data-demo-tab="traffic" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
+                  <span>📈</span> <span>Traffic</span>
+                </button>
+                <button data-demo-tab="alerts" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
+                  <span>🔔</span> <span>Alerts</span>
+                </button>
+                <button data-demo-tab="logs" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
+                  <span>📜</span> <span>Logs</span>
+                </button>
+                <button data-demo-tab="settings" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
+                  <span>⚙️</span> <span>Settings</span>
+                </button>
+                <button data-demo-tab="audit" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
+                  <span>🛡️</span> <span class="flex-1">Audit Log</span>
+                  <span id="sidebarAuditRolePill" class="px-1.5 py-0.2 text-[9px] font-bold rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono">ADMIN</span>
+                </button>
+              </nav>
+            </div>
+
+            <!-- RBAC Current Role Box -->
+            <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] mt-4 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400 font-medium">Vai trò hiện tại:</span>
+                <span id="sidebarRoleBadge" class="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30">👑 ADMIN</span>
+              </div>
+              <button onclick="openAuthModal()" class="w-full py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>🔐</span> <span>Đổi Quyền / Đăng Nhập</span>
+              </button>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] mt-3">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="font-semibold text-emerald-400 font-mono">Security WAF Active</span>
+              </div>
+              <div class="text-slate-400 font-mono text-[10px]">192.168.1.0/24 & 110.0/24</div>
+            </div>
+          </aside>
+
+          <!-- Main Content Area -->
+          <div class="flex-1 p-6 overflow-y-auto">
+            <!-- DEMO TABS INCLUDED HERE -->
+            <!-- include: demo/tab_overview.html -->
+            <!-- include: demo/tab_devices.html -->
+            <!-- include: demo/tab_networks.html -->
+            <!-- include: demo/tab_traffic.html -->
+            <!-- include: demo/tab_alerts.html -->
+            <!-- include: demo/tab_logs.html -->
+            <!-- include: demo/tab_settings.html -->
+            <!-- include: demo/tab_audit.html -->
+          </div>
+        </div>
+      </div>
+    </div>

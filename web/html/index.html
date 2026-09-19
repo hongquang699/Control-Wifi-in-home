@@ -99,7 +99,7 @@
   <div class="ambient-glow-1"></div>
   <div class="ambient-glow-2"></div>
 
-  <!-- ==================== STICKY HEADER & NAVBAR ==================== -->
+  <!-- STICKY HEADER & NAVBAR -->
   <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#0b0f19]/85 border-b border-white/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
@@ -177,10 +177,9 @@
     </div>
   </header>
 
-  <!-- ==================== MAIN CONTENT PAGES ==================== -->
+  <!-- MAIN CONTENT PAGES -->
   <main class="flex-1">
-
-    <!-- PAGE 1: TRANG CHỦ (HOME) -->
+    <!-- PAGE 1: HOME -->
     <div id="page-home" class="page-view">
       
       <!-- HERO (Item 2: CTA Above The Fold) -->
@@ -375,6 +374,8 @@
     </div>
 
     <!-- PAGE 2: GIỚI THIỆU (ABOUT) -->
+
+    <!-- PAGE 2: ABOUT -->
     <div id="page-about" class="page-view hidden py-12">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
@@ -504,6 +505,8 @@
     </div>
 
     <!-- PAGE 3: TÍNH NĂNG (FEATURES) -->
+
+    <!-- PAGE 3: FEATURES -->
     <div id="page-features" class="page-view hidden py-12">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
@@ -559,6 +562,8 @@
         </div>
       </div>
     </div>
+
+    <!-- PAGE 4: DASHBOARD DEMO -->
 
     <!-- PAGE 4: DASHBOARD DEMO -->
     <div id="page-dashboard" class="page-view hidden py-12">
@@ -653,7 +658,7 @@
 
           <!-- Main Content Area -->
           <div class="flex-1 p-6 overflow-y-auto">
-            
+            <!-- DEMO TABS INCLUDED HERE -->
             <!-- 1. TAB DASHBOARD -->
             <div id="demoTabDashboard" class="demo-tab-panel space-y-6">
               <!-- Top Metrics Row: Online | Offline | Traffic | Uptime | CPU/RAM -->
@@ -742,7 +747,6 @@
                 </table>
               </div>
             </div>
-
             <!-- 2. TAB DEVICES -->
             <div id="demoTabDevices" class="demo-tab-panel hidden space-y-5">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
@@ -810,7 +814,6 @@
                 </table>
               </div>
             </div>
-
             <!-- 3. TAB NETWORKS -->
             <div id="demoTabNetworks" class="demo-tab-panel hidden space-y-6">
               <div class="pb-3 border-b border-slate-800 flex items-center justify-between">
@@ -997,7 +1000,6 @@
                 </div>
               </div>
             </div>
-
             <!-- 4. TAB TRAFFIC -->
             <div id="demoTabTraffic" class="demo-tab-panel hidden space-y-6">
               <div class="pb-3 border-b border-slate-800 flex items-center justify-between">
@@ -1174,7 +1176,6 @@
                 </div>
               </div>
             </div>
-
             <!-- 5. TAB ALERTS -->
             <div id="demoTabAlerts" class="demo-tab-panel hidden space-y-4">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
@@ -1208,7 +1209,6 @@
                 <!-- Populated by JS -->
               </div>
             </div>
-
             <!-- 6. TAB LOGS -->
             <div id="demoTabLogs" class="demo-tab-panel hidden space-y-4">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
@@ -1261,7 +1261,6 @@
                 </table>
               </div>
             </div>
-
             <!-- 7. TAB SETTINGS -->
             <div id="demoTabSettings" class="demo-tab-panel hidden space-y-6">
               <div class="pb-3 border-b border-slate-800 flex items-center justify-between">
@@ -1385,7 +1384,6 @@
                 </div>
               </div>
             </div>
-
             <!-- 8. TAB AUDIT LOGS (Chỉ Admin) -->
             <div id="demoTabAudit" class="demo-tab-panel hidden space-y-6">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
@@ -1446,9 +1444,13 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            <!-- DEVICE DETAIL MODAL POPUP -->
-            <div id="deviceDetailModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <!-- MODALS -->
+    <div id="deviceDetailModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
               <div class="max-w-md w-full rounded-2xl bg-[#0d1322] border border-slate-700 shadow-2xl p-5 space-y-4 animate-fade-in">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                   <div class="flex items-center gap-3">
@@ -1588,7 +1590,7 @@
       </div>
     </div>
 
-    <!-- PAGE 5: TẢI XUỐNG (DOWNLOAD) -->
+    <!-- PAGE 5: DOWNLOAD -->
     <div id="page-download" class="page-view hidden py-12">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
@@ -1717,6 +1719,8 @@
     </div>
 
     <!-- PAGE 6: TÀI LIỆU & 5 FAQs (DOCS) (Item 7: 5 FAQs) -->
+
+    <!-- PAGE 6: DOCS -->
     <div id="page-docs" class="page-view hidden py-12">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
@@ -1838,6 +1842,8 @@
     </div>
 
     <!-- PAGE 7: TIN TỨC (NEWS) -->
+
+    <!-- PAGE 7: NEWS -->
     <div id="page-news" class="page-view hidden py-12">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
@@ -1899,6 +1905,8 @@
     </div>
 
     <!-- PAGE 8: LIÊN HỆ & BẢN ĐỒ (CONTACT & MAPS) (Item 14: Maps + directions, Item 8: Response promise) -->
+
+    <!-- PAGE 8: CONTACT -->
     <div id="page-contact" class="page-view hidden py-12">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
@@ -2008,6 +2016,9 @@
   </aside>
 
   <!-- ==================== FOOTER ==================== -->
+  </main>
+
+  <!-- FOOTER -->
   <footer class="border-t border-white/10 bg-[#070a12] py-14 mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
@@ -2079,6 +2090,11 @@
   </div>
 
   <!-- Main JavaScript Application Engine -->
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Scripts -->
   <script src="../js/app.js"></script>
 </body>
 </html>

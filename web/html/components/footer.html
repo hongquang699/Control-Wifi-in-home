@@ -1,0 +1,71 @@
+<footer class="border-t border-white/10 bg-[#070a12] py-14 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+        
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-3">
+            <img src="../images/logo.png" alt="Logo Network Manager" class="w-8 h-8 rounded-lg">
+            <span class="font-extrabold text-base text-white tracking-tight">NETWORK MANAGER</span>
+          </div>
+          <p class="text-xs text-slate-400 max-w-sm leading-relaxed mb-4" data-i18n="footer_tagline">
+            Hệ thống quản lý, giám sát và kiểm soát an ninh mạng nội bộ thế hệ mới. Tự động phát hiện 100% thiết bị, lập sơ đồ Internet Hop Path và kiểm soát truy cập cấp Router.
+          </p>
+          <div class="flex items-center gap-2 text-xs text-slate-400">
+            <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono">MIT License</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono">v1.0.0</span>
+            <a href="privacy-policy.html" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 hover:text-sky-400 transition-colors">Privacy Policy</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3">Trang chính</h4>
+          <ul class="space-y-2 text-xs text-slate-400">
+            <li><a href="#/home" class="hover:text-sky-400 transition-colors" data-i18n="nav_home">Trang chủ</a></li>
+            <li><a href="#/about" class="hover:text-sky-400 transition-colors" data-i18n="nav_about">Giới thiệu</a></li>
+            <li><a href="#/features" class="hover:text-sky-400 transition-colors" data-i18n="nav_features">Tính năng</a></li>
+            <li><a href="#/dashboard" class="hover:text-sky-400 transition-colors" data-i18n="nav_dashboard">Dashboard Demo</a></li>
+            <li><a href="#/download" class="hover:text-sky-400 transition-colors" data-i18n="nav_download">Tải xuống</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3">Tài nguyên & Hỗ trợ</h4>
+          <ul class="space-y-2 text-xs text-slate-400">
+            <li><a href="#/docs" class="hover:text-sky-400 transition-colors" data-i18n="nav_docs">Tài liệu hướng dẫn</a></li>
+            <li><a href="#/news" class="hover:text-sky-400 transition-colors" data-i18n="nav_news">Tin tức & Cập nhật</a></li>
+            <li><a href="#/contact" class="hover:text-sky-400 transition-colors" data-i18n="nav_contact">Liên hệ hỗ trợ</a></li>
+            <li><a href="privacy-policy.html" class="hover:text-sky-400 transition-colors">Chính sách quyền riêng tư</a></li>
+            <li><a href="https://github.com/hongquang699/Control-Wifi-in-home" target="_blank" rel="noreferrer" class="hover:text-sky-400 transition-colors">GitHub Repository</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200/90 leading-relaxed mb-6">
+        <span class="font-bold text-amber-300">Lưu ý an ninh & Pháp lý: </span>
+        <span data-i18n="footer_disclaimer">Phần mềm được phát triển cho mục đích quản trị mạng được ủy quyền, giám sát an toàn hệ thống và học tập nghiên cứu trên hạ tầng thuộc quyền sở hữu. Mọi hành vi can thiệp trái phép đều bị nghiêm cấm.</span>
+      </div>
+
+      <div class="pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div>© 2026 Network Manager. All rights reserved.</div>
+        <div>Developed with passion for modern networking.</div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ==================== LIGHTBOX MODAL ==================== -->
+  <div id="lightboxModal" class="lightbox-modal">
+    <button id="lightboxClose" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-800/80 text-white flex items-center justify-center hover:bg-slate-700 border border-white/20 transition-all z-10">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <div class="flex flex-col items-center justify-center p-4">
+      <img id="lightboxImg" src="" alt="Application Screenshot Zoom View" class="lightbox-content mb-3">
+      <p id="lightboxCaption" class="text-sm font-semibold text-slate-200 text-center px-4 py-1.5 rounded-full bg-slate-900/80 border border-white/10"></p>
+    </div>
+  </div>
+
+  <!-- Main JavaScript Application Engine -->
