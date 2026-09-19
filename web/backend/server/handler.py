@@ -28,7 +28,6 @@ except ImportError:
         dos_manager
     )
 
-from backend.middleware.security_headers import apply_security_headers
 from backend.middleware.waf import inspect_request
 from backend.middleware.rate_limit import rate_limiter
 from backend.services.audit_service import audit_logger
@@ -61,7 +60,6 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
         origin = self.headers.get("Origin")
         cors_manager.apply_cors_headers(self, origin)
         apply_web_security_headers(self, is_api_response=self.path.startswith("/api/"))
-        apply_security_headers(self)
         super().end_headers()
 
     def get_client_ip(self) -> str:

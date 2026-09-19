@@ -35,14 +35,14 @@ DEFAULT_SECURITY_HEADERS = {
     # 8. Chính sách bảo mật nội dung tối ưu (Content-Security-Policy)
     "Content-Security-Policy": (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-        "style-src 'self' 'unsafe-inline' https://cdn-uicons.flaticon.com https://fonts.googleapis.com; "
-        "font-src 'self' https://cdn-uicons.flaticon.com https://fonts.gstatic.com data:; "
-        "img-src 'self' data: https:; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
+        "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn-uicons.flaticon.com https://cdn.jsdelivr.net; "
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn-uicons.flaticon.com data:; "
+        "img-src 'self' data: https: blob:; "
         "connect-src 'self' ws: wss:; "
         "object-src 'none'; "
         "base-uri 'self'; "
-        "frame-ancestors 'none'; "
+        "frame-ancestors 'self'; "
         "form-action 'self';"
     )
 }
