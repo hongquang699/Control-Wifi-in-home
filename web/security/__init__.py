@@ -77,6 +77,11 @@ from .data_masker import (
     is_sensitive_key
 )
 
+from .dos_guard import (
+    DoSProtectionManager,
+    dos_manager
+)
+
 __all__ = [
     "hash_password",
     "verify_password",
@@ -108,6 +113,8 @@ __all__ = [
     "RequestGuardViolation",
     "request_guard",
     "mask_sensitive_data",
-    "is_sensitive_key"
+    "is_sensitive_key",
+    "DoSProtectionManager",
+    "dos_manager"
 ]
 

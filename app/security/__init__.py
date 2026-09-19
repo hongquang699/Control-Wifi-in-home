@@ -60,6 +60,10 @@ from .audit_logger import (
     AppAuditLogger,
     app_audit_logger
 )
+from .dos_monitor import (
+    HostDoSMonitor,
+    host_dos_monitor
+)
 
 __all__ = [
     "BlockManager",
@@ -92,6 +96,8 @@ __all__ = [
     "ARPSecurityAnomaly",
     "arp_guard",
     "AppAuditLogger",
-    "app_audit_logger"
+    "app_audit_logger",
+    "HostDoSMonitor",
+    "host_dos_monitor"
 ]
 

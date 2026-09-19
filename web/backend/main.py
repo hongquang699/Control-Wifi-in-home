@@ -20,16 +20,17 @@ if WEB_DIR not in sys.path:
 
 from backend.server import MultiLayerSecureHandler, ThreadedHTTPServer
 try:
-    from web.security import rate_limiter as web_rate_limiter
+    from web.security import rate_limiter as web_rate_limiter, dos_manager
 except ImportError:
-    from security import rate_limiter as web_rate_limiter
+    from security import rate_limiter as web_rate_limiter, dos_manager
 
 PORT = int(os.environ.get("PORT", 8080))
 BASE_DIR = WEB_DIR
 
 def run_server(port: int = PORT):
-    # Khởi tạo lại trạng thái rate limiter khi máy chủ bắt đầu chạy
+    # Khởi tạo lại trạng thái rate limiter & Anti-DoS khi máy chủ bắt đầu chạy
     web_rate_limiter.reset()
+    dos_manager.reset()
 
     print("=" * 65)
     print("    NETWORK MANAGER - MÁY CHỦ BẢO MẬT ĐA LỚP (MULTI-LAYER SECURITY)")
@@ -39,6 +40,7 @@ def run_server(port: int = PORT):
     print(f"[*] Địa chỉ truy cập: http://localhost:{port}")
     print(f"[*] Hệ thống WAF: KÍCH HOẠT (Chặn SQLi, XSS, Path Traversal, Cmd Inj)")
     print(f"[*] Hệ thống Rate Limiting: KÍCH HOẠT (Sliding-Window IP Guard)")
+    print(f"[*] Hệ thống Anti-DoS / DDoS: KÍCH HOẠT (L4/L7 Connection Shield, Slowloris, PoW)")
     print(f"[*] Hệ thống Xác thực RBAC: KÍCH HOẠT (Admin, Operator, User)")
     print(f"[*] Hệ thống Audit Log: KÍCH HOẠT (web/logs/audit/audit.log)")
     print("-" * 65)

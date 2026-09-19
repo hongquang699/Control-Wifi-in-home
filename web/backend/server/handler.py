@@ -15,7 +15,8 @@ try:
         apply_security_headers as apply_web_security_headers,
         csrf_protector, audit_logger as sec_audit_logger,
         cors_manager, vpn_guard,
-        request_guard, mask_sensitive_data
+        request_guard, mask_sensitive_data,
+        dos_manager
     )
 except ImportError:
     from security import (
@@ -23,7 +24,8 @@ except ImportError:
         apply_security_headers as apply_web_security_headers,
         csrf_protector, audit_logger as sec_audit_logger,
         cors_manager, vpn_guard,
-        request_guard, mask_sensitive_data
+        request_guard, mask_sensitive_data,
+        dos_manager
     )
 
 from backend.middleware.security_headers import apply_security_headers
@@ -94,6 +96,27 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = parsed.query
+
+        # -1. Kiểm tra Anti-DoS: Micro-burst và Trạng thái Under Attack (web.security.dos_guard)
+        is_burst_ok, burst_code, burst_err = dos_manager.check_request(client_ip, endpoint=path)
+        if not is_burst_ok:
+            sec_audit_logger.log_security_event(
+                event_type="DOS_BURST_ATTACK_BLOCKED",
+                actor="anonymous",
+                ip_address=client_ip,
+                details=burst_err or f"Micro-burst DoS blocked on {path}",
+                severity="CRITICAL"
+            )
+            self.send_json(
+                {
+                    "error": burst_err or "Yêu cầu bị từ chối bởi hệ thống phòng thủ Anti-DoS.",
+                    "status": burst_code,
+                    "client_ip": client_ip
+                },
+                status=burst_code,
+                extra_headers={"Retry-After": "60"}
+            )
+            return False
 
         # 0. Kiểm tra kích thước và MIME type của Request (web.security.request_guard)
         is_req_valid, req_err_code, req_err_msg = request_guard.validate_request(
@@ -283,9 +306,55 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
 
 
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    """
+    Máy chủ HTTP đa luồng tích hợp khiên chắn Anti-DoS & Anti-Slowloris:
+    - Kiểm soát số lượng kết nối đồng thời theo IP (L4/L7 Concurrency Shield)
+    - Giới hạn tải toàn hệ thống tránh cạn kiệt luồng và bộ nhớ RAM
+    - Strict Socket Timeout (5.0s) triệt tiêu tấn công Slowloris và Slow POST
+    """
     allow_reuse_address = True
     daemon_threads = True
 
     def __init__(self, server_address, RequestHandlerClass, base_dir=None):
         self.base_dir = base_dir
         super().__init__(server_address, RequestHandlerClass)
+
+    def verify_request(self, request, client_address):
+        """
+        Tầng L4/L7 Connection Shield: Kiểm tra giới hạn kết nối đồng thời trước khi sinh luồng (Thread).
+        Từ chối và đóng socket ngay lập tức nếu IP hoặc server chạm ngưỡng giới hạn.
+        """
+        client_ip = client_address[0]
+        try:
+            # Thiết lập strict socket timeout chống Slowloris / Slow POST
+            request.settimeout(dos_manager.socket_timeout)
+        except Exception:
+            pass
+
+        allowed, reason = dos_manager.register_connection(client_ip)
+        if not allowed:
+            try:
+                # Gửi nhanh phản hồi HTTP 503 trước khi ngắt kết nối
+                resp = (
+                    b"HTTP/1.1 503 Service Unavailable\r\n"
+                    b"Content-Type: application/json; charset=utf-8\r\n"
+                    b"Connection: close\r\n"
+                    b"Retry-After: 5\r\n\r\n"
+                    b'{"error":"Server overloaded or connection limit reached (Anti-DoS Protection).","status":503}\r\n'
+                )
+                request.sendall(resp)
+            except Exception:
+                pass
+            return False
+
+        return True
+
+    def process_request_thread(self, request, client_address):
+        """Xử lý yêu cầu trong luồng riêng biệt và giải phóng kết nối trong khối finally."""
+        try:
+            self.finish_request(request, client_address)
+        except Exception:
+            self.handle_error(request, client_address)
+        finally:
+            self.shutdown_request(request)
+            dos_manager.release_connection(client_address[0])
