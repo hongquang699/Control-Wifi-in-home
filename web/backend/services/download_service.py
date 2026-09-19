@@ -65,8 +65,8 @@ class DownloadService:
         if os.path.exists(win_path):
             win_size = f"{os.path.getsize(win_path) / (1024 * 1024):.1f} MB"
 
-        linux_path = os.path.join(self.downloads_dir, "linux", "NetworkManager-v1.0.0-linux-x64.tar.gz")
-        macos_path = os.path.join(self.downloads_dir, "macos", "NetworkManager-v1.0.0-darwin-arm64.dmg")
+        linux_path = os.path.join(self.downloads_dir, "linux", "NetworkManager-v2.0.0-linux-x64.tar.gz")
+        macos_path = os.path.join(self.downloads_dir, "macos", "NetworkManager-v2.0.0-darwin-arm64.dmg")
 
         return [
             {
@@ -84,26 +84,26 @@ class DownloadService:
             {
                 "platform": "linux",
                 "title": "Linux (x64, Debian/Ubuntu/Fedora)",
-                "filename": "NetworkManager-v1.0.0-linux-x64.tar.gz",
-                "version": "1.0.0",
-                "release_date": "19/09/2026",
+                "filename": "NetworkManager-v2.0.0-linux-x64.tar.gz",
+                "version": "2.0.0",
+                "release_date": "20/09/2026",
                 "size_display": "38.6 MB",
                 "sha256": self.get_file_sha256(linux_path),
                 "digital_signature": "GPG Signed (Key ID: 0x4A2B1C9D)",
                 "verified": True,
-                "url": "/downloads/linux/NetworkManager-v1.0.0-linux-x64.tar.gz"
+                "url": "/downloads/linux/NetworkManager-v2.0.0-linux-x64.tar.gz"
             },
             {
                 "platform": "macos",
                 "title": "macOS (Apple Silicon M1/M2/M3)",
-                "filename": "NetworkManager-v1.0.0-darwin-arm64.dmg",
-                "version": "1.0.0",
-                "release_date": "19/09/2026",
+                "filename": "NetworkManager-v2.0.0-darwin-arm64.dmg",
+                "version": "2.0.0",
+                "release_date": "20/09/2026",
                 "size_display": "42.1 MB",
                 "sha256": self.get_file_sha256(macos_path),
                 "digital_signature": "Apple Notarized (Developer ID Application)",
                 "verified": True,
-                "url": "/downloads/macos/NetworkManager-v1.0.0-darwin-arm64.dmg"
+                "url": "/downloads/macos/NetworkManager-v2.0.0-darwin-arm64.dmg"
             }
         ]
 

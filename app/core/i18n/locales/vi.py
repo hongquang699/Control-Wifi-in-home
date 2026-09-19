@@ -6,7 +6,7 @@ VI_TRANSLATIONS = {
     # App & Header
     "app_title": "Network Manager - Quản lý & Giám sát Mạng Nội bộ",
     "app_brand": "NET MANAGER",
-    "app_footer": "Network Manager v1.0\nGiám sát mạng an toàn",
+    "app_footer": "Network Manager v2.0\nGiám sát mạng an toàn",
     "status_ready": "Trạng thái: Trực tuyến (Sẵn sàng)",
     "status_scanning": "Trạng thái: Đang quét mạng...",
     "status_error": "Trạng thái: Lỗi quét",

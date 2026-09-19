@@ -344,7 +344,7 @@
     try {
       // Đóng băng interface bảo mật của NetworkManager trên window
       window.NetworkManagerSecurity = Object.freeze({
-        version: '1.0.0',
+        version: '2.0.0',
         tamperProtectionActive: true,
         getConfig: function () {
           return Object.assign({}, AntiTamperConfig);

@@ -58,7 +58,7 @@ class APIRouter:
 
         # 1. Health check
         if path in ("/api/v1/health", "/api/v1/status"):
-            return {"status": "HEALTHY", "version": "1.0.0", "security_level": "High (Multi-Layer)"}, 200
+            return {"status": "HEALTHY", "version": "2.0.0", "security_level": "High (Multi-Layer)"}, 200
 
         # 2. Thông tin phiên hiện tại
         if path == "/api/v1/auth/me":

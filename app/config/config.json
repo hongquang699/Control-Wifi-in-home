@@ -1,6 +1,6 @@
 {
   "app_name": "Network Manager",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "network": {
     "auto_detect_interface": true,
     "scan_all_subnets": true,

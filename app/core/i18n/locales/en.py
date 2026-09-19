@@ -6,7 +6,7 @@ EN_TRANSLATIONS = {
     # App & Header
     "app_title": "Network Manager - Local Network Suite",
     "app_brand": "NET MANAGER",
-    "app_footer": "Network Manager v1.0\nSafe Local Network Suite",
+    "app_footer": "Network Manager v2.0\nSafe Local Network Suite",
     "status_ready": "Status: Online (Ready)",
     "status_scanning": "Status: Scanning network...",
     "status_error": "Status: Scan Error",

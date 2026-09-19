@@ -1,6 +1,6 @@
 # Network Manager Installation Guide
 
-Comprehensive setup and deployment guide for **Network Manager v1.0.0** across **Windows**, **Linux**, and **macOS**.
+Comprehensive setup and deployment guide for **Network Manager v2.0.0** across **Windows**, **Linux**, and **macOS**.
 
 ---
 
@@ -20,7 +20,7 @@ Comprehensive setup and deployment guide for **Network Manager v1.0.0** across *
 ## 2. Installation on Windows
 
 ### Option 1: Standalone Portable Executable (.exe) — Recommended
-1. Download `NetworkManager-v1.0.0-windows-x64.zip` from the [Downloads Page](#/download).
+1. Download `NetworkManager-v2.0.0-windows-x64.zip` from the [Downloads Page](#/download).
 2. Extract the archive to your target directory (e.g., `C:\Tools\NetworkManager\`).
 3. Launch:
    - **Standard Mode**: Double-click `run.bat` or `NetworkManager.exe`.
@@ -47,10 +47,10 @@ python app/main.py
 
 ## 3. Installation on Linux (Ubuntu / Debian / Fedora / Arch)
 
-1. Download the release archive `NetworkManager-v1.0.0-linux-x64.tar.gz`.
+1. Download the release archive `NetworkManager-v2.0.0-linux-x64.tar.gz`.
 2. Extract the bundle:
    ```bash
-   tar -xzf NetworkManager-v1.0.0-linux-x64.tar.gz
+   tar -xzf NetworkManager-v2.0.0-linux-x64.tar.gz
    cd NetworkManager
    ```
 3. Grant execution permissions and run with sudo for raw socket access:

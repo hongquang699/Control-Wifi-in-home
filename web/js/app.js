@@ -350,7 +350,7 @@
     try {
       // Đóng băng interface bảo mật của NetworkManager trên window
       window.NetworkManagerSecurity = Object.freeze({
-        version: '1.0.0',
+        version: '2.0.0',
         tamperProtectionActive: true,
         getConfig: function () {
           return Object.assign({}, AntiTamperConfig);
@@ -412,17 +412,17 @@ const i18nData = {
     nav_docs: "Tài liệu",
     nav_news: "Tin tức",
     nav_contact: "Liên hệ",
-    nav_btn_download: "Tải bản v1.0",
+    nav_btn_download: "Tải bản v2.0",
     breadcrumb_home: "Trang chủ",
 
     // Hero Section
-    hero_badge: "HỆ THỐNG QUẢN LÝ MẠNG TOÀN DIỆN V1.0.0",
+    hero_badge: "HỆ THỐNG QUẢN LÝ MẠNG TOÀN DIỆN V2.0.0",
     hero_support_sla: "Hỗ trợ kỹ thuật: Phản hồi < 2h",
     hero_title_1: "Giám Sát Toàn Diện,",
     hero_title_2: "Phân Tích Đa Tầng",
     hero_title_3: "& Kiểm Soát An Ninh Mạng",
     hero_desc: "Giải pháp quản trị mạng cục bộ tự động phát hiện 100% thiết bị LAN/WLAN, nhận diện phần cứng qua OUI, lập sơ đồ Internet Hop Path, giám sát băng thông thời gian thực và quản lý chặn thiết bị qua Router phần cứng.",
-    hero_btn_download: "Tải xuống phần mềm (v1.0.0)",
+    hero_btn_download: "Tải xuống phần mềm (v2.0.0)",
     hero_btn_demo: "Trải nghiệm Dashboard Demo",
     badge_win: "Sẵn sàng cho Windows 10/11",
     badge_unix: "Sẵn sàng cho Linux & macOS",
@@ -553,17 +553,17 @@ const i18nData = {
     nav_docs: "Documentation",
     nav_news: "News",
     nav_contact: "Contact",
-    nav_btn_download: "Download v1.0",
+    nav_btn_download: "Download v2.0",
     breadcrumb_home: "Home",
 
     // Hero Section
-    hero_badge: "COMPREHENSIVE NETWORK MANAGEMENT SUITE V1.0.0",
+    hero_badge: "COMPREHENSIVE NETWORK MANAGEMENT SUITE V2.0.0",
     hero_support_sla: "Technical Support: SLA < 2h",
     hero_title_1: "Comprehensive Monitoring,",
     hero_title_2: "Multi-Tier Topology",
     hero_title_3: "& Network Access Control",
     hero_desc: "Enterprise-grade local network management suite: Automatically discovers 100% of devices, identifies hardware vendors via OUI, maps Internet hop routes, tracks real-time traffic, and enforces router-level blocking.",
-    hero_btn_download: "Download Software (v1.0.0)",
+    hero_btn_download: "Download Software (v2.0.0)",
     hero_btn_demo: "Explore Dashboard Demo",
     badge_win: "Windows 10/11 Ready",
     badge_unix: "Linux & macOS Ready",
@@ -789,7 +789,7 @@ const pageTitles = {
     dashboard: "Dashboard Demo Tương Tác | Network Manager Live Simulation",
     download: "Tải Xuống Phần Mềm Network Manager (Windows, Linux, macOS) | SHA-256",
     docs: "Tài Liệu Kỹ Thuật & 5 FAQs Hướng Dẫn | Network Manager Docs",
-    news: "Tin Tức & Lịch Sử Phiên Bản v1.0.0 | Network Manager Updates",
+    news: "Tin Tức & Lịch Sử Phiên Bản v2.0.0 | Network Manager Updates",
     contact: "Liên Hệ Hỗ Trợ Kỹ Thuật SLA < 2h | Network Manager Support"
   },
   en: {
@@ -799,7 +799,7 @@ const pageTitles = {
     dashboard: "Interactive Dashboard Demo | Network Manager Live Simulation",
     download: "Download Network Manager (Windows, Linux, macOS) | SHA-256 Verified",
     docs: "Technical Documentation & 5 FAQs | Network Manager Docs",
-    news: "News & Release Notes v1.0.0 | Network Manager Updates",
+    news: "News & Release Notes v2.0.0 | Network Manager Updates",
     contact: "Contact & Technical Support SLA < 2h | Network Manager Support"
   }
 };

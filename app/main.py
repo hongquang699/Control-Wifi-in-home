@@ -71,7 +71,7 @@ def main():
     if sys.platform == "win32":
         try:
             import ctypes
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("securitynetworktools.networkmanager.1.2")
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("securitynetworktools.networkmanager.2.0")
         except Exception:
             pass
 

@@ -9,7 +9,7 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
 def package():
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     dist_dir = os.path.join(base_dir, "app", "dist", "NetworkManager")
-    out_zip = os.path.join(base_dir, "web", "downloads", "windows", "NetworkManager-v1.0.0-windows-x64.zip")
+    out_zip = os.path.join(base_dir, "web", "downloads", "windows", "NetworkManager-v2.0.0-windows-x64.zip")
     
     if not os.path.exists(dist_dir):
         print("[!] Không tìm thấy thư mục build:", dist_dir)

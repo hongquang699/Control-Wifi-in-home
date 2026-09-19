@@ -17,7 +17,7 @@ Verifies the operational status and uptime of the API server.
 ```json
 {
   "status": "healthy",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "timestamp": "2026-09-19T09:00:00Z"
 }
 ```
@@ -156,12 +156,12 @@ Lists official release packages, architectures, download URLs, and verified SHA-
   {
     "platform": "windows",
     "name": "Windows x64",
-    "filename": "NetworkManager-v1.0.0-windows-x64.zip",
-    "size_display": "45.2 MB",
-    "release_date": "19/09/2026",
-    "version": "1.0.0",
-    "sha256": "8c5c757467ddd568debc7a2b3536fbfdf87604c603f917b546f002d240cace19",
-    "url": "/downloads/windows/NetworkManager-v1.0.0-windows-x64.zip"
+    "filename": "NetworkManager-v2.0.0-windows-x64.zip",
+    "size_display": "51.5 MB",
+    "release_date": "20/09/2026",
+    "version": "2.0.0",
+    "sha256": "4be1ab4862ef9aad4646cdbb05fcd8aff9bf9d83231c97f24a603d1ef2768298",
+    "url": "/downloads/windows/NetworkManager-v2.0.0-windows-x64.zip"
   }
 ]
 ```
