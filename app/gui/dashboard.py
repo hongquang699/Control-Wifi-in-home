@@ -7,20 +7,15 @@ Thiết kế chuẩn xác theo ảnh mẫu:
 - Bảng Thiết Bị Đầy Đủ 7 Cột kèm Thao Tác Chặn / Bỏ Chặn Trực Tiếp
 """
 
-import math
-import psutil
-import time
-from typing import Dict, List, Optional
+from typing import Optional
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QFrame, QTableWidget, QTableWidgetItem, QHeaderView, QLineEdit,
     QMessageBox
 )
-from PySide6.QtCore import Qt, Signal, QTimer, QPointF, QRectF
-from PySide6.QtGui import (
-    QFont, QColor, QPainter, QPen, QBrush, QPainterPath, QLinearGradient
-)
+from PySide6.QtCore import Qt, Signal, QTimer
+from PySide6.QtGui import QFont, QColor
 
 from database.devices import DeviceDAO
 from database.events import EventDAO

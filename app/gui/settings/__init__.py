@@ -5,7 +5,7 @@ Màn hình Cấu hình Hệ thống (Settings View) - Được module hóa từ 
 import json
 import os
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame,
+    QWidget, QVBoxLayout, QLabel, QFrame,
     QMessageBox, QFileDialog, QScrollArea, QLineEdit
 )
 from PySide6.QtCore import Qt, Signal

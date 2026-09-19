@@ -19,9 +19,8 @@ window.toggleWaveAnimation = function() {
 };
 
 // ----------------------------------------------------
-// TAB 5: ALERTS ENGINE
+// TAB 4: TRAFFIC WAVEFORM CANVAS
 // ----------------------------------------------------
-
 function initDemoWaveCanvas2() {
   if (wave2Initialized) return;
   const canvas = document.getElementById("demoWaveCanvas2");
