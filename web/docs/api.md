@@ -1,17 +1,17 @@
-# Đặc Tả Network Manager REST API (API Specification)
+# Network Manager REST API Specification
 
-Network Manager cung cấp hệ thống REST API chuẩn để truy xuất số liệu giám sát, điều khiển danh sách thiết bị và kiểm tra trạng thái mạng.
+Network Manager provides a standardized RESTful API to query network telemetry, manage device inventories, trigger hardware-level blocking, and monitor security events.
 
-- **Base URL**: `http://localhost:8000/api/v1`
+- **Base URL**: `http://localhost:8080/api/v1`
 - **Content-Type**: `application/json`
-- **Mã phản hồi chuẩn**: `200 OK`, `400 Bad Request`, `404 Not Found`, `500 Server Error`.
+- **Standard HTTP Codes**: `200 OK`, `400 Bad Request`, `403 Forbidden`, `404 Not Found`, `429 Too Many Requests`, `500 Server Error`.
 
 ---
 
-## 1. Hệ Thống & Kiểm Tra Trạng Thái
+## 1. System Health & Real-Time Metrics
 
 ### GET `/health`
-Kiểm tra tình trạng hoạt động của API Server.
+Verifies the operational status and uptime of the API server.
 
 **Response:**
 ```json
@@ -25,7 +25,7 @@ Kiểm tra tình trạng hoạt động của API Server.
 ---
 
 ### GET `/stats`
-Lấy các chỉ số tổng quan mạng theo thời gian thực (Metrics).
+Retrieves aggregated network statistics, active client counts, throughput, and host resource utilization.
 
 **Response:**
 ```json
@@ -49,15 +49,15 @@ Lấy các chỉ số tổng quan mạng theo thời gian thực (Metrics).
 
 ---
 
-## 2. Quản Lý Thiết Bị Mạng (Devices)
+## 2. Device Management & Access Control
 
 ### GET `/devices`
-Lấy danh sách tất cả các thiết bị đã phát hiện trong mạng nội bộ.
+Returns the full inventory of detected devices across all local network subnets.
 
 **Query Parameters:**
-- `status`: Lọc theo `ONLINE`, `OFFLINE`, `BLOCKED` (tùy chọn).
-- `subnet`: Lọc theo `primary` (192.168.1.x) hoặc `secondary` (192.168.110.x).
-- `search`: Từ khóa tìm kiếm theo IP, MAC, Tên, Vendor.
+- `status`: Filter by state (`ONLINE`, `OFFLINE`, `BLOCKED`) (optional).
+- `subnet`: Filter by network zone (`primary` for 192.168.1.x, `secondary` for 192.168.110.x).
+- `search`: Case-insensitive text filter matching IP, MAC, hostname, or vendor.
 
 **Response:**
 ```json
@@ -70,7 +70,7 @@ Lấy danh sách tất cả các thiết bị đã phát hiện trong mạng n�
     "alias": "Dell XPS 15 (Workstation)",
     "vendor": "Dell Inc.",
     "device_type": "PC / Laptop",
-    "network_zone": "Wi-Fi Tổng (192.168.1.x)",
+    "network_zone": "Primary Wi-Fi (192.168.1.x)",
     "medium": "Wi-Fi",
     "latency_ms": 2,
     "status": "ONLINE",
@@ -83,12 +83,15 @@ Lấy danh sách tất cả các thiết bị đã phát hiện trong mạng n�
 ---
 
 ### POST `/devices/{mac}/block`
-Gửi lệnh chặn phần cứng tới Router và thiết lập tường lửa cho địa chỉ MAC chỉ định.
+Enforces hardware MAC filtering on the router adapter and configures host firewall isolation rules for the specified MAC address.
+
+**Request Headers:**
+- `X-CSRF-Token`: `<valid_csrf_token>`
 
 **Request Body:**
 ```json
 {
-  "reason": "Vi phạm chính sách bảo mật mạng"
+  "reason": "Security policy violation"
 }
 ```
 
@@ -98,14 +101,17 @@ Gửi lệnh chặn phần cứng tới Router và thiết lập tường lửa 
   "success": true,
   "mac": "38:B1:DB:54:A8:12",
   "status": "BLOCKED",
-  "message": "Đã chặn thiết bị thành công qua Router & Firewall."
+  "message": "Device successfully blocked via Router ACL and Host Firewall."
 }
 ```
 
 ---
 
 ### POST `/devices/{mac}/unblock`
-Gỡ bỏ lệnh chặn thiết bị, khôi phục quyền truy cập mạng.
+Removes isolation rules from the router and host firewall, restoring network access.
+
+**Request Headers:**
+- `X-CSRF-Token`: `<valid_csrf_token>`
 
 **Response:**
 ```json
@@ -113,16 +119,16 @@ Gỡ bỏ lệnh chặn thiết bị, khôi phục quyền truy cập mạng.
   "success": true,
   "mac": "38:B1:DB:54:A8:12",
   "status": "ONLINE",
-  "message": "Đã gỡ bỏ lệnh chặn thành công."
+  "message": "Device successfully unblocked."
 }
 ```
 
 ---
 
-## 3. Cảnh Báo An Ninh & Sự Kiện (Alerts & Logs)
+## 3. Security Alerts & Audit Logging
 
 ### GET `/alerts`
-Lấy luồng cảnh báo an ninh mạng gần đây.
+Retrieves recent network security alerts, rogue device notifications, and ARP anomaly reports.
 
 **Response:**
 ```json
@@ -130,8 +136,8 @@ Lấy luồng cảnh báo an ninh mạng gần đây.
   {
     "id": "alt-101",
     "level": "WARNING",
-    "title": "Phát hiện thiết bị mới kết nối",
-    "description": "Thiết bị mới IP: 192.168.1.134, MAC: 7C:49:EB:11:8A:92 (Xiaomi Communications) vừa tham gia mạng.",
+    "title": "New unclassified device detected",
+    "description": "Device IP: 192.168.1.134, MAC: 7C:49:EB:11:8A:92 (Xiaomi Communications) joined the network.",
     "timestamp": "2026-09-19T08:45:12Z"
   }
 ]
@@ -139,10 +145,10 @@ Lấy luồng cảnh báo an ninh mạng gần đây.
 
 ---
 
-## 4. Danh Sách Gói Tải Xuống (Downloads)
+## 4. Software Distribution Packages
 
 ### GET `/downloads`
-Lấy danh sách các bản phân phối chính thức kèm dung lượng và mã băm SHA-256.
+Lists official release packages, architectures, download URLs, and verified SHA-256 integrity checksums.
 
 **Response:**
 ```json

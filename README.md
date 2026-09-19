@@ -1,203 +1,241 @@
-# NETWORK MANAGER — Hệ Thống Quản Lý & Giám Sát Mạng Nội Bộ Chuyên Nghiệp
+# NETWORK MANAGER — Professional Local Network Management & Security Monitoring System
+
+[English](README.md) | [Tiếng Việt](README_VI.md)
 
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
 [![PySide6](https://img.shields.io/badge/GUI-PySide6%20Qt6-brightgreen.svg)](https://pypi.org/project/PySide6/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Security](https://img.shields.io/badge/Security-Multi--Layer%20WAF%20%2B%20CSP-red.svg)](#h%E1%BB%87-th%E1%BB%91ng-b%E1%BA%A3o-m%E1%BA%ADt-%C4%91a-l%E1%BB%9Bp)
-[![Bilingual](https://img.shields.io/badge/Bilingual-Ti%E1%BA%BFng%20Vi%E1%BB%87t%20%7C%20English-blueviolet.svg)](#song-ng%E1%BB%AF-to%C3%A0n-di%E1%BB%87n-bilingual-support)
+[![Security](https://img.shields.io/badge/Security-OWASP%20Top%2010%20%2B%207%20API%20Guards-red.svg)](#-7-core-api-security-techniques)
+[![Bilingual](https://img.shields.io/badge/Bilingual-Ti%E1%BA%BFng%20Vi%E1%BB%87t%20%7C%20English-blueviolet.svg)](#-comprehensive-bilingual-support)
 
-Hệ thống quét mạng, phân tích topo đa tầng, theo dõi băng thông thời gian thực và quản lý kiểm soát truy cập cấp phần cứng Router dành cho quản trị viên mạng và gia đình. Phát triển bằng **Python 3.12**, **PySide6 (Qt6)**, **Nmap / Native ARP Ping**, **SQLite**, cùng hệ sinh thái **Web SPA 8-trang & REST API Server** bảo mật đa lớp.
-
----
-
-## 🌟 Tính Năng Nổi Bật (Key Features)
-
-### 1. Phân Hệ Ứng Dụng Desktop (Desktop App)
-- **Động cơ quét kép (Hybrid Scanner)**: Tự động nhận diện card mạng, Gateway và subnet (`/24`, `/16`). Quét siêu tốc qua Nmap ARP ping kết hợp cơ chế fallback Native ARP + ICMP Ping đa luồng khi không có Nmap hoặc chạy quyền người dùng thông thường.
-- **Nhận diện thiết bị thông minh qua MAC OUI**: Tích hợp cơ sở dữ liệu OUI hàng chục nghìn nhà sản xuất (Apple, Samsung, Intel, Dell, TP-Link, Xiaomi, Espressif IoT, Hikvision, Realtek,...), phân loại tự động thành 6 nhóm thiết bị.
-- **Phân tích Topo mạng & Internet Hop Path**: Tự động bóc tách dải Wi-Fi Tổng (192.168.1.x) và Router Phụ (192.168.110.x), xác định kết nối Wi-Fi 5GHz hay dây LAN, vẽ sơ đồ lộ trình hop từ thiết bị ra Internet.
-- **Giám sát lưu lượng & Biểu đồ sóng động**: Đo tốc độ Download / Upload thời gian thực, hiển thị biểu đồ sóng canvas mượt mà.
-- **Chặn thiết bị cấp phần cứng (Access Control)**:
-  - **Router Adapters**: Đẩy quy tắc chặn MAC Filtering / ACL trực tiếp đến router phần cứng TP-Link, OpenWrt, MikroTik.
-  - **Mock Mode**: Chế độ giả lập an toàn để thử nghiệm tính năng mà không cần can thiệp router thật.
-  - **Tường lửa Windows 2 chiều**: Tự động tạo rule Inbound & Outbound trên máy quản trị.
-- **Giao diện Modern Cyber Dark-Tech & Vector SVG Icons**: Thay thế 100% emoji văn bản bằng bộ hơn 37 biểu tượng vector SVG sắc nét (phong cách Flaticon / Cyber Minimalist), hỗ trợ co giãn High-DPI và bộ đệm Icon Cache tối ưu hiệu năng.
-- **Cơ sở dữ liệu SQLite & Kiểm toán an ninh**: Lưu trữ lịch sử `first_seen`, `last_seen`, tự động ghi nhật ký audit log cho các sự kiện gia nhập, ngắt kết nối, đổi IP, chặn/bỏ chặn.
-
-### 2. Phân Hệ Web Portal & REST API Server (Web Suite)
-- **Kiến trúc SPA 8-trong-1 mô đun hóa**: 8 trang chức năng (*Trang chủ, Giới thiệu, Tính năng, Dashboard Demo Live, Tải xuống, Tài liệu, Tin tức, Liên hệ*) được tách thành các component HTML và module JS độc lập.
-- **Bố cục hiển thị mở rộng (Full-Width Responsive)**: Sử dụng thiết kế `max-w-screen-2xl` thoáng đãng, tận dụng tối đa chiều rộng màn hình lớn, không bị bó hẹp dồn giữa.
-- **Bộ icon vector Flaticon Uicons hiện đại**: Thay thế hoàn toàn raw emoji bằng các icon vector tinh tế, căn chỉnh chuẩn xác theo hệ màu Dark Tech.
-- **Dashboard Demo tương tác trực tiếp**: Mô phỏng đầy đủ danh sách thiết bị, thao tác chặn/bỏ chặn trực tiếp, biểu đồ sóng thời gian thực, nhật ký sự kiện và cảnh báo an ninh.
-- **Trung tâm phân phối cài đặt**: Cung cấp các gói phát hành cho Windows x64, Linux x64, macOS Apple Silicon kèm mã băm SHA-256 xác thực toàn vẹn.
+A high-performance network discovery scanner, multi-tier topology analyzer, real-time bandwidth monitor, and hardware-level router access control system engineered for system administrators, DevOps, and smart home networks. Built with **Python 3.12**, **PySide6 (Qt6)**, **Nmap / Native Multi-threaded ARP Ping**, **SQLite**, paired with a **Modular 8-Page SPA & REST API Web Suite** fortified with multi-layered defense-in-depth security.
 
 ---
 
-## 🌐 Song Ngữ Toàn Diện (Bilingual Support)
+## 🌟 Key Features
 
-Hệ thống hỗ trợ **100% song ngữ Tiếng Việt 🇻🇳 và English 🇬🇧** xuyên suốt cả ứng dụng Desktop lẫn trang Web:
-- **Chuyển đổi tức thì**: Nhấp vào nút **Tiếng Việt / English** trên thanh điều hướng để đổi ngôn ngữ ngay lập tức mà không cần tải lại trang.
-- **Lưu trữ tùy chọn**: Tự động lưu trạng thái vào `localStorage` (`nm_lang`), duy trì ngôn ngữ người dùng đã chọn qua các phiên làm việc.
-- **Bao phủ toàn diện**: Chuyển đổi từ tiêu đề, nội dung thẻ tính năng, nghiên cứu điển hình (Case Studies), bảng thông số, hướng dẫn cài đặt, cho đến biểu mẫu và thông báo hệ thống.
+### 1. Desktop Application Suite (`app/`)
+- **Hybrid Network Discovery Engine**: Automatically detects active network interfaces (NICs), default gateway, and target subnets (`/24`, `/16`). Features lightning-fast scanning via Nmap ARP ping with seamless fallback to native multi-threaded ARP + ICMP Ping when Nmap is unavailable or running in standard user mode.
+- **Intelligent MAC OUI Device Identification**: Built-in IEEE OUI database matching tens of thousands of manufacturers (Apple, Samsung, Intel, Dell, TP-Link, Xiaomi, Espressif IoT, Hikvision, Realtek, etc.), categorizing devices into 6 visual device profiles.
+- **Multi-Hop Topology & Internet Path Analysis**: Automatically segregates the primary Wi-Fi subnet (`192.168.1.x`) from secondary access points (`192.168.110.x`), determines physical medium (5GHz Wi-Fi vs. Gigabit Ethernet), and visualizes the hop-by-hop route to the Internet.
+- **Real-Time Bandwidth & Dynamic Waveform Graphs**: Measures live upload and download throughput with smooth high-frame-rate canvas waveform rendering.
+- **Hardware-Level Access Control & Device Isolation**:
+  - **Router Adapters**: Direct enforcement of MAC Filtering and ACL rules on hardware routers (TP-Link, OpenWrt LuCI/ubus JSON-RPC, MikroTik RouterOS API).
+  - **Mock Mode**: Fully simulated router environment for safe testing and verification without touching production hardware.
+  - **Bidirectional Windows Host Firewall**: Automatically provisions inbound and outbound blocking rules on the administrative machine.
+- **Modern Cyber Dark-Tech GUI & Vector SVG Icons**: Replaced 100% of raw text emojis with a cohesive suite of 37+ crisp Flaticon-style vector SVG icons, supporting High-DPI scaling and an in-memory Icon Cache for zero UI stutter.
+- **SQLite Database & Forensic Audit Trail**: Tracks `first_seen` and `last_seen` timestamps, maintaining tamper-evident audit logs for network join, leave, IP change, and block/unblock events.
+
+### 2. Web Portal & REST API Server (`web/`)
+- **Modular 8-in-1 SPA Architecture**: 8 complete functional views (*Home, About, Features, Live Demo Dashboard, Downloads, Documentation, News, Contact*) maintained as clean HTML components and isolated JS modules.
+- **Expansive Full-Width Responsive Layout**: Engineered with modern `max-w-screen-2xl` layout paradigms for ultrawide desktop monitors, high-res laptops, and mobile screens.
+- **Flaticon Uicons Design System**: Standardized vector iconography aligned with Cyber Dark-Tech color palettes.
+- **Live Interactive Demo Dashboard**: Fully functional sandbox featuring mock device lists, real-time blocking/unblocking, live traffic meters, security alerts, and system health dials.
+- **Software Distribution Hub**: Pre-packaged release bundles for Windows x64, Linux x64, and macOS Apple Silicon complete with verified SHA-256 integrity checksums.
 
 ---
 
-## 🛡️ 7 Kỹ Thuật Bảo Mật API (7 Core API Security Techniques)
+## 🌐 Comprehensive Bilingual Support
 
-Hệ thống đáp ứng trọn vẹn và chuyên sâu **7 kỹ thuật bảo mật API tiêu chuẩn doanh nghiệp**:
+The entire ecosystem supports **100% real-time bilingual switching between English 🇬🇧 and Vietnamese 🇻🇳**:
+- **Instant Switching**: Click the language toggle button on the navigation bar to switch the entire application interface instantly without page reloads.
+- **Preference Persistence**: Automatically preserves user language selection in `localStorage` (`nm_lang`) across browser sessions and application restarts.
+- **Full-Spectrum Coverage**: Translates all navigation headers, hero banners, feature cards, case studies, metric tables, installation guides, interactive forms, toast notifications, and modal dialogs.
+
+---
+
+## 🛡️ 7 Core API Security Techniques
+
+The API and Web Server strictly adhere to the **7 fundamental API security pillars** recommended by OWASP and enterprise cybersecurity guidelines:
 
 ```text
-               MA TRẬN 7 KỸ THUẬT BẢO MẬT API (ENTERPRISE API DEFENSE)
+               ENTERPRISE API DEFENSE ARCHITECTURE (7 CORE TECHNIQUES)
 
  ┌───┬──────────────────────────────────┬─────────────────────────────────────────────────────────────┐
- │ # │ KỸ THUẬT BẢO MẬT                │ CƠ CHẾ TRIỂN KHAI TRONG DỰ ÁN                               │
+ │ # │ SECURITY TECHNIQUE               │ IMPLEMENTATION IN NETWORK MANAGER                           │
  ├───┼──────────────────────────────────┼─────────────────────────────────────────────────────────────┤
- │ 1 │ Rate Limiting                    │ Sliding-Window Log + Auto-Jail IP phạt theo cấp số nhân     │
- │ 2 │ CORS (Cross-Origin Sharing)      │ Whitelist Origin nghiêm ngặt + Xử lý Preflight OPTIONS RFC  │
- │ 3 │ SQL & NoSQL Injection            │ WAF Regex Filter + Parameterized Queries 100% SQLite DAO    │
- │ 4 │ Firewalls                        │ L7 Web Application Firewall (WAF) + L3/4 Host Firewall      │
+ │ 1 │ Rate Limiting                    │ Sliding-Window Log + Exponential Auto-Jail Isolation        │
+ │ 2 │ CORS (Cross-Origin Sharing)      │ Strict Whitelist + RFC-Compliant Preflight OPTIONS Handler   │
+ │ 3 │ SQL & NoSQL Injection            │ L7 WAF Pattern Matching + 100% Parameterized SQLite Queries │
+ │ 4 │ Firewalls                        │ Layer 7 Web Application Firewall + Host Windows Firewall    │
  │ 5 │ VPNs (Virtual Private Network)   │ VPN Network Guard (WireGuard, OpenVPN, Tailscale CGNAT)     │
- │ 6 │ CSRF (Cross-Site Request Forgery)│ Cryptographic Double-Submit Token + Header X-CSRF-Token     │
+ │ 6 │ CSRF (Cross-Site Request Forgery)│ Cryptographic Double-Submit Token + Strict SameSite Cookies │
  │ 7 │ XSS (Cross-Site Scripting)       │ Deep Recursive Sanitizer + Strict CSP + Anti-Tamper Guard   │
  └───┴──────────────────────────────────┴─────────────────────────────────────────────────────────────┘
 ```
 
-1. **Rate Limiting (`web/security/rate_limiter.py`)**: Giới hạn tần suất request theo IP (100 req/min cho API, 5 req/min cho Login, 10 req/min cho Download). Tự động kích hoạt cơ chế **Auto-Jail** cách ly IP vi phạm với thời gian khóa tăng dần (60s -> 300s -> 1800s).
-2. **CORS - Cross-Origin Resource Sharing (`web/security/cors.py`)**: Kiểm soát xuất xứ Origin qua danh sách whitelist được cấp phép; xử lý yêu cầu Preflight `OPTIONS` chuẩn RFC; cô lập Cookie/Token không bao giờ dùng Wildcard `*` khi bật `Access-Control-Allow-Credentials`.
-3. **SQL & NoSQL Injection (`web/security/waf.py` & `app/database/`)**: Bộ quy tắc WAF chặn đứng các mẫu SQLi (`UNION SELECT`, stacked queries, `' OR 1=1`) và NoSQLi (`$where`, `$gt`, `$ne`, `$regex`, MongoDB operators); toàn bộ truy vấn cơ sở dữ liệu SQLite sử dụng 100% Parameterized Statements (`?` placeholder).
-4. **Firewalls (`web/security/waf.py` & `app/security/firewall.py`)**: Phòng thủ 2 tầng: Tường lửa ứng dụng L7 WAF kiểm tra payload theo thời gian thực kết hợp Tường lửa máy trạm L3/4 (Windows Defender Firewall tự động tạo rule Inbound/Outbound qua `safe_run_command`).
-5. **VPNs & Private Network Restriction (`web/security/vpn_guard.py`)**: Phân định chính xác các kênh kết nối từ VPN Tunnel (WireGuard `10.8.0.0/16`, Tailscale `100.64.0.0/10`) và mạng nội bộ riêng tư (RFC 1918). Tự động khóa các API quản trị nhạy cảm (`/api/v1/settings`, `/api/v1/backup`, `/api/v1/auth/users`) nếu truy cập từ Public Internet WAN mà không có kết nối VPN.
-6. **CSRF - Cross-Site Request Forgery (`web/security/csrf.py`)**: Triển khai giải pháp Double-Submit Cookie kết hợp header `X-CSRF-Token`, token được sinh bằng `secrets.token_hex(32)`, ràng buộc thời gian sống (TTL) và xác thực bắt buộc trên toàn bộ phương thức POST, PUT, DELETE.
-7. **XSS - Cross-Site Scripting (`web/security/sanitizer.py`, `headers.py`, `anti_tamper.js`)**: Làm sạch đệ quy JSON, mã hóa thực thể HTML (`&lt;`, `&gt;`), thiết lập Content-Security-Policy (CSP) loại bỏ `eval`, cùng động cơ DOM MutationObserver phát hiện và triệt tiêu thẻ script lạ chèn vào trang.
+1. **Rate Limiting (`web/security/rate_limiter.py`)**: Granular IP-based rate limiting (100 req/min for general APIs, 5 req/min for authentication, 10 req/min for package downloads) powered by a Sliding-Window Log algorithm. Triggers an automatic **Auto-Jail** penalty box with escalating backoff windows (60s -> 300s -> 1800s), responding with HTTP 429 Too Many Requests and `Retry-After` headers.
+2. **CORS - Cross-Origin Resource Sharing (`web/security/cors.py`)**: Enforces an explicit origin whitelist (localhost, private LAN subnets), handles preflight `OPTIONS` requests according to RFC specifications, dynamically validates request headers, and forbids unsafe wildcard `*` origins when credentials/cookies are active.
+3. **SQL & NoSQL Injection Defense (`web/security/waf.py` & `app/database/`)**: Dual-engine defense: L7 WAF regex rules detect SQLi vectors (`UNION SELECT`, stacked queries, `' OR '1'='1`) and NoSQLi injection operators (`$where`, `$gt`, `$ne`, `$regex`, `$in`, BSON clauses); all backend database queries in SQLite DAO use 100% Parameterized Statements (`?` placeholders).
+4. **Firewalls (`web/security/waf.py` & `app/security/firewall.py`)**: Two-layer defense: Application-layer (L7) WAF inspecting all URLs, headers, and request bodies in real time, combined with Network-layer (L3/L4) Windows Defender Firewall rules provisioned safely via validated arguments.
+5. **VPNs & Private Network Restriction (`web/security/vpn_guard.py`)**: Accurately classifies network origins into RFC 1918 private subnets, carrier-grade NAT/Tailscale (`100.64.0.0/10`), and secure VPN tunnels (WireGuard `10.8.0.0/16`, OpenVPN `10.9.0.0/16`). **Strictly forbids public WAN access to sensitive administrative endpoints** (`/api/v1/settings`, `/api/v1/backup`, `/api/v1/auth/users`) unless accessed through a verified VPN tunnel or internal LAN.
+6. **CSRF - Cross-Site Request Forgery Guard (`web/security/csrf.py`)**: Protects all state-mutating requests (POST, PUT, DELETE) using a Double-Submit Cookie scheme with 256-bit cryptographically secure pseudorandom tokens (`secrets.token_hex(32)`), strict time-to-live (TTL) expiration, and `SameSite=Strict; HttpOnly` cookies.
+7. **XSS - Cross-Site Scripting Guard (`web/security/sanitizer.py`, `headers.py`, `anti_tamper.js`)**: Deep recursive input sanitization eliminating null bytes (`\x00`), preventing Prototype Pollution (`__proto__`, `constructor`), escaping HTML entities, enforcing a strict Content-Security-Policy (CSP) that bans `eval`, and executing a browser-side DOM MutationObserver that detects and purges unauthorized injected scripts.
 
 ---
 
-## 📂 Cấu Trúc Dự Án (Directory Structure)
+## 🔒 Client-Side Anti-Tampering & Chrome DevTools Guard
+
+To protect Web API keys, UI state, and prevent unauthorized client-side code modification via browser developer consoles:
+
+- **DevTools Shortcut Lockout**: Intercepts and suppresses `F12`, `Ctrl+Shift+I` (Inspect Element), `Ctrl+Shift+J` (Console), `Ctrl+Shift+C` (Element Picker), `Ctrl+U` (View Source), and `Ctrl+S` (Save Page) with modern Cyber Dark-Tech security alerts.
+- **Context Menu Restriction**: Disables the right-click inspect context menu across all static UI elements while intelligently preserving context menu actions inside text inputs and textareas for ease of copying/pasting IPs, MACs, and tokens.
+- **Multi-Vector DevTools Detection**: Simultaneously monitors window dimension disparities (`outerWidth - innerWidth > 160px`), console getter traps, and executes periodic `console.clear()` purges.
+- **Anti-Debugging Traps**: Leverages non-linear `debugger;` loops to detect breakpoint attachment and timing anomalies in browser developer tools.
+- **DOM Integrity & MutationObserver**: Continuously monitors the DOM tree to immediately detect and destroy injected `<script>` tags, malicious event listeners, or inline DOM tampering.
+- **Runtime Object Freezing**: Calls `Object.seal(Object.prototype)` and `Object.freeze(window.NetworkManagerSecurity)` to prevent monkey-patching of core runtime APIs (`window.fetch`, `JSON.parse`).
+- **Security Telemetry**: Reports client-side tampering attempts to `/api/v1/security/client-tamper-report`, logging events into the backend tamper-evident chained-hash log.
+- **Interactive UI Toggle**: Features an on/off control in the Settings panel for developers requiring local debugging.
+
+---
+
+## 📂 Project Directory Structure
+
+The repository maintains a strictly clean, modular layout with zero rogue files at the root level:
 
 ```text
 Control-wifi/
-├── run_app.bat                     # 1-Click khởi chạy ứng dụng Desktop
-├── run_admin.bat                   # 1-Click chạy Desktop với quyền Administrator
-├── serve_website.bat               # 1-Click khởi chạy Web & REST API Server (port 8080)
-├── README.md                       # Tài liệu hướng dẫn sử dụng
+├── run_app.bat                     # 1-Click launcher for Desktop App
+├── run_admin.bat                   # 1-Click launcher for Desktop App (Administrator rights)
+├── serve_website.bat               # 1-Click launcher for Web & REST API Server (port 8080)
+├── README.md                       # Primary English documentation
+├── README_VI.md                    # Vietnamese documentation
+├── NOTES.md                        # Technical engineering & operational notes
+├── LICENSE                         # MIT License
 │
-├── app/                            # PHÂN HỆ DESKTOP (PYTHON / PYSIDE6)
-│   ├── main.py                     # Điểm khởi chạy chính ứng dụng (GUI / CLI)
-│   ├── requirements.txt            # Thư viện phụ thuộc cho Desktop
-│   ├── NetworkManager.spec        # File cấu hình đóng gói PyInstaller
-│   ├── core/                       # Lõi quét mạng, phân tích topo, đo băng thông, i18n
-│   ├── gui/                        # Giao diện người dùng PySide6 hiện đại
-│   ├── router/                     # Bộ điều khiển Router (TP-Link, OpenWrt, MikroTik, Mock)
-│   ├── security/                   # GÓI BẢO MẬT ĐỘC LẬP CHO DESKTOP
-│   │   ├── __init__.py             # Export facade an toàn
-│   │   ├── safe_exec.py            # Chống Command Injection, kiểm tra IP/MAC
-│   │   ├── vault.py                # Két mã hóa mật khẩu theo phần cứng máy tính
-│   │   ├── rbac.py                 # Kiểm soát truy cập dựa trên vai trò (RBAC)
-│   │   ├── integrity.py            # Kiểm tra toàn vẹn file cấu hình & DB (HMAC-SHA256)
-│   │   ├── arp_guard.py            # Phát hiện ARP Poisoning / Spoofing
-│   │   ├── firewall.py             # Tường lửa Windows 2 chiều an toàn
-│   │   ├── blocker.py              # Bộ điều phối chặn đa tầng tích hợp RBAC
-│   │   └── audit_logger.py         # Nhật ký kiểm toán pháp chứng
-│   ├── services/                   # Dịch vụ định danh OUI, background scheduler
-│   ├── database/                   # SQLite database & DAO
-│   ├── config/                     # File cấu hình JSON
-│   ├── assets/                     # Icon vector SVG, logo phần mềm
-│   └── tests/                      # Bộ kiểm thử (test_all.py, test_app_security.py)
+├── app/                            # DESKTOP APPLICATION SUBSYSTEM (PYTHON / PYSIDE6)
+│   ├── main.py                     # Primary entry point (GUI / CLI)
+│   ├── requirements.txt            # Desktop dependencies
+│   ├── NetworkManager.spec         # PyInstaller packaging configuration
+│   ├── assets/                     # 37+ Vector SVG icons & application logos
+│   ├── config/                     # Configuration files (config.json, routers.json)
+│   ├── core/                       # Scanner engine, topology grapher, bandwidth meter, i18n
+│   ├── data/                       # APPLICATION DATA STORAGE
+│   │   ├── network.db              # SQLite database (devices, history, events)
+│   │   └── logs/                   # Audit compliance & application runtime logs
+│   │       ├── audit_compliance.log
+│   │       └── network_manager.log
+│   ├── database/                   # SQLite DAO layer (DeviceDAO, EventDAO, Database)
+│   ├── gui/                        # PySide6 Cyber Dark-Tech user interface
+│   ├── router/                     # Router adapters (TP-Link, OpenWrt, MikroTik, Mock)
+│   ├── scripts/                    # Build scripts (build_app.py, package_zip.py)
+│   ├── security/                   # DESKTOP SECURITY SUITE
+│   │   ├── __init__.py             # Security facade export
+│   │   ├── safe_exec.py            # Zero command injection, IP/MAC validators
+│   │   ├── vault.py                # Hardware-bound credentials encryption (MachineGuid)
+│   │   ├── rbac.py                 # Role-Based Access Control (Admin, Operator, Viewer)
+│   │   ├── integrity.py            # HMAC-SHA256 file & DB integrity verifier
+│   │   ├── arp_guard.py            # Anti-ARP poisoning & spoofing monitor
+│   │   ├── firewall.py             # Bidirectional Windows Host Firewall manager
+│   │   ├── blocker.py              # Multi-layer isolation coordinator
+│   │   └── audit_logger.py         # Forensic compliance audit logger
+│   ├── services/                   # OUI lookup service, background scheduler
+│   ├── tests/                      # Test suites (test_all.py, test_app_security.py)
+│   └── utils/                      # Network utilities & safe subprocess runners
 │
-└── web/                            # PHÂN HỆ WEB & REST API SERVER
-    ├── backend/                    # Máy chủ HTTP đa luồng bảo mật
-    │   ├── main.py                 # Điểm khởi động web server
-    │   ├── server/                 # Handler xử lý request & static file an toàn
-    │   ├── api/                    # Router định tuyến REST API (/api/v1/...)
-    │   ├── middleware/             # Middleware điều phối
-    │   ├── services/               # Dịch vụ tải file an toàn & audit log
-    │   └── tests/                  # Bộ kiểm thử (test_security.py, test_web_security.py)
-    ├── security/                   # GÓI BẢO MẬT ĐỘC LẬP CHO WEB SERVER
-    │   ├── __init__.py             # Export facade an toàn
-    │   ├── crypto.py               # PBKDF2-HMAC-SHA256 (600,000 rounds) & constant-time
-    │   ├── waf.py                  # OWASP Top 10 WAF (SQLi, XSS, RCE, Bot Filter)
-    │   ├── rate_limiter.py         # Sliding-Window Rate Limiter & Auto-Jail
-    │   ├── headers.py              # Military-Grade Security Headers (CSP, HSTS)
-    │   ├── csrf.py                 # Chống tấn công CSRF (Double-Submit Token)
-    │   ├── sanitizer.py            # Làm sạch dữ liệu JSON, ngăn Prototype Pollution
-    │   └── audit.py                # Chained-Hash Audit Logger (Blockchain-style log)
-    ├── html/                       # Giao diện Web SPA (8 trang component)
-    ├── js/                         # Bộ mã JavaScript SPA mô đun hóa
-    ├── css/                        # Stylesheet, Dark Tech theme & Glassmorphism
-    ├── downloads/                  # Thư mục chứa file cài đặt phân phối
-    └── scripts/                    # Scripts build tự động hóa
-```
+└── web/                            # WEB PORTAL & REST API SERVER SUBSYSTEM
+    ├── Dockerfile / docker-compose.yml
+    ├── robots.txt / sitemap.xml
+    ├── backend/                    # Multithreaded HTTP Server & REST API (/api/v1/...)
+    │   ├── main.py                 # Web server entry point
+    │   ├── server/                 # Request handler, CORS & static file server
+    │   ├── api/                    # REST API routes (/devices, /stats, /security, ...)
+    │   ├── middleware/             # Request dispatchers & security checks
+    │   ├── services/               # Safe download service & audit streaming
+    │   └── tests/                  # Test suites (test_web_security.py, test_security.py)
+    ├── backups/                    # SQLite database snapshots
+    ├── config/                     # Web server configuration
+    ├── css/                        # Cyber Dark-Tech & Glassmorphism stylesheets
+    ├── docs/                       # Technical API & installation markdown specifications
+    ├── downloads/                  # Distribution packages (Windows, Linux, macOS)
+    ├── html/                       # SPA components (8 pages) & index.html
+    ├── images/                     # System logos & dashboard screenshots
+    ├── js/                         # Modular JavaScript suite (anti_tamper, auth, router...)
+    ├── logs/                       # Web audit logs (web/logs/audit/)
+    ├── nginx/                      # Nginx reverse proxy configurations
+    ├── scripts/                    # Automated build scripts (build_all.py)
+    └── security/                   # WEB SECURITY SUITE (7 CORE API GUARDS)
+        ├── __init__.py             # Security facade export
+        ├── crypto.py               # PBKDF2-HMAC-SHA256 (600,000 rounds) & constant-time crypto
+        ├── waf.py                  # OWASP Top 10 WAF (SQLi, NoSQLi, XSS, RCE, Bad Bots)
+        ├── rate_limiter.py         # Sliding-Window Rate Limiter & Auto-Jail
+        ├── headers.py              # Enterprise Security Headers (CSP, HSTS, XFO)
+        ├── csrf.py                 # Anti-CSRF Guard (Double-Submit Token)
+        ├── cors.py                 # CORS Manager with RFC preflight & origin whitelist
+        ├── vpn_guard.py            # VPN Network Guard & private route restriction
+        ├── sanitizer.py            # Deep Recursive Sanitizer & Prototype Pollution defense
+        └── audit.py                # Chained-Hash Audit Logger (tamper-evident blockchain-style)
 ```
 
 ---
 
-## 🚀 Hướng Dẫn Cài Đặt & Sử Dụng
+## 🚀 Installation & Quickstart
 
-### Yêu Cầu Hệ Thống
-- Hệ điều hành: Windows 10 / 11, Linux (Ubuntu, Debian, Fedora), hoặc macOS.
-- Python: Phiên bản 3.12 trở lên.
-- Nmap *(khuyến nghị)*: Tải tại [nmap.org](https://nmap.org/download.html) để đạt tốc độ quét ARP cao nhất.
+### Prerequisites
+- **Operating System**: Windows 10/11 (64-bit), Linux (Ubuntu 22.04+, Debian, Fedora), or macOS (macOS 12+).
+- **Python**: Version 3.12 or higher.
+- **Nmap** *(Recommended)*: Download from [nmap.org](https://nmap.org/download.html) for hardware-accelerated ARP discovery.
 
-### 1. Khởi Chạy Ứng Dụng Desktop
+### 1. Running the Desktop Application
 ```powershell
-# Bước 1: Tạo và kích hoạt môi trường ảo
+# Step 1: Create and activate a Python virtual environment
 python -m venv venv
 .\venv\Scripts\activate
 
-# Bước 2: Cài đặt các thư viện cần thiết
+# Step 2: Install required dependencies
 pip install -r app/requirements.txt
 
-# Bước 3: Khởi chạy giao diện Desktop
+# Step 3: Launch the Desktop application
 python app/main.py
 ```
-*Hoặc nhấp đúp tệp **`run_app.bat`** (hoặc **`run_admin.bat`** để chạy với quyền quản trị viên).*
+*Alternatively, double-click **`run_app.bat`** (or right-click **`run_admin.bat`** -> **Run as administrator** for full Windows Firewall and raw packet privileges).*
 
-### 2. Khởi Chạy Trang Web & REST API Server
+### 2. Running the Web Portal & REST API Server
 ```powershell
-# Khởi chạy server tại cổng 8080
+# Launch the server on port 8080
 python web/backend/main.py 8080
 ```
-*Hoặc nhấp đúp tệp **`serve_website.bat`** trên Windows.*
+*Or double-click **`serve_website.bat`** on Windows.*
 
-Sau khi khởi chạy, truy cập trình duyệt tại: **`http://localhost:8080/`**
+Once started, open your web browser at: **`http://localhost:8080/`**
 
 ---
 
-## 🛠️ Trình Biên Dịch Tự Động Hóa (Build System)
+## 🛠️ Automated Build Pipeline
 
-Dự án áp dụng mô hình phát triển phân tách mô-đun: bạn chỉ cần chỉnh sửa các file nhỏ trong `web/html/components/` và `web/js/modules/`. Khi muốn cập nhật trang web phát hành:
+The web application is structured with a modern component-based architecture: edit individual components in `web/html/components/` and modules in `web/js/modules/`. Whenever you want to compile a production bundle:
 
 ```powershell
 python web/scripts/build_all.py
 ```
-Script sẽ tự động:
-1. Đọc và ghép nối các component HTML thành [`web/html/index.html`](web/html/index.html) tinh gọn.
-2. Ghép nối toàn bộ module JS thành [`web/js/app.js`](web/js/app.js).
-3. Đảm bảo cấu trúc chuẩn hóa, không có code thừa và đồng bộ song ngữ.
+The automated script will:
+1. Parse and concatenate all HTML components into [`web/html/index.html`](web/html/index.html).
+2. Bundle all JavaScript modules in dependency order into [`web/js/app.js`](web/js/app.js).
+3. Validate markup structure, ensure zero dead code, and verify bilingual language keys.
 
 ---
 
-## 🧪 Kiểm Thử Hệ Thống (Automated Testing)
+## 🧪 Automated Testing Suite
 
-Dự án có đầy đủ unit test cho cả phân hệ Desktop và Web:
+The repository contains comprehensive unit test suites covering all discovery, database, router adapters, and security components:
 
 ```powershell
-# Kiểm thử toàn diện Desktop (Discovery, Database, Blocker, Topology)
-.\venv\Scripts\python.exe -m unittest app/tests/test_all.py
-# Kết quả: 9/9 PASS
+# 1. Desktop Application Test Suite (Discovery, DAO, Blocker, Topology, RBAC, Vault, Integrity)
+.\venv\Scripts\python.exe -m unittest discover -s app/tests -p "test_*.py"
+# Result: 16/16 PASS (100% OK)
 
-# Kiểm thử bảo mật Web Backend (WAF, Rate Limiting, CSP, Path Traversal)
-python -m unittest web/backend/tests/test_security.py
-# Kết quả: 10/10 PASS
+# 2. Web Application & Security Test Suite (7 API Security Techniques, WAF, CORS, VPN, CSRF, RateLimit)
+.\venv\Scripts\python.exe -m unittest discover -s web/backend/tests -p "test_*.py"
+# Result: 23/23 PASS (100% OK)
 ```
 
 ---
 
-## ⚖️ Lưu Ý Pháp Lý & Trách Nhiệm Sử Dụng (Legal Notice)
+## ⚖️ Legal Notice & Responsible Use
 
 > [!IMPORTANT]
-> Phần mềm **Network Manager** được phát triển phục vụ công tác quản trị mạng được ủy quyền, giám sát an ninh hạ tầng và nghiên cứu học tập trên hệ thống mạng thuộc quyền sở hữu hợp pháp. Mọi hành vi quét mạng, can thiệp hoặc chặn truy cập trên hạ tầng không được phép đều bị nghiêm cấm theo quy định pháp luật.
+> **Network Manager** is designed solely for authorized local network administration, infrastructure security auditing, and academic research on networks owned or explicitly licensed to the operator. Port scanning, traffic interception, or device isolation on unauthorized external networks without prior written permission is strictly prohibited by law.
 
 ---
 
-**© 2026 Network Manager Engineering Team. Phát hành theo giấy phép MIT License.**
+**© 2026 Network Manager Engineering Team. Released under the MIT License.**
