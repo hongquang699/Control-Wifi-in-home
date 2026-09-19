@@ -7,7 +7,8 @@ Thiết kế chuẩn xác theo ảnh mẫu:
 - Bảng Thiết Bị Đầy Đủ 7 Cột kèm Thao Tác Chặn / Bỏ Chặn Trực Tiếp
 """
 
-from typing import Optional
+import psutil
+from typing import Optional, List
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
@@ -24,6 +25,7 @@ from services.traffic_monitor import TrafficMonitor, TrafficStats
 from core.device import Device
 from core.i18n import t, i18n
 from gui.widgets.waveform import LiveWaveformWidget
+from gui.device_detail import DeviceDetailDialog
 
 
 class DashboardView(QWidget):
@@ -407,15 +409,35 @@ class DashboardView(QWidget):
 
         self.table.setRowCount(len(filtered))
 
-        for row, dev in enumerate(filtered):
-            self.table.setRowHeight(row, 48)
+        is_vi = i18n.current_lang == "vi"
 
-            # Cột 0: THIẾT BỊ & TÊN (2 dòng)
+        for row, dev in enumerate(filtered):
+            self.table.setRowHeight(row, 50)
+
+            # Cột 0: THIẾT BỊ & TÊN (2 dòng kèm icon thông minh)
             name = dev.custom_name or dev.hostname or dev.vendor or "Thiết bị mạng"
             dev_type = dev.device_type or "PC / Laptop"
-            lbl_name = QLabel(f"<b>{name}</b><br><span style='color:#94A3B8; font-size:10px;'>{dev_type}</span>")
+            t_lower = (dev_type + " " + (dev.vendor or "") + " " + name).lower()
+            if any(x in t_lower for x in ["phone", "iphone", "samsung", "xiaomi", "mobile", "android", "oppo", "vivo"]):
+                dev_icon = "📱"
+            elif any(x in t_lower for x in ["laptop", "macbook", "notebook", "thinkpad"]):
+                dev_icon = "💻"
+            elif any(x in t_lower for x in ["tv", "television", "smart tv", "media", "roku", "chromecast", "firetv"]):
+                dev_icon = "📺"
+            elif any(x in t_lower for x in ["printer", "canon", "epson", "hp print"]):
+                dev_icon = "🖨️"
+            elif any(x in t_lower for x in ["router", "ap", "access point", "gateway", "switch"]):
+                dev_icon = "🌐"
+            elif any(x in t_lower for x in ["camera", "cam", "cctv", "ipcam"]):
+                dev_icon = "📷"
+            elif any(x in t_lower for x in ["tablet", "ipad"]):
+                dev_icon = "📱"
+            else:
+                dev_icon = "💻"
+
+            lbl_name = QLabel(f"{dev_icon} <b>{name}</b><br><span style='color:#94A3B8; font-size:10px; margin-left: 20px;'>{dev_type}</span>")
             lbl_name.setTextFormat(Qt.RichText)
-            lbl_name.setStyleSheet("background: transparent; border: none; padding-left: 4px;")
+            lbl_name.setStyleSheet("background: transparent; border: none; padding-left: 6px;")
             self.table.setCellWidget(row, 0, lbl_name)
 
             # Cột 1: IP ADDRESS
@@ -461,9 +483,30 @@ class DashboardView(QWidget):
             c_status_layout.addWidget(lbl_status)
             self.table.setCellWidget(row, 5, c_status)
 
-            # Cột 6: THAO TÁC (Nút Chặn / Bỏ chặn)
+            # Cột 6: THAO TÁC (Nút Chi tiết + Nút Chặn / Bỏ chặn)
             is_blocked = dev.status == "BLOCKED"
-            btn_action = QPushButton("Bỏ chặn" if is_blocked else "Chặn")
+            
+            btn_detail = QPushButton("Chi tiết" if is_vi else "Details")
+            btn_detail.setCursor(Qt.PointingHandCursor)
+            btn_detail.setStyleSheet("""
+                QPushButton {
+                    background-color: #101B33;
+                    color: #38BDF8;
+                    border: 1px solid rgba(56, 189, 248, 0.3);
+                    border-radius: 6px;
+                    font-weight: 600;
+                    font-size: 11px;
+                    padding: 4px 8px;
+                }
+                QPushButton:hover {
+                    background-color: #16264A;
+                    border: 1px solid #38BDF8;
+                    color: #FFFFFF;
+                }
+            """)
+            btn_detail.clicked.connect(lambda chk=False, d=dev: self._open_device_detail(d))
+
+            btn_action = QPushButton(("Bỏ chặn" if is_vi else "Unblock") if is_blocked else ("Chặn" if is_vi else "Block"))
             btn_action.setCursor(Qt.PointingHandCursor)
             if is_blocked:
                 btn_action.setStyleSheet("""
@@ -497,11 +540,25 @@ class DashboardView(QWidget):
                 """)
 
             btn_action.clicked.connect(lambda chk=False, d=dev: self._toggle_block_device(d))
+            
             c_act = QWidget()
             c_act_layout = QHBoxLayout(c_act)
-            c_act_layout.setContentsMargins(4, 6, 4, 6)
+            c_act_layout.setContentsMargins(4, 4, 4, 4)
+            c_act_layout.setSpacing(6)
+            c_act_layout.addWidget(btn_detail)
             c_act_layout.addWidget(btn_action)
             self.table.setCellWidget(row, 6, c_act)
+
+    def _open_device_detail(self, dev: Device):
+        dlg = DeviceDetailDialog(
+            device=dev,
+            device_dao=self.device_dao,
+            event_dao=self.event_dao,
+            block_manager=self.block_manager,
+            parent=self
+        )
+        dlg.device_changed.connect(self.refresh_data)
+        dlg.exec()
 
     def _toggle_block_device(self, dev: Device):
         if not self.block_manager:

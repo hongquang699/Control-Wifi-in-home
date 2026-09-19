@@ -9,21 +9,22 @@ from PySide6.QtGui import QFont, QColor
 from core.i18n import t
 
 # 1. Bảng màu cao cấp (Modern Luxury Dark Palette)
-COLOR_BG_MAIN = "#080D1A"         # Nền chính không gian sâu
-COLOR_BG_SIDEBAR = "#0B1326"      # Nền sidebar kính mờ
-COLOR_BG_CARD = "#101B33"         # Nền thẻ container (Glass Card)
-COLOR_BG_CARD_HOVER = "#152445"   # Thẻ khi hover
-COLOR_BG_INPUT = "#0D172E"        # Nền ô nhập liệu / combobox
+COLOR_BG_MAIN = "#060A14"         # Nền chính không gian sâu
+COLOR_BG_SIDEBAR = "#091022"      # Nền sidebar kính mờ
+COLOR_BG_CARD = "#0E172E"         # Nền thẻ container (Glass Card)
+COLOR_BG_CARD_HOVER = "#142244"   # Thẻ khi hover
+COLOR_BG_INPUT = "#0A1224"        # Nền ô nhập liệu / combobox
 
 COLOR_BORDER = "rgba(255, 255, 255, 0.08)"
-COLOR_BORDER_FOCUS = "#6366F1"    # Indigo sáng khi focus
+COLOR_BORDER_LIGHT = "rgba(255, 255, 255, 0.15)"
+COLOR_BORDER_FOCUS = "#38BDF8"    # Cyan sáng khi focus
 
 COLOR_TEXT_PRIMARY = "#F8FAFC"    # Chữ sáng chính
-COLOR_TEXT_SECONDARY = "#CBD5E1"  # Chữ phụ
+COLOR_TEXT_SECONDARY = "#94A3B8"  # Chữ phụ
 COLOR_TEXT_MUTED = "#64748B"      # Chữ làm mờ
 
 COLOR_ACCENT_INDIGO = "#6366F1"   # Indigo chủ đạo
-COLOR_ACCENT_CYAN = "#06B6D4"     # Xanh Cyan công nghệ
+COLOR_ACCENT_CYAN = "#0EA5E9"     # Xanh Cyan công nghệ
 COLOR_ACCENT_EMERALD = "#10B981"  # Xanh ngọc trực tuyến / thành công
 COLOR_ACCENT_AMBER = "#F59E0B"    # Hổ phách / Cảnh báo
 COLOR_ACCENT_ROSE = "#F43F5E"     # Đỏ hồng / Chặn / Nguy hiểm
@@ -32,7 +33,7 @@ COLOR_ACCENT_ROSE = "#F43F5E"     # Đỏ hồng / Chặn / Nguy hiểm
 GLOBAL_QSS = """
 /* Cửa sổ & Nền */
 QMainWindow, QDialog {
-    background-color: #080D1A;
+    background-color: #060A14;
     color: #F8FAFC;
     font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
 }
@@ -43,11 +44,12 @@ QLabel, QPushButton, QLineEdit, QComboBox, QTableWidget, QTreeWidget, QHeaderVie
 
 /* Thanh trạng thái Status Bar */
 QStatusBar {
-    background-color: #0B1326;
+    background-color: #091022;
     color: #64748B;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 6px 12px;
-    font-size: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 500;
 }
 
 /* Thanh cuộn siêu mỏng hiện đại */
@@ -58,12 +60,12 @@ QScrollBar:vertical {
     border-radius: 3px;
 }
 QScrollBar::handle:vertical {
-    background: #334155;
-    min-height: 25px;
+    background: #1E293B;
+    min-height: 28px;
     border-radius: 3px;
 }
 QScrollBar::handle:vertical:hover {
-    background: #475569;
+    background: #334155;
 }
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
     height: 0px;
@@ -75,12 +77,12 @@ QScrollBar:horizontal {
     border-radius: 3px;
 }
 QScrollBar::handle:horizontal {
-    background: #334155;
-    min-width: 25px;
+    background: #1E293B;
+    min-width: 28px;
     border-radius: 3px;
 }
 QScrollBar::handle:horizontal:hover {
-    background: #475569;
+    background: #334155;
 }
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
     width: 0px;
@@ -88,50 +90,51 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
 
 /* Ô nhập liệu hiện đại */
 QLineEdit {
-    background-color: #0D172E;
+    background-color: #0A1224;
     border: 1px solid #1E293B;
-    border-radius: 8px;
+    border-radius: 9px;
     color: #F8FAFC;
-    padding: 7px 12px;
-    font-size: 13px;
-    selection-background-color: #6366F1;
+    padding: 7px 14px;
+    font-size: 12px;
+    selection-background-color: #0284C7;
 }
 QLineEdit:focus {
-    border: 1px solid #6366F1;
-    background-color: #111C38;
+    border: 1px solid #0EA5E9;
+    background-color: #0E1A33;
 }
 QLineEdit:disabled {
-    background-color: #0A1020;
+    background-color: #060B14;
     color: #64748B;
     border: 1px solid #1E293B;
 }
 
 /* Hộp chọn ComboBox */
 QComboBox {
-    background-color: #0D172E;
+    background-color: #0A1224;
     border: 1px solid #1E293B;
-    border-radius: 8px;
+    border-radius: 9px;
     color: #F8FAFC;
-    padding: 6px 12px;
+    padding: 6px 14px;
     font-size: 12px;
     font-weight: 500;
 }
 QComboBox:hover {
     border: 1px solid #334155;
+    background-color: #0E1A33;
 }
 QComboBox:focus {
-    border: 1px solid #6366F1;
+    border: 1px solid #0EA5E9;
 }
 QComboBox::drop-down {
     border: none;
-    width: 20px;
+    width: 22px;
 }
 QComboBox QAbstractItemView {
-    background-color: #0D172E;
+    background-color: #0A1224;
     color: #F8FAFC;
     border: 1px solid #1E293B;
-    border-radius: 8px;
-    selection-background-color: #6366F1;
+    border-radius: 9px;
+    selection-background-color: #0284C7;
     selection-color: #FFFFFF;
     outline: none;
     padding: 4px;
@@ -141,27 +144,28 @@ QComboBox QAbstractItemView {
 QTableWidget {
     background-color: #0A1224;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
+    border-radius: 12px;
     color: #F8FAFC;
     gridline-color: transparent;
-    selection-background-color: rgba(99, 102, 241, 0.22);
+    selection-background-color: rgba(14, 165, 233, 0.16);
     selection-color: #FFFFFF;
     outline: none;
 }
 QTableWidget::item {
-    padding: 4px 8px;
+    padding: 6px 10px;
     border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 QTableWidget::item:selected {
-    background-color: rgba(99, 102, 241, 0.22);
+    background-color: rgba(14, 165, 233, 0.16);
 }
 QTableWidget::item:hover {
-    background-color: #111C38;
+    background-color: #0F1D38;
 }
 QHeaderView::section {
-    background-color: #0E172E;
+    background-color: #0D162B;
     color: #94A3B8;
-    padding: 8px 10px;
+    padding: 10px 10px;
     font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
@@ -173,43 +177,43 @@ QHeaderView::section {
 QTreeWidget {
     background-color: #0A1224;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
+    border-radius: 12px;
     color: #F8FAFC;
     outline: none;
-    padding: 6px;
+    padding: 8px;
 }
 QTreeWidget::item {
-    padding: 6px 4px;
-    border-radius: 6px;
+    padding: 8px 6px;
+    border-radius: 8px;
 }
 QTreeWidget::item:hover {
-    background-color: #111C38;
+    background-color: #0F1D38;
 }
 QTreeWidget::item:selected {
-    background-color: rgba(99, 102, 241, 0.22);
+    background-color: rgba(14, 165, 233, 0.18);
     color: #FFFFFF;
 }
 
 /* Tooltip */
 QToolTip {
-    background-color: #0B1326;
+    background-color: #091022;
     color: #F8FAFC;
-    border: 1px solid #334155;
-    border-radius: 6px;
-    padding: 6px 10px;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 6px 12px;
     font-size: 12px;
 }
 
 /* Nhóm GroupBox */
 QGroupBox {
-    background-color: #0D162B;
+    background-color: #0B1326;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
+    border-radius: 12px;
     margin-top: 14px;
-    padding-top: 14px;
-    padding-bottom: 12px;
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-top: 16px;
+    padding-bottom: 14px;
+    padding-left: 14px;
+    padding-right: 14px;
     font-weight: bold;
     font-size: 13px;
     color: #F8FAFC;
@@ -217,17 +221,16 @@ QGroupBox {
 QGroupBox::title {
     subcontrol-origin: margin;
     subcontrol-position: top left;
-    left: 14px;
+    left: 16px;
     top: 0px;
     padding: 2px 10px;
     background-color: #1E293B;
-    border-radius: 5px;
+    border-radius: 6px;
     color: #38BDF8;
     font-size: 11px;
     font-weight: bold;
 }
 """
-
 
 class StatusPill(QFrame):
     """Huy hiệu trạng thái bo tròn dạng viên thuốc có chấm màu phát sáng."""

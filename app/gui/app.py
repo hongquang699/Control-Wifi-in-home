@@ -44,28 +44,29 @@ class NavButton(QPushButton):
         self.setCheckable(True)
         self.setAutoExclusive(True)
         self.setCursor(Qt.PointingHandCursor)
-        self.setFixedHeight(46)
+        self.setFixedHeight(44)
         self.setFont(QFont("Segoe UI", 10, QFont.DemiBold))
         self.setStyleSheet(f"""
             NavButton {{
                 text-align: left;
-                padding-left: 18px;
+                padding-left: 16px;
                 color: #94A3B8;
                 background-color: transparent;
                 border: none;
-                border-left: 4px solid transparent;
-                border-radius: 9px;
-                margin: 3px 12px;
+                border-left: 3px solid transparent;
+                border-radius: 8px;
+                margin: 2px 10px;
+                font-size: 13px;
             }}
             NavButton:hover {{
                 background-color: rgba(255, 255, 255, 0.05);
                 color: #F8FAFC;
             }}
             NavButton:checked {{
-                background-color: rgba(99, 102, 241, 0.16);
-                color: #FFFFFF;
-                font-weight: bold;
-                border-left: 4px solid {COLOR_ACCENT_INDIGO};
+                background-color: rgba(56, 189, 248, 0.12);
+                color: #38BDF8;
+                font-weight: 700;
+                border-left: 3px solid #38BDF8;
             }}
         """)
         self.retranslate_ui()
@@ -78,7 +79,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.auto_scan_on_startup = auto_scan_on_startup
         self.setMinimumSize(1024, 700)
-        self.resize(1240, 820)
+        self.resize(1280, 840)
 
         # Thiết lập Icon ứng dụng cho cửa sổ và taskbar
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -156,12 +157,12 @@ class MainWindow(QMainWindow):
         sidebar.setFixedWidth(240)
         sidebar.setStyleSheet(f"background-color: {COLOR_BG_SIDEBAR}; border-right: 1px solid {COLOR_BORDER};")
         sidebar_layout = QVBoxLayout(sidebar)
-        sidebar_layout.setContentsMargins(0, 22, 0, 18)
+        sidebar_layout.setContentsMargins(0, 20, 0, 16)
         sidebar_layout.setSpacing(6)
 
-        # Brand Header (NM Badge + Title matching screenshot)
+        # Brand Header (High-Tech NM Badge + Title)
         brand_card = QFrame()
-        brand_card.setStyleSheet("background: transparent; margin: 0 12px 14px 12px;")
+        brand_card.setStyleSheet("background: transparent; margin: 0 10px 14px 10px;")
         brand_card_layout = QVBoxLayout(brand_card)
         brand_card_layout.setContentsMargins(4, 0, 4, 0)
         brand_card_layout.setSpacing(6)
@@ -170,25 +171,42 @@ class MainWindow(QMainWindow):
         brand_top.setSpacing(10)
         lbl_logo = QLabel("NM")
         lbl_logo.setAlignment(Qt.AlignCenter)
-        lbl_logo.setFixedSize(36, 36)
+        lbl_logo.setFixedSize(38, 38)
         lbl_logo.setStyleSheet("""
-            background-color: rgba(56, 189, 248, 0.15);
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            border-radius: 9px;
-            color: #38BDF8;
-            font-family: 'Fira Code', monospace;
-            font-weight: 800;
-            font-size: 13px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0284C7, stop:1 #0369A1);
+            border: 1px solid #38BDF8;
+            border-radius: 10px;
+            color: #FFFFFF;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-weight: 900;
+            font-size: 14px;
         """)
 
         title_vbox = QVBoxLayout()
-        title_vbox.setSpacing(0)
+        title_vbox.setSpacing(1)
         lbl_app_t1 = QLabel("NETWORK")
         lbl_app_t1.setStyleSheet("font-size: 13px; font-weight: 800; color: #F8FAFC; letter-spacing: 0.8px;")
+        
+        lbl_app_sub = QHBoxLayout()
+        lbl_app_sub.setSpacing(6)
         lbl_app_t2 = QLabel("MANAGER")
         lbl_app_t2.setStyleSheet("font-size: 11px; font-weight: 800; color: #38BDF8; letter-spacing: 0.8px;")
+        lbl_version_badge = QLabel("PRO")
+        lbl_version_badge.setStyleSheet("""
+            background-color: rgba(56, 189, 248, 0.15);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 4px;
+            padding: 1px 4px;
+            font-size: 9px;
+            font-weight: 800;
+        """)
+        lbl_app_sub.addWidget(lbl_app_t2)
+        lbl_app_sub.addWidget(lbl_version_badge)
+        lbl_app_sub.addStretch()
+
         title_vbox.addWidget(lbl_app_t1)
-        title_vbox.addWidget(lbl_app_t2)
+        title_vbox.addLayout(lbl_app_sub)
 
         brand_top.addWidget(lbl_logo)
         brand_top.addLayout(title_vbox)
@@ -197,7 +215,7 @@ class MainWindow(QMainWindow):
 
         sidebar_layout.addWidget(brand_card)
 
-        # 7 Navigation Buttons Matching Screenshot
+        # 7 Navigation Buttons
         self.btn_nav_dashboard = NavButton("nav_dashboard", "📊")
         self.btn_nav_devices = NavButton("nav_devices", "💻")
         self.btn_nav_networks = NavButton("nav_networks", "🌐")
@@ -223,25 +241,24 @@ class MainWindow(QMainWindow):
         self.btn_nav_dashboard.setChecked(True)
         sidebar_layout.addStretch()
 
-        # Bottom Agent Active Card (Matching screenshot)
+        # Bottom Agent Active Card
         self.agent_card = QFrame()
         self.agent_card.setStyleSheet("""
             QFrame {
-                background-color: #0D1322;
+                background-color: #0A1124;
                 border: 1px solid #1E293B;
                 border-radius: 10px;
-                margin: 0 12px 14px 12px;
-                padding: 10px 12px;
+                margin: 0 10px 12px 10px;
             }
         """)
         agent_layout = QVBoxLayout(self.agent_card)
-        agent_layout.setContentsMargins(10, 8, 10, 8)
-        agent_layout.setSpacing(3)
+        agent_layout.setContentsMargins(12, 10, 12, 10)
+        agent_layout.setSpacing(4)
         
         agent_header = QHBoxLayout()
         agent_header.setSpacing(6)
         lbl_green_dot = QLabel("●")
-        lbl_green_dot.setStyleSheet("color: #10B981; font-size: 11px;")
+        lbl_green_dot.setStyleSheet("color: #10B981; font-size: 12px;")
         lbl_agent_text = QLabel("Agent Active")
         lbl_agent_text.setStyleSheet("color: #10B981; font-size: 11px; font-weight: 700; font-family: 'Fira Code', monospace;")
         agent_header.addWidget(lbl_green_dot)
@@ -255,10 +272,9 @@ class MainWindow(QMainWindow):
         agent_layout.addWidget(self.lbl_agent_subnets)
 
         sidebar_layout.addWidget(self.agent_card)
-
         main_layout.addWidget(sidebar)
 
-        # B. Right Area
+        # B. Right Content Area
         content_area = QWidget()
         content_area.setStyleSheet(f"background-color: {COLOR_BG_MAIN};")
         content_layout = QVBoxLayout(content_area)
@@ -267,62 +283,109 @@ class MainWindow(QMainWindow):
 
         # Top Bar
         top_bar = QFrame()
-        top_bar.setFixedHeight(54)
-        top_bar.setStyleSheet(f"background-color: #0C152B; border-bottom: 1px solid {COLOR_BORDER};")
+        top_bar.setFixedHeight(56)
+        top_bar.setStyleSheet(f"background-color: #091022; border-bottom: 1px solid {COLOR_BORDER};")
         top_layout = QHBoxLayout(top_bar)
-        top_layout.setContentsMargins(24, 0, 24, 0)
-        top_layout.setSpacing(14)
+        top_layout.setContentsMargins(20, 0, 20, 0)
+        top_layout.setSpacing(12)
 
-        self.lbl_top_status = QLabel()
+        # Breadcrumb / Page Title
+        self.lbl_breadcrumb = QLabel("📊 Tổng quan mạng (Dashboard)")
+        self.lbl_breadcrumb.setStyleSheet("color: #F8FAFC; font-size: 14px; font-weight: 700;")
+        top_layout.addWidget(self.lbl_breadcrumb)
+
+        top_layout.addStretch()
+
+        # Gateway Chip
+        gw_ip = getattr(self.current_iface, "gateway", "") or "192.168.1.1"
+        self.lbl_gateway_chip = QLabel(f"● Gateway: {gw_ip}")
+        self.lbl_gateway_chip.setStyleSheet("""
+            background-color: rgba(16, 185, 129, 0.12);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 13px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Fira Code', 'Consolas', monospace;
+        """)
+        top_layout.addWidget(self.lbl_gateway_chip)
+
+        # Subnet Chip
+        self.lbl_top_net = QLabel(f"🌐 {cidr_display}")
+        self.lbl_top_net.setStyleSheet("""
+            background-color: rgba(6, 182, 212, 0.12);
+            color: #06B6D4;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 13px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Fira Code', 'Consolas', monospace;
+        """)
+        top_layout.addWidget(self.lbl_top_net)
+
+        # Quick Scan Button
+        self.btn_quick_scan = QPushButton("⚡ Quét mạng ngay")
+        self.btn_quick_scan.setCursor(Qt.PointingHandCursor)
+        self.btn_quick_scan.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0284C7, stop:1 #2563EB);
+                color: #FFFFFF;
+                border: 1px solid #38BDF8;
+                border-radius: 8px;
+                padding: 6px 14px;
+                font-size: 12px;
+                font-weight: 700;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0369A1, stop:1 #1D4ED8);
+            }
+            QPushButton:disabled {
+                background: #1E293B;
+                color: #64748B;
+                border: 1px solid #334155;
+            }
+        """)
+        self.btn_quick_scan.clicked.connect(self.start_scan)
+        top_layout.addWidget(self.btn_quick_scan)
+
+        # Status badge
+        self.lbl_top_status = QLabel("● Sẵn sàng")
         self.lbl_top_status.setStyleSheet("""
             background-color: rgba(16, 185, 129, 0.12);
             color: #10B981;
             border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 14px;
+            border-radius: 13px;
             padding: 4px 12px;
             font-weight: 600;
             font-size: 11px;
         """)
         top_layout.addWidget(self.lbl_top_status)
 
-        top_layout.addStretch()
-
-        # Nút chuyển nhanh ngôn ngữ ở góc phải Top Bar
+        # Quick Language Dropdown
         self.cb_quick_lang = QComboBox()
         self.cb_quick_lang.addItems(["🇻🇳 Tiếng Việt", "🇬🇧 English"])
         self.cb_quick_lang.setCurrentIndex(0 if i18n.current_lang == "vi" else 1)
         self.cb_quick_lang.setStyleSheet("""
             QComboBox {
-                background-color: #101B33;
+                background-color: #0D152A;
                 color: #F8FAFC;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.12);
                 border-radius: 8px;
                 padding: 4px 10px;
                 font-size: 11px;
                 font-weight: 600;
-                min-width: 120px;
+                min-width: 125px;
             }
             QComboBox:hover {
-                background-color: #152445;
-                border: 1px solid #6366F1;
+                background-color: #131F3D;
+                border: 1px solid #38BDF8;
             }
             QComboBox::drop-down { border: none; }
         """)
         self.cb_quick_lang.currentIndexChanged.connect(self._on_quick_lang_changed)
         top_layout.addWidget(self.cb_quick_lang)
-
-        # Subnet chip
-        self.lbl_top_net = QLabel(f"🌐 Subnet: {self.current_iface.cidr if self.current_iface else 'N/A'}")
-        self.lbl_top_net.setStyleSheet("""
-            background-color: rgba(6, 182, 212, 0.12);
-            color: #06B6D4;
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            padding: 4px 12px;
-            border-radius: 14px;
-            font-size: 11px;
-            font-weight: bold;
-        """)
-        top_layout.addWidget(self.lbl_top_net)
 
         content_layout.addWidget(top_bar)
 
@@ -361,11 +424,38 @@ class MainWindow(QMainWindow):
 
     def retranslate_ui(self):
         self.setWindowTitle(t("app_title"))
-        self.lbl_top_status.setText(t("status_ready"))
+        self.lbl_top_status.setText("● " + t("status_ready"))
         self.status_bar.showMessage(t("ready_msg"))
+        is_vi = i18n.current_lang == "vi"
+        self.btn_quick_scan.setText("⚡ Quét mạng ngay" if is_vi else "⚡ Scan Network")
 
         for btn in self.nav_buttons:
             btn.retranslate_ui()
+        self._update_breadcrumb(self.stack.currentIndex())
+
+    def _update_breadcrumb(self, index: int):
+        titles_vi = [
+            "📊 Tổng quan mạng (Dashboard)",
+            "💻 Danh sách thiết bị (Connected Devices)",
+            "🌐 Sơ đồ hạ tầng mạng (Network Map)",
+            "📈 Giám sát lưu lượng (Traffic Monitor)",
+            "🔔 Cảnh báo bảo mật (Security Alerts)",
+            "📜 Nhật ký sự kiện hệ thống (Logs)",
+            "⚙️ Cấu hình hệ thống (Settings)"
+        ]
+        titles_en = [
+            "📊 Network Dashboard Overview",
+            "💻 Connected Devices Management",
+            "🌐 Network Topology & Map",
+            "📈 Real-time Traffic Monitor",
+            "🔔 Security & Threat Alerts",
+            "📜 System Event Logs",
+            "⚙️ System Settings"
+        ]
+        is_vi = i18n.current_lang == "vi"
+        titles = titles_vi if is_vi else titles_en
+        if 0 <= index < len(titles):
+            self.lbl_breadcrumb.setText(titles[index])
 
     def _on_quick_lang_changed(self, idx: int):
         new_lang = "vi" if idx == 0 else "en"
@@ -381,6 +471,7 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentIndex(index)
         for i, btn in enumerate(self.nav_buttons):
             btn.setChecked(i == index)
+        self._update_breadcrumb(index)
         if index == 0:
             self.view_dashboard.refresh_data()
         elif index == 1:
@@ -410,8 +501,19 @@ class MainWindow(QMainWindow):
         self.scan_worker.start()
 
     def _on_scan_started(self):
-        self.lbl_top_status.setText(t("status_scanning"))
-        self.lbl_top_status.setStyleSheet("color: #38BDF8; font-weight: bold; font-size: 13px;")
+        is_vi = i18n.current_lang == "vi"
+        self.lbl_top_status.setText("● " + (t("status_scanning") if "status_scanning" in i18n.current_lang else ("Đang quét..." if is_vi else "Scanning...")))
+        self.lbl_top_status.setStyleSheet("""
+            background-color: rgba(56, 189, 248, 0.15);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 13px;
+            padding: 4px 12px;
+            font-weight: 700;
+            font-size: 11px;
+        """)
+        self.btn_quick_scan.setEnabled(False)
+        self.btn_quick_scan.setText("⏳ " + ("Đang quét..." if is_vi else "Scanning..."))
         self.view_dashboard.set_scanning_state(True, progress=10, message="...")
         self.status_bar.showMessage(t("scanning_msg"))
 
@@ -420,15 +522,37 @@ class MainWindow(QMainWindow):
         self.status_bar.showMessage(f"({percent}%): {msg}")
 
     def _on_scan_finished(self, devices: list):
-        self.lbl_top_status.setText(t("status_ready"))
-        self.lbl_top_status.setStyleSheet("color: #10B981; font-weight: 500; font-size: 13px;")
+        is_vi = i18n.current_lang == "vi"
+        self.lbl_top_status.setText("● " + ("Sẵn sàng" if is_vi else "Ready"))
+        self.lbl_top_status.setStyleSheet("""
+            background-color: rgba(16, 185, 129, 0.12);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 13px;
+            padding: 4px 12px;
+            font-weight: 600;
+            font-size: 11px;
+        """)
+        self.btn_quick_scan.setEnabled(True)
+        self.btn_quick_scan.setText("⚡ " + ("Quét mạng ngay" if is_vi else "Scan Network"))
         self.view_dashboard.set_scanning_state(False)
         self.status_bar.showMessage(t("scan_success_msg", count=len(devices)))
         self._sync_all_views()
 
     def _on_scan_error(self, error_msg: str):
-        self.lbl_top_status.setText(t("status_error"))
-        self.lbl_top_status.setStyleSheet("color: #EF4444; font-weight: bold; font-size: 13px;")
+        is_vi = i18n.current_lang == "vi"
+        self.lbl_top_status.setText("● " + ("Lỗi" if is_vi else "Error"))
+        self.lbl_top_status.setStyleSheet("""
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 13px;
+            padding: 4px 12px;
+            font-weight: 700;
+            font-size: 11px;
+        """)
+        self.btn_quick_scan.setEnabled(True)
+        self.btn_quick_scan.setText("⚡ " + ("Quét mạng ngay" if is_vi else "Scan Network"))
         self.view_dashboard.set_scanning_state(False)
         self.status_bar.showMessage(f"Error: {error_msg}")
         QMessageBox.warning(self, t("scan_error_title"), t("scan_error_body", error=error_msg))
