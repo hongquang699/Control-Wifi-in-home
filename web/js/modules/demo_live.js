@@ -104,9 +104,11 @@ function renderDemoDevices() {
         </td>
         <td class="py-3 px-4 font-mono text-sky-400 font-semibold">${d.ip}</td>
         <td class="py-3 px-4 font-mono text-slate-400 text-[11px]">${d.mac}</td>
-        <td class="py-3 px-4 text-slate-300">${d.vendor}</td>
-        <td class="py-3 px-4 text-slate-400">${d.medium === "Wi-Fi" ? "📶 Wi-Fi" : "🔌 LAN"}</td>
-        <td class="py-3 px-4">${statusBadge}</td>
+        <td class="py-3 px-4 text-slate-400">
+          ${d.medium === "Wi-Fi" 
+            ? '<span class="inline-flex items-center gap-1 text-sky-400"><i class="fi fi-rr-wifi text-xs"></i> <span>Wi-Fi</span></span>' 
+            : '<span class="inline-flex items-center gap-1 text-emerald-400"><i class="fi fi-rr-network text-xs"></i> <span>LAN</span></span>'}
+        </td>
         <td class="py-3 px-4 text-right">
           <button onclick="toggleDemoBlock(${d.id})" class="px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-colors ${btnClass}">
             ${btnText}

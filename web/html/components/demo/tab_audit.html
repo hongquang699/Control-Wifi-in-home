@@ -3,16 +3,17 @@
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
                 <div>
                   <h3 class="font-bold text-white text-base flex items-center gap-2">
-                    <span>🛡️</span> <span>Nhật Ký Kiểm Toán Bảo Mật (Audit & Compliance Log)</span>
+                    <i class="fi fi-rr-shield-check text-amber-400"></i>
+                    <span>Nhật Ký Kiểm Toán Bảo Mật (Audit & Compliance Log)</span>
                   </h3>
                   <p class="text-xs text-slate-400">Ghi vết toàn diện sự kiện xác thực, WAF block, rate limit, chặn thiết bị và sao lưu dữ liệu</p>
                 </div>
                 <div class="flex items-center gap-2">
                   <button id="btnBackupDb" onclick="triggerDatabaseBackup()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer">
-                    <span id="backupSpinner">💾</span> <span>Sao Lưu DB Ngay</span>
+                    <span id="backupSpinner" class="inline-flex items-center"><i class="fi fi-rr-disk text-xs"></i></span> <span>Sao Lưu DB Ngay</span>
                   </button>
                   <button onclick="refreshAuditLogs()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-500 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer">
-                    <span>🔄</span> <span>Làm Mới Log</span>
+                    <i class="fi fi-rr-refresh text-xs"></i> <span>Làm Mới Log</span>
                   </button>
                 </div>
               </div>

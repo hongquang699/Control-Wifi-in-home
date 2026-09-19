@@ -386,7 +386,9 @@ function applyLanguage(lang) {
 
   const langLabel = document.getElementById("currentLangLabel");
   if (langLabel) {
-    langLabel.textContent = lang === "vi" ? "🇻🇳 Tiếng Việt" : "🇬🇧 English";
+    langLabel.innerHTML = lang === "vi"
+      ? `<i class="fi fi-rr-globe mr-1 text-sky-400"></i> Tiếng Việt`
+      : `<i class="fi fi-rr-globe mr-1 text-sky-400"></i> English`;
   }
 
   renderDemoDevices();
@@ -649,12 +651,22 @@ function setupDevicesFilter() {
 
 function getDeviceIcon(type, name) {
   const lower = (type + " " + name).toLowerCase();
-  if (lower.includes("phone") || lower.includes("iphone") || lower.includes("android")) return "📱";
-  if (lower.includes("tv") || lower.includes("qled") || lower.includes("samsung")) return "📺";
-  if (lower.includes("cam") || lower.includes("ezviz") || lower.includes("hikvision")) return "📹";
-  if (lower.includes("router") || lower.includes("gateway") || lower.includes("tp-link")) return "📡";
-  if (lower.includes("relay") || lower.includes("esp32") || lower.includes("iot")) return "🔌";
-  return "💻";
+  if (lower.includes("phone") || lower.includes("iphone") || lower.includes("android")) {
+    return `<i class="fi fi-rr-smartphone text-indigo-400 text-sm"></i>`;
+  }
+  if (lower.includes("tv") || lower.includes("qled") || lower.includes("samsung")) {
+    return `<i class="fi fi-rr-tv text-amber-400 text-sm"></i>`;
+  }
+  if (lower.includes("cam") || lower.includes("ezviz") || lower.includes("hikvision")) {
+    return `<i class="fi fi-rr-camera text-rose-400 text-sm"></i>`;
+  }
+  if (lower.includes("router") || lower.includes("gateway") || lower.includes("tp-link")) {
+    return `<i class="fi fi-rr-broadcast-tower text-sky-400 text-sm"></i>`;
+  }
+  if (lower.includes("relay") || lower.includes("esp32") || lower.includes("iot")) {
+    return `<i class="fi fi-rr-plug text-emerald-400 text-sm"></i>`;
+  }
+  return `<i class="fi fi-rr-laptop text-sky-400 text-sm"></i>`;
 }
 
 function renderFullDevicesTable() {
@@ -706,7 +718,11 @@ function renderFullDevicesTable() {
         <td class="py-3 px-4 text-slate-300">${d.vendor}</td>
         <td class="py-3 px-4 font-mono text-[11px]">
           <div class="text-slate-300">${d.network}</div>
-          <div class="text-[10px] text-slate-500">${d.medium === "Wi-Fi" ? "📶 Wi-Fi 5GHz" : "🔌 Dây LAN 1Gbps"}</div>
+          <div class="text-[10px] text-slate-400">
+            ${d.medium === "Wi-Fi" 
+              ? '<span class="inline-flex items-center gap-1 text-sky-400"><i class="fi fi-rr-wifi text-[10px]"></i> <span>Wi-Fi 5GHz</span></span>' 
+              : '<span class="inline-flex items-center gap-1 text-emerald-400"><i class="fi fi-rr-network text-[10px]"></i> <span>Dây LAN 1Gbps</span></span>'}
+          </div>
         </td>
         <td class="py-3 px-4 font-mono text-emerald-400 font-semibold">${d.latency || "2 ms"}</td>
         <td class="py-3 px-4">${statusBadge}</td>
@@ -779,14 +795,16 @@ window.openDeviceModal = function(id) {
   const modal = document.getElementById("deviceDetailModal");
   if (!modal) return;
 
-  document.getElementById("modalDeviceIcon").textContent = getDeviceIcon(d.type, d.name);
+  document.getElementById("modalDeviceIcon").innerHTML = getDeviceIcon(d.type, d.name);
   document.getElementById("modalDeviceName").textContent = d.name;
   document.getElementById("modalDeviceType").textContent = d.type;
   document.getElementById("modalDeviceIP").textContent = d.ip;
   document.getElementById("modalDeviceMAC").textContent = d.mac;
   document.getElementById("modalDeviceVendor").textContent = d.vendor;
   document.getElementById("modalDeviceNetwork").textContent = d.network;
-  document.getElementById("modalDeviceMedium").textContent = d.medium === "Wi-Fi" ? "📶 Wi-Fi 5GHz (802.11ax)" : "🔌 Dây LAN 1Gbps (RJ45 Cat6)";
+  document.getElementById("modalDeviceMedium").innerHTML = d.medium === "Wi-Fi" 
+    ? '<span class="inline-flex items-center gap-1.5 text-sky-400"><i class="fi fi-rr-wifi text-xs"></i> <span>Wi-Fi 5GHz (802.11ax)</span></span>' 
+    : '<span class="inline-flex items-center gap-1.5 text-emerald-400"><i class="fi fi-rr-network text-xs"></i> <span>Dây LAN 1Gbps (RJ45 Cat6)</span></span>';
   document.getElementById("modalDeviceLatency").textContent = d.latency || "2 ms";
   
   const ports = d.subnet === "secondary" ? "554 (RTSP), 80 (HTTP), 1883 (MQTT)" : "80 (HTTP), 443 (HTTPS), 22 (SSH)";
@@ -973,7 +991,7 @@ function renderAlerts() {
   if (filtered.length === 0) {
     el.innerHTML = `
       <div class="p-8 text-center text-slate-500 text-xs">
-        <span>✅</span> Không có cảnh báo nào trong danh mục này. Hệ thống an toàn tuyệt đối.
+        <i class="fi fi-rr-shield-check text-emerald-500 mr-1.5"></i> Không có cảnh báo nào trong danh mục này. Hệ thống an toàn tuyệt đối.
       </div>
     `;
     return;
@@ -1022,7 +1040,7 @@ window.simulateSecurityAlert = function() {
   };
   demoAlertsData.unshift(newAlert);
   renderAlerts();
-  showToast("🚨 CẢNH BÁO: Phát hiện quét cổng trái phép từ IP 192.168.1.205!");
+  showToast("CẢNH BÁO: Phát hiện quét cổng trái phép từ IP 192.168.1.205!");
 };
 
 window.dismissAlert = function(id) {
@@ -1032,7 +1050,7 @@ window.dismissAlert = function(id) {
 };
 
 window.blockAlertAttacker = function(id) {
-  showToast("🚫 ĐÃ GỬI LỆNH CHẶN KẺ TẤN CÔNG (IP 192.168.1.205) TỚI ROUTER & TƯỜNG LỬA!");
+  showToast("ĐÃ GỬI LỆNH CHẶN KẺ TẤN CÔNG (IP 192.168.1.205) TỚI ROUTER & TƯỜNG LỬA!");
   dismissAlert(id);
 };
 
@@ -1141,10 +1159,10 @@ window.togglePasswordVisibility = function() {
 
   if (input.type === "password") {
     input.type = "text";
-    icon.textContent = "🙈";
+    icon.innerHTML = `<i class="fi fi-rr-eye-crossed text-xs"></i>`;
   } else {
     input.type = "password";
-    icon.textContent = "👁️";
+    icon.innerHTML = `<i class="fi fi-rr-eye text-xs"></i>`;
   }
 };
 
@@ -1196,7 +1214,7 @@ window.saveAllSettings = async function() {
   } catch (e) {}
 
   localStorage.setItem("nm_demo_settings", JSON.stringify(config));
-  showToast("💾 Đã lưu cấu hình hệ thống an toàn vào cơ sở dữ liệu và bộ nhớ!");
+  showToast("Đã lưu cấu hình hệ thống an toàn vào cơ sở dữ liệu và bộ nhớ!");
 };
 
 window.resetDefaultSettings = function() {
@@ -1372,9 +1390,11 @@ function renderDemoDevices() {
         </td>
         <td class="py-3 px-4 font-mono text-sky-400 font-semibold">${d.ip}</td>
         <td class="py-3 px-4 font-mono text-slate-400 text-[11px]">${d.mac}</td>
-        <td class="py-3 px-4 text-slate-300">${d.vendor}</td>
-        <td class="py-3 px-4 text-slate-400">${d.medium === "Wi-Fi" ? "📶 Wi-Fi" : "🔌 LAN"}</td>
-        <td class="py-3 px-4">${statusBadge}</td>
+        <td class="py-3 px-4 text-slate-400">
+          ${d.medium === "Wi-Fi" 
+            ? '<span class="inline-flex items-center gap-1 text-sky-400"><i class="fi fi-rr-wifi text-xs"></i> <span>Wi-Fi</span></span>' 
+            : '<span class="inline-flex items-center gap-1 text-emerald-400"><i class="fi fi-rr-network text-xs"></i> <span>LAN</span></span>'}
+        </td>
         <td class="py-3 px-4 text-right">
           <button onclick="toggleDemoBlock(${d.id})" class="px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-colors ${btnClass}">
             ${btnText}
@@ -1440,11 +1460,11 @@ window.toggleWaveAnimation = function() {
   const text = document.getElementById("wavePauseText");
   if (icon && text) {
     if (isWaveAnimationPaused) {
-      icon.textContent = "▶️";
+      icon.innerHTML = `<i class="fi fi-rr-play text-xs"></i>`;
       text.textContent = "Tiếp tục";
       showToast("Đã tạm dừng đồ thị sóng băng thông");
     } else {
-      icon.textContent = "⏸️";
+      icon.innerHTML = `<i class="fi fi-rr-pause text-xs"></i>`;
       text.textContent = "Tạm dừng";
       showToast("Đã kích hoạt lại đồ thị sóng băng thông");
     }
@@ -1714,7 +1734,7 @@ window.checkRolePermission = function(requiredRole) {
   const requiredLevel = roleHierarchy[requiredRole.toUpperCase()] || 1;
 
   if (currentLevel < requiredLevel) {
-    showToast(`⚠️ Quyền hạn không đủ: Bạn đang ở vai trò [${window.currentAuthRole}]. Thao tác này yêu cầu tối thiểu vai trò [${requiredRole}]. Bấm 'Đổi Quyền' để nâng cấp!`);
+    showToast(`Quyền hạn không đủ: Bạn đang ở vai trò [${window.currentAuthRole}]. Thao tác này yêu cầu tối thiểu vai trò [${requiredRole}]. Bấm 'Đổi Quyền' để nâng cấp!`);
     openAuthModal();
     return false;
   }
@@ -1835,17 +1855,17 @@ window.updateRbacBadges = function() {
   const sidebarBadge = document.getElementById("sidebarRoleBadge");
   const sidebarAuditPill = document.getElementById("sidebarAuditRolePill");
 
-  let icon = "👑", label = "Admin", colorClass = "text-amber-400 border-amber-500/30 bg-amber-500/20";
+  let iconHtml = '<i class="fi fi-sr-crown text-amber-400 text-xs"></i>', label = "Admin", colorClass = "text-amber-400 border-amber-500/30 bg-amber-500/20";
   if (role === "OPERATOR") {
-    icon = "🛠️"; label = "Operator"; colorClass = "text-sky-400 border-sky-500/30 bg-sky-500/20";
+    iconHtml = '<i class="fi fi-rr-wrench text-sky-400 text-xs"></i>'; label = "Operator"; colorClass = "text-sky-400 border-sky-500/30 bg-sky-500/20";
   } else if (role === "USER" || role === "VIEWER") {
-    icon = "👁️"; label = "Viewer"; colorClass = "text-emerald-400 border-emerald-500/30 bg-emerald-500/20";
+    iconHtml = '<i class="fi fi-rr-eye text-emerald-400 text-xs"></i>'; label = "Viewer"; colorClass = "text-emerald-400 border-emerald-500/30 bg-emerald-500/20";
   }
 
   if (topBadge) topBadge.textContent = label;
-  if (topIcon) topIcon.textContent = icon;
+  if (topIcon) topIcon.innerHTML = iconHtml;
   if (sidebarBadge) {
-    sidebarBadge.textContent = `${icon} ${label.toUpperCase()}`;
+    sidebarBadge.innerHTML = `<span class="inline-flex items-center gap-1">${iconHtml} <span>${label.toUpperCase()}</span></span>`;
     sidebarBadge.className = `px-2 py-0.5 rounded font-mono font-bold text-[10px] border ${colorClass}`;
   }
 };
@@ -1903,7 +1923,7 @@ window.refreshAuditLogs = async function() {
         `;
       }).join("");
     } else if (res.status === 403) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-rose-400 font-sans font-semibold">⚠️ 403 Forbidden: Yêu cầu vai trò ADMIN để xem nhật ký kiểm toán bảo mật. Vui lòng bấm 'Đổi Quyền' sang Admin!</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-rose-400 font-sans font-semibold"><i class="fi fi-rr-shield-exclamation mr-1.5"></i> 403 Forbidden: Yêu cầu vai trò ADMIN để xem nhật ký kiểm toán bảo mật. Vui lòng bấm 'Đổi Quyền' sang Admin!</td></tr>`;
     }
   } catch (err) {
     console.error("Lỗi đọc audit log:", err);

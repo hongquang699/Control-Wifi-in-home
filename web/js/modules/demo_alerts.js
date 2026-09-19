@@ -32,7 +32,7 @@ function renderAlerts() {
   if (filtered.length === 0) {
     el.innerHTML = `
       <div class="p-8 text-center text-slate-500 text-xs">
-        <span>✅</span> Không có cảnh báo nào trong danh mục này. Hệ thống an toàn tuyệt đối.
+        <i class="fi fi-rr-shield-check text-emerald-500 mr-1.5"></i> Không có cảnh báo nào trong danh mục này. Hệ thống an toàn tuyệt đối.
       </div>
     `;
     return;
@@ -81,7 +81,7 @@ window.simulateSecurityAlert = function() {
   };
   demoAlertsData.unshift(newAlert);
   renderAlerts();
-  showToast("🚨 CẢNH BÁO: Phát hiện quét cổng trái phép từ IP 192.168.1.205!");
+  showToast("CẢNH BÁO: Phát hiện quét cổng trái phép từ IP 192.168.1.205!");
 };
 
 window.dismissAlert = function(id) {
@@ -91,7 +91,7 @@ window.dismissAlert = function(id) {
 };
 
 window.blockAlertAttacker = function(id) {
-  showToast("🚫 ĐÃ GỬI LỆNH CHẶN KẺ TẤN CÔNG (IP 192.168.1.205) TỚI ROUTER & TƯỜNG LỬA!");
+  showToast("ĐÃ GỬI LỆNH CHẶN KẺ TẤN CÔNG (IP 192.168.1.205) TỚI ROUTER & TƯỜNG LỬA!");
   dismissAlert(id);
 };
 

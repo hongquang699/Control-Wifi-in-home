@@ -7,11 +7,11 @@ window.toggleWaveAnimation = function() {
   const text = document.getElementById("wavePauseText");
   if (icon && text) {
     if (isWaveAnimationPaused) {
-      icon.textContent = "▶️";
+      icon.innerHTML = `<i class="fi fi-rr-play text-xs"></i>`;
       text.textContent = "Tiếp tục";
       showToast("Đã tạm dừng đồ thị sóng băng thông");
     } else {
-      icon.textContent = "⏸️";
+      icon.innerHTML = `<i class="fi fi-rr-pause text-xs"></i>`;
       text.textContent = "Tạm dừng";
       showToast("Đã kích hoạt lại đồ thị sóng băng thông");
     }

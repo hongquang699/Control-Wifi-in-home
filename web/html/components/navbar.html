@@ -37,12 +37,13 @@
       <div class="flex items-center gap-3">
         <!-- RBAC Role Quick Indicator & Auth Modal Trigger -->
         <button id="topRoleBtn" onclick="openAuthModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-amber-500/50 text-xs font-semibold text-amber-300 transition-all cursor-pointer">
-          <span id="topRoleIcon">👑</span>
+          <span id="topRoleIcon" class="inline-flex items-center"><i class="fi fi-sr-crown text-amber-400 text-xs"></i></span>
           <span id="topRoleLabel">Admin</span>
         </button>
 
         <button id="langToggleBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-sky-500/50 text-xs font-medium text-slate-200 transition-colors">
-          <span id="currentLangLabel">🇻🇳 Tiếng Việt</span>
+          <i class="fi fi-rr-globe text-sky-400 text-xs"></i>
+          <span id="currentLangLabel">Tiếng Việt</span>
         </button>
 
         <a href="#/download" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-sky-500/20 transition-all">

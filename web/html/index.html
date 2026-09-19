@@ -28,6 +28,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- Flaticon Uicons CDN (Official Modern Web Icons) -->
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -139,12 +143,13 @@
       <div class="flex items-center gap-3">
         <!-- RBAC Role Quick Indicator & Auth Modal Trigger -->
         <button id="topRoleBtn" onclick="openAuthModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-amber-500/50 text-xs font-semibold text-amber-300 transition-all cursor-pointer">
-          <span id="topRoleIcon">👑</span>
+          <span id="topRoleIcon" class="inline-flex items-center"><i class="fi fi-sr-crown text-amber-400 text-xs"></i></span>
           <span id="topRoleLabel">Admin</span>
         </button>
 
         <button id="langToggleBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-sky-500/50 text-xs font-medium text-slate-200 transition-colors">
-          <span id="currentLangLabel">🇻🇳 Tiếng Việt</span>
+          <i class="fi fi-rr-globe text-sky-400 text-xs"></i>
+          <span id="currentLangLabel">Tiếng Việt</span>
         </button>
 
         <a href="#/download" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-sky-500/20 transition-all">
@@ -191,11 +196,11 @@
 
   <!-- STICKY MOBILE CTA ACTION BAR -->
   <aside aria-label="Mobile Action Bar" class="fixed bottom-0 inset-x-0 z-40 xl:hidden bg-[#0d1322]/95 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between gap-3 shadow-2xl">
-    <a href="#/download" class="flex-1 py-2.5 rounded-xl bg-sky-500 text-white text-xs font-bold text-center shadow-lg shadow-sky-500/25">
-      ⬇ Tải xuống v1.0
+    <a href="#/download" class="flex-1 py-2.5 rounded-xl bg-sky-500 text-white text-xs font-bold text-center shadow-lg shadow-sky-500/25 flex items-center justify-center gap-1.5">
+      <i class="fi fi-rr-download"></i> Tải xuống v1.0
     </a>
-    <a href="#/dashboard" class="flex-1 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold text-center">
-      ⚡ Thử Demo Live
+    <a href="#/dashboard" class="flex-1 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold text-center flex items-center justify-center gap-1.5">
+      <i class="fi fi-rr-play-alt"></i> Thử Demo Live
     </a>
   </aside>
 
@@ -207,7 +212,9 @@
   <div class="max-w-md w-full rounded-2xl bg-[#0d1322] border border-slate-700 shadow-2xl p-5 space-y-4 animate-fade-in">
     <div class="flex items-center justify-between pb-3 border-b border-slate-800">
       <div class="flex items-center gap-3">
-        <span id="modalDeviceIcon" class="text-2xl p-2 rounded-xl bg-sky-500/10 border border-sky-500/30">💻</span>
+        <span id="modalDeviceIcon" class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 text-lg">
+          <i class="fi fi-rr-laptop"></i>
+        </span>
         <div>
           <h4 id="modalDeviceName" class="font-bold text-white text-sm">MacBook Pro M2</h4>
           <p id="modalDeviceType" class="text-[11px] text-slate-400">PC / Laptop Workstation</p>
@@ -235,7 +242,9 @@
       </div>
       <div class="flex justify-between py-1 border-b border-slate-800/60">
         <span class="text-slate-400 font-sans">Phương thức:</span>
-        <span id="modalDeviceMedium" class="text-slate-200">📶 Wi-Fi 5GHz (802.11ax)</span>
+        <span id="modalDeviceMedium" class="text-slate-200 flex items-center gap-1.5">
+          <i class="fi fi-rr-wifi text-sky-400"></i> Wi-Fi 5GHz (802.11ax)
+        </span>
       </div>
       <div class="flex justify-between py-1 border-b border-slate-800/60">
         <span class="text-slate-400 font-sans">Độ trễ ICMP Ping:</span>
@@ -269,7 +278,7 @@
     <div class="flex items-center justify-between pb-3 border-b border-slate-800">
       <div class="flex items-center gap-2.5">
         <span class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-lg">
-          🔐
+          <i class="fi fi-rr-lock"></i>
         </span>
         <div>
           <h3 class="font-bold text-white text-base">Xác Thực & Phân Quyền Bảo Mật (RBAC)</h3>
@@ -287,15 +296,15 @@
       </div>
       <div class="grid grid-cols-3 gap-2">
         <button type="button" onclick="quickSwitchRole('admin')" class="p-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-500/60 text-left transition-all group cursor-pointer">
-          <div class="font-bold text-amber-400 text-xs flex items-center gap-1">👑 Admin</div>
+          <div class="font-bold text-amber-400 text-xs flex items-center gap-1.5"><i class="fi fi-sr-crown text-xs"></i> Admin</div>
           <div class="text-[10px] text-slate-400 mt-1">Toàn quyền, Audit Log, Backup DB</div>
         </button>
         <button type="button" onclick="quickSwitchRole('operator')" class="p-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-500/60 text-left transition-all group cursor-pointer">
-          <div class="font-bold text-sky-400 text-xs flex items-center gap-1">🛠️ Operator</div>
+          <div class="font-bold text-sky-400 text-xs flex items-center gap-1.5"><i class="fi fi-rr-wrench text-xs"></i> Operator</div>
           <div class="text-[10px] text-slate-400 mt-1">Quét mạng, Chặn MAC, Cấu hình</div>
         </button>
         <button type="button" onclick="quickSwitchRole('viewer')" class="p-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-500/60 text-left transition-all group cursor-pointer">
-          <div class="font-bold text-emerald-400 text-xs flex items-center gap-1">👁️ Viewer</div>
+          <div class="font-bold text-emerald-400 text-xs flex items-center gap-1.5"><i class="fi fi-rr-eye text-xs"></i> Viewer</div>
           <div class="text-[10px] text-slate-400 mt-1">Chỉ xem, Tải xuống phần mềm</div>
         </button>
       </div>
@@ -328,7 +337,7 @@
     <!-- Security Guarantee Footer -->
     <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[10px] text-slate-400 space-y-1">
       <div class="flex items-center gap-1.5 text-emerald-400 font-semibold">
-        <span>🛡️</span> <span>Chuẩn Bảo Mật Đa Lớp:</span>
+        <i class="fi fi-rr-shield-check text-xs"></i> <span>Chuẩn Bảo Mật Đa Lớp:</span>
       </div>
       <p>• Mật khẩu băm PBKDF2-HMAC-SHA256 (200.000 vòng) chống bẻ khóa từ điển.</p>
       <p>• Cơ chế khóa tài khoản 15 phút sau 5 lần nhập sai liên tiếp chống Brute-Force.</p>

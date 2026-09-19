@@ -13,7 +13,7 @@ window.checkRolePermission = function(requiredRole) {
   const requiredLevel = roleHierarchy[requiredRole.toUpperCase()] || 1;
 
   if (currentLevel < requiredLevel) {
-    showToast(`⚠️ Quyền hạn không đủ: Bạn đang ở vai trò [${window.currentAuthRole}]. Thao tác này yêu cầu tối thiểu vai trò [${requiredRole}]. Bấm 'Đổi Quyền' để nâng cấp!`);
+    showToast(`Quyền hạn không đủ: Bạn đang ở vai trò [${window.currentAuthRole}]. Thao tác này yêu cầu tối thiểu vai trò [${requiredRole}]. Bấm 'Đổi Quyền' để nâng cấp!`);
     openAuthModal();
     return false;
   }
@@ -134,17 +134,17 @@ window.updateRbacBadges = function() {
   const sidebarBadge = document.getElementById("sidebarRoleBadge");
   const sidebarAuditPill = document.getElementById("sidebarAuditRolePill");
 
-  let icon = "👑", label = "Admin", colorClass = "text-amber-400 border-amber-500/30 bg-amber-500/20";
+  let iconHtml = '<i class="fi fi-sr-crown text-amber-400 text-xs"></i>', label = "Admin", colorClass = "text-amber-400 border-amber-500/30 bg-amber-500/20";
   if (role === "OPERATOR") {
-    icon = "🛠️"; label = "Operator"; colorClass = "text-sky-400 border-sky-500/30 bg-sky-500/20";
+    iconHtml = '<i class="fi fi-rr-wrench text-sky-400 text-xs"></i>'; label = "Operator"; colorClass = "text-sky-400 border-sky-500/30 bg-sky-500/20";
   } else if (role === "USER" || role === "VIEWER") {
-    icon = "👁️"; label = "Viewer"; colorClass = "text-emerald-400 border-emerald-500/30 bg-emerald-500/20";
+    iconHtml = '<i class="fi fi-rr-eye text-emerald-400 text-xs"></i>'; label = "Viewer"; colorClass = "text-emerald-400 border-emerald-500/30 bg-emerald-500/20";
   }
 
   if (topBadge) topBadge.textContent = label;
-  if (topIcon) topIcon.textContent = icon;
+  if (topIcon) topIcon.innerHTML = iconHtml;
   if (sidebarBadge) {
-    sidebarBadge.textContent = `${icon} ${label.toUpperCase()}`;
+    sidebarBadge.innerHTML = `<span class="inline-flex items-center gap-1">${iconHtml} <span>${label.toUpperCase()}</span></span>`;
     sidebarBadge.className = `px-2 py-0.5 rounded font-mono font-bold text-[10px] border ${colorClass}`;
   }
 };
@@ -202,7 +202,7 @@ window.refreshAuditLogs = async function() {
         `;
       }).join("");
     } else if (res.status === 403) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-rose-400 font-sans font-semibold">⚠️ 403 Forbidden: Yêu cầu vai trò ADMIN để xem nhật ký kiểm toán bảo mật. Vui lòng bấm 'Đổi Quyền' sang Admin!</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-rose-400 font-sans font-semibold"><i class="fi fi-rr-shield-exclamation mr-1.5"></i> 403 Forbidden: Yêu cầu vai trò ADMIN để xem nhật ký kiểm toán bảo mật. Vui lòng bấm 'Đổi Quyền' sang Admin!</td></tr>`;
     }
   } catch (err) {
     console.error("Lỗi đọc audit log:", err);

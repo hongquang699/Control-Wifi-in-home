@@ -41,28 +41,28 @@
               <!-- Menu Items matching ASCII blueprint -->
               <nav id="demoNavMenu" class="space-y-1 text-xs">
                 <button data-demo-tab="dashboard" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-sky-500/20 text-sky-300 font-semibold border border-sky-500/30 text-left">
-                  <span>📊</span> <span>Dashboard</span>
+                  <i class="fi fi-rr-dashboard text-sky-400 text-sm"></i> <span>Dashboard</span>
                 </button>
                 <button data-demo-tab="devices" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
-                  <span>💻</span> <span>Devices</span>
+                  <i class="fi fi-rr-laptop text-emerald-400 text-sm"></i> <span>Devices</span>
                 </button>
                 <button data-demo-tab="networks" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
-                  <span>🌐</span> <span>Networks</span>
+                  <i class="fi fi-rr-network text-indigo-400 text-sm"></i> <span>Networks</span>
                 </button>
                 <button data-demo-tab="traffic" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
-                  <span>📈</span> <span>Traffic</span>
+                  <i class="fi fi-rr-chart-histogram text-cyan-400 text-sm"></i> <span>Traffic</span>
                 </button>
                 <button data-demo-tab="alerts" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
-                  <span>🔔</span> <span>Alerts</span>
+                  <i class="fi fi-rr-bell text-amber-400 text-sm"></i> <span>Alerts</span>
                 </button>
                 <button data-demo-tab="logs" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
-                  <span>📜</span> <span>Logs</span>
+                  <i class="fi fi-rr-document-signed text-slate-400 text-sm"></i> <span>Logs</span>
                 </button>
                 <button data-demo-tab="settings" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
-                  <span>⚙️</span> <span>Settings</span>
+                  <i class="fi fi-rr-settings text-slate-400 text-sm"></i> <span>Settings</span>
                 </button>
                 <button data-demo-tab="audit" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
-                  <span>🛡️</span> <span class="flex-1">Audit Log</span>
+                  <i class="fi fi-rr-shield-check text-rose-400 text-sm"></i> <span class="flex-1">Audit Log</span>
                   <span id="sidebarAuditRolePill" class="px-1.5 py-0.2 text-[9px] font-bold rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono">ADMIN</span>
                 </button>
               </nav>
@@ -72,10 +72,12 @@
             <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] mt-4 space-y-2">
               <div class="flex items-center justify-between">
                 <span class="text-slate-400 font-medium">Vai trò hiện tại:</span>
-                <span id="sidebarRoleBadge" class="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30">👑 ADMIN</span>
+                <span id="sidebarRoleBadge" class="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                  <i class="fi fi-sr-crown text-[10px]"></i> ADMIN
+                </span>
               </div>
               <button onclick="openAuthModal()" class="w-full py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                <span>🔐</span> <span>Đổi Quyền / Đăng Nhập</span>
+                <i class="fi fi-rr-lock text-amber-400 text-xs"></i> <span>Đổi Quyền / Đăng Nhập</span>
               </button>
             </div>
 

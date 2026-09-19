@@ -82,11 +82,11 @@ def build_index_html():
 
   <!-- STICKY MOBILE CTA ACTION BAR -->
   <aside aria-label="Mobile Action Bar" class="fixed bottom-0 inset-x-0 z-40 xl:hidden bg-[#0d1322]/95 backdrop-blur-xl border-t border-white/10 p-3 flex items-center justify-between gap-3 shadow-2xl">
-    <a href="#/download" class="flex-1 py-2.5 rounded-xl bg-sky-500 text-white text-xs font-bold text-center shadow-lg shadow-sky-500/25">
-      ⬇ Tải xuống v1.0
+    <a href="#/download" class="flex-1 py-2.5 rounded-xl bg-sky-500 text-white text-xs font-bold text-center shadow-lg shadow-sky-500/25 flex items-center justify-center gap-1.5">
+      <i class="fi fi-rr-download"></i> Tải xuống v1.0
     </a>
-    <a href="#/dashboard" class="flex-1 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold text-center">
-      ⚡ Thử Demo Live
+    <a href="#/dashboard" class="flex-1 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold text-center flex items-center justify-center gap-1.5">
+      <i class="fi fi-rr-play-alt"></i> Thử Demo Live
     </a>
   </aside>
 

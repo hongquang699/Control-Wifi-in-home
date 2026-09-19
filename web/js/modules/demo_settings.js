@@ -8,10 +8,10 @@ window.togglePasswordVisibility = function() {
 
   if (input.type === "password") {
     input.type = "text";
-    icon.textContent = "🙈";
+    icon.innerHTML = `<i class="fi fi-rr-eye-crossed text-xs"></i>`;
   } else {
     input.type = "password";
-    icon.textContent = "👁️";
+    icon.innerHTML = `<i class="fi fi-rr-eye text-xs"></i>`;
   }
 };
 
@@ -63,7 +63,7 @@ window.saveAllSettings = async function() {
   } catch (e) {}
 
   localStorage.setItem("nm_demo_settings", JSON.stringify(config));
-  showToast("💾 Đã lưu cấu hình hệ thống an toàn vào cơ sở dữ liệu và bộ nhớ!");
+  showToast("Đã lưu cấu hình hệ thống an toàn vào cơ sở dữ liệu và bộ nhớ!");
 };
 
 window.resetDefaultSettings = function() {
