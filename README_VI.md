@@ -1,14 +1,22 @@
 # NETWORK MANAGER — Hệ Thống Quản Lý & Giám Sát Mạng Nội Bộ Chuyên Nghiệp
 
-[English](README.md) | [Tiếng Việt](README_VI.md)
+<div align="center">
+
+[![Tiếng Việt](https://img.shields.io/badge/🇻🇳%20Đang%20xem-README%20Tiếng%20Việt-crimson?style=for-the-badge&logo=github)](README_VI.md)
+[![English Documentation](https://img.shields.io/badge/🇬🇧%20Bấm%20để%20xem-English%20README-2563eb?style=for-the-badge&logo=github)](README.md)
+
+### 📌 [👉 Click here to switch to English Documentation (README.md) 👈](README.md)
 
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
 [![PySide6](https://img.shields.io/badge/GUI-PySide6%20Qt6-brightgreen.svg)](https://pypi.org/project/PySide6/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Security](https://img.shields.io/badge/Security-Multi--Layer%20WAF%20%2B%20CSP-red.svg)](#7-k%E1%BB%B9-thu%E1%BA%ADt-b%E1%BA%A3o-m%E1%BA%ADt-api-7-core-api-security-techniques)
-[![Bilingual](https://img.shields.io/badge/Bilingual-Ti%E1%BA%BFng%20Vi%E1%BB%87t%20%7C%20English-blueviolet.svg)](#song-ng%E1%BB%AF-to%C3%A0n-di%E1%BB%87n-bilingual-support)
+[![English](https://img.shields.io/badge/Language-English%20Version-blue.svg?logo=readme)](README.md)
 
-Hệ thống quét mạng, phân tích topo đa tầng, theo dõi băng thông thời gian thực và quản lý kiểm soát truy cập cấp phần cứng Router dành cho quản trị viên mạng và gia đình. Phát triển bằng **Python 3.12**, **PySide6 (Qt6)**, **Nmap / Native ARP Ping**, **SQLite**, cùng hệ sinh thái **Web SPA 8-trang & REST API Server** bảo mật đa lớp.
+</div>
+
+> [!NOTE]
+> 🇬🇧 **Looking for English documentation?** Please visit the main **[README.md (English Version)](README.md)**.
 
 ---
 

@@ -1,16 +1,25 @@
 # NETWORK MANAGER — Professional Local Network Management & Security Monitoring System
 
-[English](README.md) | [Tiếng Việt](README_VI.md)
+<div align="center">
+
+[![Tiếng Việt - Xem Bản Giới Thiệu](https://img.shields.io/badge/🇻🇳%20Bấm%20để%20xem-README%20Tiếng%20Việt-crimson?style=for-the-badge&logo=github)](README_VI.md)
+[![English Documentation](https://img.shields.io/badge/🇬🇧%20Currently%20viewing-English%20Docs-2563eb?style=for-the-badge&logo=github)](README.md)
+
+### 📌 [👉 BẤM VÀO ĐÂY ĐỂ ĐỌC BẢN GIỚI THIỆU BẰNG TIẾNG VIỆT (README_VI.md) 👈](README_VI.md)
 
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
 [![PySide6](https://img.shields.io/badge/GUI-PySide6%20Qt6-brightgreen.svg)](https://pypi.org/project/PySide6/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Security](https://img.shields.io/badge/Security-OWASP%20Top%2010%20%2B%207%20API%20Guards-red.svg)](#-7-core-api-security-techniques)
-[![Bilingual](https://img.shields.io/badge/Bilingual-Ti%E1%BA%BFng%20Vi%E1%BB%87t%20%7C%20English-blueviolet.svg)](#-comprehensive-bilingual-support)
+[![Tiếng Việt](https://img.shields.io/badge/Ngôn%20Ngữ-Tiếng%20Việt%20(Bấm%20để%20xem)-crimson.svg?logo=readme)](README_VI.md)
 
-A high-performance network discovery scanner, multi-tier topology analyzer, real-time bandwidth monitor, and hardware-level router access control system engineered for system administrators, DevOps, and smart home networks. Built with **Python 3.12**, **PySide6 (Qt6)**, **Nmap / Native Multi-threaded ARP Ping**, **SQLite**, paired with a **Modular 8-Page SPA & REST API Web Suite** fortified with multi-layered defense-in-depth security.
+</div>
+
+> [!NOTE]
+> 🇻🇳 **Dành cho người dùng Tiếng Việt**: Để xem tài liệu giới thiệu chi tiết, hướng dẫn cài đặt và mô tả tính năng bằng Tiếng Việt, vui lòng bấm vào: **[👉 README_VI.md (Bản Tiếng Việt) 👈](README_VI.md)**.
 
 ---
+
 
 ## 🌟 Key Features
 
@@ -38,6 +47,8 @@ A high-performance network discovery scanner, multi-tier topology analyzer, real
 ## 🌐 Comprehensive Bilingual Support
 
 The entire ecosystem supports **100% real-time bilingual switching between English 🇬🇧 and Vietnamese 🇻🇳**:
+- 🇻🇳 **Bản Giới Thiệu & Hướng Dẫn Tiếng Việt**: [👉 **Bấm vào đây để mở README Tiếng Việt (README_VI.md)** 👈](README_VI.md)
+- 🇬🇧 **English Documentation**: You are currently reading [`README.md`](README.md).
 - **Instant Switching**: Click the language toggle button on the navigation bar to switch the entire application interface instantly without page reloads.
 - **Preference Persistence**: Automatically preserves user language selection in `localStorage` (`nm_lang`) across browser sessions and application restarts.
 - **Full-Spectrum Coverage**: Translates all navigation headers, hero banners, feature cards, case studies, metric tables, installation guides, interactive forms, toast notifications, and modal dialogs.
