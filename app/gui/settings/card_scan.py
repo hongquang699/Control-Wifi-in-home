@@ -13,7 +13,7 @@ from gui.settings.card_base import SettingsCard, STYLE_CHECKBOX, STYLE_LINEEDIT
 
 class ScanSettingsCard(SettingsCard):
     def __init__(self, parent=None):
-        super().__init__("📡", "card_scan_title", "card_scan_sub", parent)
+        super().__init__("antenna", "card_scan_title", "card_scan_sub", parent)
 
         # 1. Checkbox Auto-detect
         self.chk_autodetect = QCheckBox()

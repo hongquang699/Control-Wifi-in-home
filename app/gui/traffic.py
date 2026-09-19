@@ -6,13 +6,14 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QFrame, QComboBox, QGridLayout, QGroupBox
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QFont, QColor
 from typing import Optional
 
 from services.traffic_monitor import TrafficMonitor, TrafficStats, format_speed, format_bytes
 from gui.traffic_chart import TrafficChart
 from core.i18n import t, i18n
+from gui.icons import get_app_icon
 from gui.theme import (
     MetricCard, COLOR_BG_CARD, COLOR_BORDER, COLOR_ACCENT_INDIGO,
     COLOR_ACCENT_CYAN, COLOR_ACCENT_EMERALD, COLOR_ACCENT_AMBER
@@ -22,15 +23,11 @@ from gui.theme import (
 class TrafficStatCard(MetricCard):
     """Thẻ số liệu lưu lượng kế thừa từ MetricCard hiện đại."""
     def __init__(self, title_key: str, value: str = "0 B/s", color_hex: str = "#10B981", parent=None):
-        icon = "📊"
-        if "down" in title_key and "total" in title_key:
-            icon = "📥"
-        elif "up" in title_key and "total" in title_key:
-            icon = "📤"
-        elif "down" in title_key:
-            icon = "⬇️"
+        icon = "traffic"
+        if "down" in title_key:
+            icon = "download"
         elif "up" in title_key:
-            icon = "⬆️"
+            icon = "upload"
         super().__init__(icon_str=icon, title_key=title_key, value=value, accent_hex=color_hex, parent=parent)
 
 
@@ -178,7 +175,9 @@ class TrafficView(QWidget):
         self.lbl_desc.setText(t("traffic_desc"))
         self.lbl_iface_title.setText(t("traffic_iface_select"))
         self.cb_iface.setItemText(0, t("traffic_all_ifaces"))
-        self.btn_reset.setText(f"  {t('traffic_btn_reset')}")
+        self.btn_reset.setIcon(get_app_icon("refresh"))
+        self.btn_reset.setIconSize(QSize(16, 16))
+        self.btn_reset.setText(f" {t('traffic_btn_reset')}")
         self._update_pause_button_text()
 
         for card in (self.card_down, self.card_up, self.card_total_down, self.card_total_up):
@@ -187,12 +186,15 @@ class TrafficView(QWidget):
         self.chart.update()
 
     def _update_pause_button_text(self):
+        self.btn_pause.setIconSize(QSize(16, 16))
         if self._is_paused:
-            self.btn_pause.setText(f"▶  {t('traffic_btn_resume')}")
+            self.btn_pause.setIcon(get_app_icon("play"))
+            self.btn_pause.setText(f" {t('traffic_btn_resume')}")
             self.lbl_status_badge.setText(f"• {t('traffic_paused_badge')}")
             self.lbl_status_badge.setStyleSheet("color: #F59E0B; font-weight: bold; font-size: 12px;")
         else:
-            self.btn_pause.setText(f"⏸  {t('traffic_btn_pause')}")
+            self.btn_pause.setIcon(get_app_icon("pause"))
+            self.btn_pause.setText(f" {t('traffic_btn_pause')}")
             self.lbl_status_badge.setText(f"• {t('traffic_live_badge')}")
             self.lbl_status_badge.setStyleSheet("color: #10B981; font-weight: bold; font-size: 12px;")
 

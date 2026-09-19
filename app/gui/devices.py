@@ -16,6 +16,7 @@ from database.events import EventDAO
 from security.blocker import BlockManager
 from gui.device_detail import DeviceDetailDialog
 from core.i18n import t, i18n
+from gui.icons import get_app_icon
 from gui.theme import (
     StatusPill, SubnetTabButton, COLOR_BG_CARD, COLOR_BORDER,
     COLOR_ACCENT_INDIGO, COLOR_ACCENT_ROSE, COLOR_ACCENT_EMERALD
@@ -62,10 +63,11 @@ class DevicesView(QWidget):
 
         top_layout.addStretch()
 
-        # Ô tìm kiếm
+        # Ô tìm kiếm với Vector Icon Flaticon
         self.txt_search = QLineEdit()
+        self.txt_search.addAction(get_app_icon("search"), QLineEdit.LeadingPosition)
         self.txt_search.setFixedWidth(260)
-        self.txt_search.setPlaceholderText("🔍 Tìm theo IP, MAC, Tên...")
+        self.txt_search.setPlaceholderText("Tìm theo IP, MAC, Tên...")
         self.txt_search.textChanged.connect(self.load_devices)
         top_layout.addWidget(self.txt_search)
 
@@ -195,31 +197,32 @@ class DevicesView(QWidget):
         self.lbl_subtitle.setText(t("dev_subtitle", count=len(self.devices_cache)))
 
         type_icons = {
-            "Router": "🛡️",
-            "PC": "💻",
-            "Laptop": "💻",
-            "Phone": "📱",
-            "TV": "📺",
-            "Camera": "📷",
-            "IoT": "💡",
-            "Printer": "🖨️"
+            "Router": "router",
+            "PC": "laptop",
+            "Laptop": "laptop",
+            "Phone": "smartphone",
+            "TV": "tv",
+            "Camera": "camera",
+            "IoT": "devices",
+            "Printer": "printer"
         }
 
         for row, dev in enumerate(self.devices_cache):
             self.table.setRowHeight(row, 40)
 
-            # Cột 0: Tên thiết bị thông minh kèm Icon
-            icon = type_icons.get(dev.device_type, "🔌")
+            # Cột 0: Tên thiết bị thông minh kèm Vector Icon Flaticon
+            icon_key = type_icons.get(dev.device_type, "devices")
             if dev.custom_name:
-                name_text = f"{icon} {dev.custom_name}"
+                name_text = dev.custom_name
             elif dev.hostname:
-                name_text = f"{icon} {dev.hostname}"
+                name_text = dev.hostname
             else:
                 v_name = dev.vendor.split()[0] if dev.vendor and dev.vendor != "Unknown" else "Thiết bị"
                 last_octet = dev.ip.split(".")[-1] if "." in dev.ip else dev.ip
-                name_text = f"{icon} {v_name} #{last_octet}"
+                name_text = f"{v_name} #{last_octet}"
 
             item_name = QTableWidgetItem(name_text)
+            item_name.setIcon(get_app_icon(icon_key))
             if dev.custom_name:
                 item_name.setFont(QFont("Segoe UI", 10, QFont.Bold))
                 item_name.setForeground(QColor("#F8FAFC"))
@@ -263,7 +266,9 @@ class DevicesView(QWidget):
             # Cột 5: Phương thức kết nối (Connection Type)
             conn_badge = dev.display_connection_badge
             item_conn = QTableWidgetItem(conn_badge)
-            if "Wi-Fi" in conn_badge:
+            is_wifi = "Wi-Fi" in conn_badge
+            item_conn.setIcon(get_app_icon("wifi" if is_wifi else "ethernet"))
+            if is_wifi:
                 item_conn.setForeground(QColor("#34D399"))  # Emerald
             elif "LAN" in conn_badge:
                 item_conn.setForeground(QColor("#FBBF24"))  # Amber
@@ -286,6 +291,7 @@ class DevicesView(QWidget):
             actions_layout.setAlignment(Qt.AlignCenter)
 
             btn_detail = QPushButton(t("btn_detail"))
+            btn_detail.setIcon(get_app_icon("info"))
             btn_detail.setCursor(Qt.PointingHandCursor)
             btn_detail.setStyleSheet("""
                 QPushButton {
@@ -306,6 +312,7 @@ class DevicesView(QWidget):
             actions_layout.addWidget(btn_detail)
 
             btn_toggle_block = QPushButton(t("btn_unblock") if dev.blocked else t("btn_block"))
+            btn_toggle_block.setIcon(get_app_icon("shield_check" if dev.blocked else "shield_block"))
             btn_toggle_block.setCursor(Qt.PointingHandCursor)
             if dev.blocked:
                 btn_toggle_block.setStyleSheet("""

@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QComboBox, QPushButton, QTableWidget, QTableWidgetItem,
     QHeaderView, QMessageBox, QFrame, QGroupBox, QScrollArea, QWidget
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QColor, QFont
 from typing import Optional
 from core.device import Device
@@ -15,6 +15,7 @@ from database.devices import DeviceDAO
 from database.events import EventDAO
 from security.blocker import BlockManager
 from core.i18n import t, i18n
+from gui.icons import get_app_icon
 
 class DeviceDetailDialog(QDialog):
     device_changed = Signal()
@@ -231,7 +232,9 @@ class DeviceDetailDialog(QDialog):
             self.cb_device_type.setCurrentText(self.device.device_type)
         type_layout.addWidget(self.cb_device_type)
         
-        self.btn_save_alias = QPushButton(t("btn_save_changes"))
+        self.btn_save_alias = QPushButton(f" {t('btn_save_changes')}")
+        self.btn_save_alias.setIcon(get_app_icon("save"))
+        self.btn_save_alias.setIconSize(QSize(14, 14))
         self.btn_save_alias.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #4F46E5, stop:1 #06B6D4);
@@ -321,7 +324,9 @@ class DeviceDetailDialog(QDialog):
         main_dialog_layout.addWidget(bottom_bar)
 
     def _update_block_btn_ui(self):
+        self.btn_block.setIconSize(QSize(16, 16))
         if self.device.blocked:
+            self.btn_block.setIcon(get_app_icon("shield_check"))
             self.btn_block.setText(f"  {t('btn_toggle_block_no')}")
             self.btn_block.setStyleSheet("""
                 QPushButton {
@@ -338,6 +343,7 @@ class DeviceDetailDialog(QDialog):
                 }
             """)
         else:
+            self.btn_block.setIcon(get_app_icon("shield_block"))
             self.btn_block.setText(f"  {t('btn_toggle_block_yes')}")
             self.btn_block.setStyleSheet("""
                 QPushButton {
@@ -359,7 +365,15 @@ class DeviceDetailDialog(QDialog):
         for r, ev in enumerate(events):
             self.table_history.setRowHeight(r, 28)
             item_ts = QTableWidgetItem(ev["timestamp"])
-            item_type = QTableWidgetItem(ev["event_type"])
+            ev_type = ev["event_type"]
+            item_type = QTableWidgetItem(ev_type)
+            if "BLOCK" in ev_type:
+                item_type.setIcon(get_app_icon("blocked"))
+            elif "JOIN" in ev_type:
+                item_type.setIcon(get_app_icon("check"))
+            else:
+                item_type.setIcon(get_app_icon("info"))
+
             item_desc = QTableWidgetItem(ev["description"])
             for it in (item_ts, item_type, item_desc):
                 it.setFont(QFont("Segoe UI", 9))

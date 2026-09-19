@@ -21,6 +21,7 @@ Hệ thống quét mạng, phân tích topo đa tầng, theo dõi băng thông t
   - **Router Adapters**: Đẩy quy tắc chặn MAC Filtering / ACL trực tiếp đến router phần cứng TP-Link, OpenWrt, MikroTik.
   - **Mock Mode**: Chế độ giả lập an toàn để thử nghiệm tính năng mà không cần can thiệp router thật.
   - **Tường lửa Windows 2 chiều**: Tự động tạo rule Inbound & Outbound trên máy quản trị.
+- **Giao diện Modern Cyber Dark-Tech & Vector SVG Icons**: Thay thế 100% emoji văn bản bằng bộ hơn 37 biểu tượng vector SVG sắc nét (phong cách Flaticon / Cyber Minimalist), hỗ trợ co giãn High-DPI và bộ đệm Icon Cache tối ưu hiệu năng.
 - **Cơ sở dữ liệu SQLite & Kiểm toán an ninh**: Lưu trữ lịch sử `first_seen`, `last_seen`, tự động ghi nhật ký audit log cho các sự kiện gia nhập, ngắt kết nối, đổi IP, chặn/bỏ chặn.
 
 ### 2. Phân Hệ Web Portal & REST API Server (Web Suite)

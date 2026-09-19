@@ -16,6 +16,7 @@ from database.events import EventDAO
 from security.blocker import BlockManager
 from core.network import NetworkManagerCore, NetworkInterface
 from gui.device_detail import DeviceDetailDialog
+from gui.icons import get_app_icon
 from core.i18n import t, i18n
 
 class NetworkMapView(QWidget):
@@ -147,11 +148,13 @@ class NetworkMapView(QWidget):
                 net_key = "Other"
             subnets_map.setdefault(net_key, []).append(dev)
 
-        # 0. Nút gốc cao nhất: 🌍 INTERNET TOÀN CẦU
+        # 0. Nút gốc cao nhất: INTERNET TOÀN CẦU
         net_root = QTreeWidgetItem(self.tree)
-        net_root.setText(0, " 🌍 [MẠNG INTERNET TOÀN CẦU] Cáp quang WAN Uplink")
+        net_root.setIcon(0, get_app_icon("globe"))
+        net_root.setText(0, " [MẠNG INTERNET TOÀN CẦU] Cáp quang WAN Uplink")
         net_root.setText(1, "0.0.0.0/0")
-        net_root.setText(3, "🌐 Cáp quang ISP")
+        net_root.setIcon(3, get_app_icon("globe"))
+        net_root.setText(3, " Cáp quang ISP")
         net_root.setText(4, "Global Internet")
         net_root.setText(6, t("val_online"))
         net_root.setForeground(6, QColor("#10B981"))
@@ -160,10 +163,12 @@ class NetworkMapView(QWidget):
         # 1. Nút cấp 2: Nếu có Modem Tổng (192.168.1.1)
         if main_modem_dev:
             root_item = QTreeWidgetItem(net_root)
-            root_item.setText(0, f" 🌐 [Modem / Wi-Fi Tổng ISP] {main_modem_dev.vendor} ({main_modem_dev.ip})")
+            root_item.setIcon(0, get_app_icon("router"))
+            root_item.setText(0, f" [Modem / Wi-Fi Tổng ISP] {main_modem_dev.vendor} ({main_modem_dev.ip})")
             root_item.setText(1, main_modem_dev.ip)
             root_item.setText(2, main_modem_dev.mac)
-            root_item.setText(3, "🌐 GPON ONT")
+            root_item.setIcon(3, get_app_icon("router"))
+            root_item.setText(3, " GPON ONT")
             root_item.setText(4, "Modem ONT Gateway")
             root_item.setText(5, f"{main_modem_dev.latency_ms} ms")
             root_item.setText(6, t("val_online") if main_modem_dev.status == "ONLINE" else t("val_offline"))
@@ -176,18 +181,20 @@ class NetworkMapView(QWidget):
             modem_devices = [d for d in subnets_map.get(modem_subnet_key, []) if d.ip != main_modem_dev.ip]
 
             branch_modem = QTreeWidgetItem(root_item)
-            branch_modem.setText(0, f" 📡 [Mạng Wi-Fi Tổng] {modem_subnet_key} ({len(modem_devices)} thiết bị)")
+            branch_modem.setIcon(0, get_app_icon("wifi"))
+            branch_modem.setText(0, f" [Mạng Wi-Fi Tổng] {modem_subnet_key} ({len(modem_devices)} thiết bị)")
             branch_modem.setText(1, modem_subnet_key)
             branch_modem.setFont(0, QFont("Segoe UI", 9, QFont.Bold))
             self._populate_group_devices(branch_modem, modem_devices)
 
             # B. Nhánh Router Phụ (Ruijie) cắm vào Modem Tổng
             router_item = QTreeWidgetItem(root_item)
+            router_item.setIcon(0, get_app_icon("router"))
             gw_vendor = local_gw_dev.vendor if local_gw_dev else "Router"
-            router_item.setText(0, f" 📶 [Router Wi-Fi Phụ] {gw_vendor} ({local_gw_ip})")
+            router_item.setText(0, f" [Router Wi-Fi Phụ] {gw_vendor} ({local_gw_ip})")
             router_item.setText(1, local_gw_ip)
             router_item.setText(2, local_gw_dev.mac if local_gw_dev else "")
-            router_item.setText(3, "🔌 Cáp WAN Uplink")
+            router_item.setText(3, "Cáp WAN Uplink")
             router_item.setText(4, "Secondary Wi-Fi Router")
             router_item.setText(6, t("val_online"))
             router_item.setForeground(6, QColor("#10B981"))
@@ -198,7 +205,8 @@ class NetworkMapView(QWidget):
             # Nhánh con của Router phụ
             local_devices = [d for d in subnets_map.get(local_cidr, []) if d.ip != local_gw_ip]
             branch_local = QTreeWidgetItem(router_item)
-            branch_local.setText(0, f" 💻 [Mạng Wi-Fi Phụ LAN] {local_cidr} ({len(local_devices)} thiết bị)")
+            branch_local.setIcon(0, get_app_icon("network"))
+            branch_local.setText(0, f" [Mạng Wi-Fi Phụ LAN] {local_cidr} ({len(local_devices)} thiết bị)")
             branch_local.setText(1, local_cidr)
             branch_local.setFont(0, QFont("Segoe UI", 9, QFont.Bold))
             self._populate_group_devices(branch_local, local_devices)
@@ -209,10 +217,11 @@ class NetworkMapView(QWidget):
             gw_mac = local_gw_dev.mac if local_gw_dev else ""
 
             root_item = QTreeWidgetItem(net_root)
-            root_item.setText(0, f" 🌐 [Router Gateway] {gw_vendor} ({local_gw_ip})")
+            root_item.setIcon(0, get_app_icon("router"))
+            root_item.setText(0, f" [Router Gateway] {gw_vendor} ({local_gw_ip})")
             root_item.setText(1, local_gw_ip)
             root_item.setText(2, gw_mac)
-            root_item.setText(3, "🌐 Cáp WAN/LAN")
+            root_item.setText(3, "Cáp WAN/LAN")
             root_item.setText(4, "Router / Gateway")
             root_item.setText(6, t("val_online"))
             root_item.setForeground(6, QColor("#10B981"))
@@ -223,6 +232,7 @@ class NetworkMapView(QWidget):
             # Nhánh Subnet
             for s_cidr, s_devs in subnets_map.items():
                 s_item = QTreeWidgetItem(root_item)
+                s_item.setIcon(0, get_app_icon("network"))
                 s_item.setText(0, f" [Dải mạng LAN] {s_cidr} ({len(s_devs)} thiết bị)")
                 s_item.setText(1, s_cidr)
                 s_item.setFont(0, QFont("Segoe UI", 9, QFont.Bold))
@@ -235,6 +245,11 @@ class NetworkMapView(QWidget):
         group_phones = QTreeWidgetItem(parent_item)
         group_iot = QTreeWidgetItem(parent_item)
         group_others = QTreeWidgetItem(parent_item)
+
+        group_pcs.setIcon(0, get_app_icon("laptop"))
+        group_phones.setIcon(0, get_app_icon("smartphone"))
+        group_iot.setIcon(0, get_app_icon("devices"))
+        group_others.setIcon(0, get_app_icon("devices"))
 
         for grp in [group_pcs, group_phones, group_iot, group_others]:
             grp.setFont(0, QFont("Segoe UI", 9, QFont.DemiBold))
@@ -250,17 +265,34 @@ class NetworkMapView(QWidget):
             if "pc" in dtype or "laptop" in dtype:
                 target_grp = group_pcs
                 count_pcs += 1
+                icon_k = "laptop"
             elif "phone" in dtype or "mobile" in dtype:
                 target_grp = group_phones
                 count_phones += 1
+                icon_k = "smartphone"
+            elif "tv" in dtype:
+                target_grp = group_iot
+                count_iot += 1
+                icon_k = "tv"
+            elif "printer" in dtype:
+                target_grp = group_others
+                count_others += 1
+                icon_k = "printer"
+            elif "camera" in dtype:
+                target_grp = group_iot
+                count_iot += 1
+                icon_k = "camera"
             elif "iot" in dtype:
                 target_grp = group_iot
                 count_iot += 1
+                icon_k = "devices"
             else:
                 target_grp = group_others
                 count_others += 1
+                icon_k = "devices"
 
             d_item = QTreeWidgetItem(target_grp)
+            d_item.setIcon(0, get_app_icon(icon_k))
             v_title = d.vendor.split()[0] if d.vendor and d.vendor != "Unknown" else "Thiết bị"
             ip_suffix = d.ip.split(".")[-1] if "." in d.ip else d.ip
             display_name = d.custom_name or d.hostname or f"{v_title} #{ip_suffix}"
@@ -294,10 +326,10 @@ class NetworkMapView(QWidget):
 
             d_item.setData(0, Qt.UserRole, d)
 
-        group_pcs.setText(0, f" 💻 {t('grp_pcs', count=count_pcs)}")
-        group_phones.setText(0, f" 📱 {t('grp_phones', count=count_phones)}")
-        group_iot.setText(0, f" 💡 {t('grp_iot', count=count_iot)}")
-        group_others.setText(0, f" 🖨️ {t('grp_others', count=count_others)}")
+        group_pcs.setText(0, f" {t('grp_pcs', count=count_pcs)}")
+        group_phones.setText(0, f" {t('grp_phones', count=count_phones)}")
+        group_iot.setText(0, f" {t('grp_iot', count=count_iot)}")
+        group_others.setText(0, f" {t('grp_others', count=count_others)}")
 
     def _on_item_double_clicked(self, item: QTreeWidgetItem, column: int):
         dev = item.data(0, Qt.UserRole)

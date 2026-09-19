@@ -3,8 +3,9 @@ Thanh công cụ chân trang (Action Bar) cho màn hình Cài đặt.
 """
 
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from core.i18n import t
+from gui.icons import get_app_icon
 
 class SettingsActionBar(QFrame):
     def __init__(self, parent=None):
@@ -27,6 +28,8 @@ class SettingsActionBar(QFrame):
 
         # Nút Khôi phục mặc định
         self.btn_reset = QPushButton()
+        self.btn_reset.setIcon(get_app_icon("refresh"))
+        self.btn_reset.setIconSize(QSize(16, 16))
         self.btn_reset.setMinimumHeight(42)
         self.btn_reset.setCursor(Qt.PointingHandCursor)
         self.btn_reset.setStyleSheet("""
@@ -52,6 +55,8 @@ class SettingsActionBar(QFrame):
 
         # Nút Lưu Cấu hình
         self.btn_save = QPushButton()
+        self.btn_save.setIcon(get_app_icon("save"))
+        self.btn_save.setIconSize(QSize(16, 16))
         self.btn_save.setMinimumHeight(42)
         self.btn_save.setMinimumWidth(160)
         self.btn_save.setCursor(Qt.PointingHandCursor)
@@ -75,6 +80,6 @@ class SettingsActionBar(QFrame):
         bar_layout.addWidget(self.btn_save)
 
     def retranslate_ui(self):
-        self.lbl_action_status.setText(f"💡 {t('settings_synced')}")
-        self.btn_reset.setText(f"🔄 {t('btn_reset_defaults')}")
-        self.btn_save.setText(f"💾 {t('btn_save_settings')}")
+        self.lbl_action_status.setText(f"• {t('settings_synced')}")
+        self.btn_reset.setText(f" {t('btn_reset_defaults')}")
+        self.btn_save.setText(f" {t('btn_save_settings')}")

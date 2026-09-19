@@ -357,7 +357,7 @@ class MetricCard(QFrame):
         top_row = QHBoxLayout()
         top_row.setSpacing(8)
         
-        self.lbl_icon = QLabel(self.icon_str)
+        self.lbl_icon = QLabel()
         self.lbl_icon.setAlignment(Qt.AlignCenter)
         self.lbl_icon.setFixedSize(28, 28)
         self.lbl_icon.setStyleSheet(f"""
@@ -366,6 +366,15 @@ class MetricCard(QFrame):
             border-radius: 14px;
             font-size: 13px;
         """)
+        try:
+            from gui.icons import get_app_icon
+            app_icon = get_app_icon(self.icon_str)
+            if not app_icon.isNull():
+                self.lbl_icon.setPixmap(app_icon.pixmap(18, 18))
+            else:
+                self.lbl_icon.setText(self.icon_str)
+        except Exception:
+            self.lbl_icon.setText(self.icon_str)
         top_row.addWidget(self.lbl_icon)
 
         self.lbl_title = QLabel(t(self.title_key))

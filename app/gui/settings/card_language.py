@@ -9,7 +9,7 @@ from gui.settings.card_base import SettingsCard, STYLE_COMBOBOX
 
 class LanguageSettingsCard(SettingsCard):
     def __init__(self, parent=None):
-        super().__init__("🌐", "card_lang_title", "card_lang_sub", parent)
+        super().__init__("globe", "card_lang_title", "card_lang_sub", parent)
 
         row = QHBoxLayout()
         row.setSpacing(16)
@@ -19,7 +19,7 @@ class LanguageSettingsCard(SettingsCard):
         self.lbl_lang_label.setFixedWidth(160)
 
         self.cb_language = QComboBox()
-        self.cb_language.addItems(["🇻🇳 Tiếng Việt", "🇬🇧 English"])
+        self.cb_language.addItems(["Tiếng Việt", "English"])
         self.cb_language.setMinimumHeight(38)
         self.cb_language.setMinimumWidth(220)
         self.cb_language.setStyleSheet(STYLE_COMBOBOX)

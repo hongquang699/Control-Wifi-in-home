@@ -31,25 +31,31 @@ from gui.settings import SettingsView
 from services.traffic_monitor import TrafficMonitor
 from core.logger import logger
 from core.i18n import t, i18n
+from gui.icons import get_app_icon
 from gui.theme import (
     GLOBAL_QSS, COLOR_BG_MAIN, COLOR_BG_SIDEBAR, COLOR_BG_CARD,
     COLOR_BORDER, COLOR_ACCENT_INDIGO, COLOR_ACCENT_CYAN, COLOR_ACCENT_EMERALD
 )
 
 class NavButton(QPushButton):
-    def __init__(self, key: str, icon_str: str = "", parent=None):
+    def __init__(self, key: str, icon_name: str = "", parent=None):
         super().__init__(parent)
         self.key = key
-        self.icon_str = icon_str
+        self.icon_name = icon_name
         self.setCheckable(True)
         self.setAutoExclusive(True)
         self.setCursor(Qt.PointingHandCursor)
         self.setFixedHeight(44)
         self.setFont(QFont("Segoe UI", 10, QFont.DemiBold))
+
+        if self.icon_name:
+            self.setIcon(get_app_icon(self.icon_name))
+            self.setIconSize(QSize(20, 20))
+
         self.setStyleSheet(f"""
             NavButton {{
                 text-align: left;
-                padding-left: 16px;
+                padding-left: 14px;
                 color: #94A3B8;
                 background-color: transparent;
                 border: none;
@@ -72,7 +78,10 @@ class NavButton(QPushButton):
         self.retranslate_ui()
 
     def retranslate_ui(self):
-        self.setText(f"  {self.icon_str}  {t(self.key)}")
+        self.setText(f"  {t(self.key)}")
+        if self.icon_name:
+            self.setIcon(get_app_icon(self.icon_name))
+            self.setIconSize(QSize(20, 20))
 
 class MainWindow(QMainWindow):
     def __init__(self, auto_scan_on_startup: bool = True):
@@ -215,14 +224,14 @@ class MainWindow(QMainWindow):
 
         sidebar_layout.addWidget(brand_card)
 
-        # 7 Navigation Buttons
-        self.btn_nav_dashboard = NavButton("nav_dashboard", "📊")
-        self.btn_nav_devices = NavButton("nav_devices", "💻")
-        self.btn_nav_networks = NavButton("nav_networks", "🌐")
-        self.btn_nav_traffic = NavButton("nav_traffic", "📈")
-        self.btn_nav_alerts = NavButton("nav_alerts", "🔔")
-        self.btn_nav_logs = NavButton("nav_logs", "📜")
-        self.btn_nav_settings = NavButton("nav_settings", "⚙️")
+        # 7 Navigation Buttons (Chuẩn vector SVG Flaticon)
+        self.btn_nav_dashboard = NavButton("nav_dashboard", "dashboard")
+        self.btn_nav_devices = NavButton("nav_devices", "devices")
+        self.btn_nav_networks = NavButton("nav_networks", "network")
+        self.btn_nav_traffic = NavButton("nav_traffic", "traffic")
+        self.btn_nav_alerts = NavButton("nav_alerts", "alerts")
+        self.btn_nav_logs = NavButton("nav_logs", "logs")
+        self.btn_nav_settings = NavButton("nav_settings", "settings")
 
         self.nav_buttons = [
             self.btn_nav_dashboard,
@@ -290,7 +299,7 @@ class MainWindow(QMainWindow):
         top_layout.setSpacing(12)
 
         # Breadcrumb / Page Title
-        self.lbl_breadcrumb = QLabel("📊 Tổng quan mạng (Dashboard)")
+        self.lbl_breadcrumb = QLabel("Tổng quan mạng (Dashboard)")
         self.lbl_breadcrumb.setStyleSheet("color: #F8FAFC; font-size: 14px; font-weight: 700;")
         top_layout.addWidget(self.lbl_breadcrumb)
 
@@ -312,7 +321,7 @@ class MainWindow(QMainWindow):
         top_layout.addWidget(self.lbl_gateway_chip)
 
         # Subnet Chip
-        self.lbl_top_net = QLabel(f"🌐 {cidr_display}")
+        self.lbl_top_net = QLabel(f"Subnet: {cidr_display}")
         self.lbl_top_net.setStyleSheet("""
             background-color: rgba(6, 182, 212, 0.12);
             color: #06B6D4;
@@ -326,7 +335,9 @@ class MainWindow(QMainWindow):
         top_layout.addWidget(self.lbl_top_net)
 
         # Quick Scan Button
-        self.btn_quick_scan = QPushButton("⚡ Quét mạng ngay")
+        self.btn_quick_scan = QPushButton(" Quét mạng ngay")
+        self.btn_quick_scan.setIcon(get_app_icon("scan"))
+        self.btn_quick_scan.setIconSize(QSize(16, 16))
         self.btn_quick_scan.setCursor(Qt.PointingHandCursor)
         self.btn_quick_scan.setStyleSheet("""
             QPushButton {
@@ -427,7 +438,8 @@ class MainWindow(QMainWindow):
         self.lbl_top_status.setText("● " + t("status_ready"))
         self.status_bar.showMessage(t("ready_msg"))
         is_vi = i18n.current_lang == "vi"
-        self.btn_quick_scan.setText("⚡ Quét mạng ngay" if is_vi else "⚡ Scan Network")
+        self.btn_quick_scan.setText(" Quét mạng ngay" if is_vi else " Scan Network")
+        self.btn_quick_scan.setIcon(get_app_icon("scan"))
 
         for btn in self.nav_buttons:
             btn.retranslate_ui()
@@ -435,22 +447,22 @@ class MainWindow(QMainWindow):
 
     def _update_breadcrumb(self, index: int):
         titles_vi = [
-            "📊 Tổng quan mạng (Dashboard)",
-            "💻 Danh sách thiết bị (Connected Devices)",
-            "🌐 Sơ đồ hạ tầng mạng (Network Map)",
-            "📈 Giám sát lưu lượng (Traffic Monitor)",
-            "🔔 Cảnh báo bảo mật (Security Alerts)",
-            "📜 Nhật ký sự kiện hệ thống (Logs)",
-            "⚙️ Cấu hình hệ thống (Settings)"
+            "Tổng quan mạng (Dashboard)",
+            "Danh sách thiết bị (Connected Devices)",
+            "Sơ đồ hạ tầng mạng (Network Map)",
+            "Giám sát lưu lượng (Traffic Monitor)",
+            "Cảnh báo bảo mật (Security Alerts)",
+            "Nhật ký sự kiện hệ thống (Logs)",
+            "Cấu hình hệ thống (Settings)"
         ]
         titles_en = [
-            "📊 Network Dashboard Overview",
-            "💻 Connected Devices Management",
-            "🌐 Network Topology & Map",
-            "📈 Real-time Traffic Monitor",
-            "🔔 Security & Threat Alerts",
-            "📜 System Event Logs",
-            "⚙️ System Settings"
+            "Network Dashboard Overview",
+            "Connected Devices Management",
+            "Network Topology & Map",
+            "Real-time Traffic Monitor",
+            "Security & Threat Alerts",
+            "System Event Logs",
+            "System Settings"
         ]
         is_vi = i18n.current_lang == "vi"
         titles = titles_vi if is_vi else titles_en
@@ -513,7 +525,7 @@ class MainWindow(QMainWindow):
             font-size: 11px;
         """)
         self.btn_quick_scan.setEnabled(False)
-        self.btn_quick_scan.setText("⏳ " + ("Đang quét..." if is_vi else "Scanning..."))
+        self.btn_quick_scan.setText(" Đang quét..." if is_vi else " Scanning...")
         self.view_dashboard.set_scanning_state(True, progress=10, message="...")
         self.status_bar.showMessage(t("scanning_msg"))
 
@@ -534,7 +546,8 @@ class MainWindow(QMainWindow):
             font-size: 11px;
         """)
         self.btn_quick_scan.setEnabled(True)
-        self.btn_quick_scan.setText("⚡ " + ("Quét mạng ngay" if is_vi else "Scan Network"))
+        self.btn_quick_scan.setText(" Quét mạng ngay" if is_vi else " Scan Network")
+        self.btn_quick_scan.setIcon(get_app_icon("scan"))
         self.view_dashboard.set_scanning_state(False)
         self.status_bar.showMessage(t("scan_success_msg", count=len(devices)))
         self._sync_all_views()
@@ -552,7 +565,8 @@ class MainWindow(QMainWindow):
             font-size: 11px;
         """)
         self.btn_quick_scan.setEnabled(True)
-        self.btn_quick_scan.setText("⚡ " + ("Quét mạng ngay" if is_vi else "Scan Network"))
+        self.btn_quick_scan.setText(" Quét mạng ngay" if is_vi else " Scan Network")
+        self.btn_quick_scan.setIcon(get_app_icon("scan"))
         self.view_dashboard.set_scanning_state(False)
         self.status_bar.showMessage(f"Error: {error_msg}")
         QMessageBox.warning(self, t("scan_error_title"), t("scan_error_body", error=error_msg))

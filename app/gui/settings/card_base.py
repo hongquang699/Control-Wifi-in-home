@@ -113,15 +113,23 @@ class SettingsCard(QFrame):
         header_row = QHBoxLayout()
         header_row.setSpacing(12)
 
-        self.lbl_icon = QLabel(self.icon_char)
+        self.lbl_icon = QLabel()
         self.lbl_icon.setAlignment(Qt.AlignCenter)
         self.lbl_icon.setFixedSize(36, 36)
         self.lbl_icon.setStyleSheet(f"""
             background-color: rgba(99, 102, 241, 0.12);
             border: 1px solid rgba(99, 102, 241, 0.25);
             border-radius: 18px;
-            font-size: 17px;
         """)
+        try:
+            from gui.icons import get_app_icon
+            app_icon = get_app_icon(self.icon_char)
+            if not app_icon.isNull():
+                self.lbl_icon.setPixmap(app_icon.pixmap(20, 20))
+            else:
+                self.lbl_icon.setText(self.icon_char)
+        except Exception:
+            self.lbl_icon.setText(self.icon_char)
         header_row.addWidget(self.lbl_icon)
 
         text_vbox = QVBoxLayout()

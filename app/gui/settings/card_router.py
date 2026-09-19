@@ -6,14 +6,15 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QComboBox, QFrame
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from core.i18n import t
 from gui.theme import COLOR_ACCENT_EMERALD, COLOR_ACCENT_ROSE
+from gui.icons import get_app_icon
 from gui.settings.card_base import SettingsCard, STYLE_COMBOBOX, STYLE_LINEEDIT
 
 class RouterSettingsCard(SettingsCard):
     def __init__(self, parent=None):
-        super().__init__("🔀", "card_router_title", "card_router_sub", parent)
+        super().__init__("router", "card_router_title", "card_router_sub", parent)
         self.password_visible = False
 
         # 1. Chọn loại Router Adapter
@@ -24,10 +25,10 @@ class RouterSettingsCard(SettingsCard):
 
         self.cb_adapter = QComboBox()
         self.cb_adapter.addItems([
-            "🛡️ mock - Chế độ Giả lập an toàn (Mock Adapter)",
-            "🌐 tplink - TP-Link Router (Web Management)",
-            "⚡ openwrt - OpenWrt Router (UCI / SSH)",
-            "📡 mikrotik - MikroTik RouterOS (REST API)"
+            "mock - Chế độ Giả lập an toàn (Mock Adapter)",
+            "tplink - TP-Link Router (Web Management)",
+            "openwrt - OpenWrt Router (UCI / SSH)",
+            "mikrotik - MikroTik RouterOS (REST API)"
         ])
         self.cb_adapter.setMinimumHeight(38)
         self.cb_adapter.setStyleSheet(STYLE_COMBOBOX)
@@ -50,8 +51,10 @@ class RouterSettingsCard(SettingsCard):
         mock_tip_layout.setContentsMargins(14, 10, 14, 10)
         mock_tip_layout.setSpacing(10)
 
-        self.lbl_mock_tip_icon = QLabel("💡")
-        self.lbl_mock_tip_icon.setStyleSheet("font-size: 16px; border: none; background: transparent;")
+        self.lbl_mock_tip_icon = QLabel()
+        self.lbl_mock_tip_icon.setFixedSize(16, 16)
+        self.lbl_mock_tip_icon.setPixmap(get_app_icon("lightbulb").pixmap(16, 16))
+        self.lbl_mock_tip_icon.setStyleSheet("border: none; background: transparent;")
         self.lbl_mock_tip = QLabel()
         self.lbl_mock_tip.setStyleSheet("color: #7DD3FC; font-size: 12px; border: none; background: transparent;")
         self.lbl_mock_tip.setWordWrap(True)
@@ -119,7 +122,9 @@ class RouterSettingsCard(SettingsCard):
         self.txt_router_pass.setStyleSheet(STYLE_LINEEDIT)
         self.txt_router_pass.setEchoMode(QLineEdit.Password)
 
-        self.btn_toggle_pass = QPushButton("👁️")
+        self.btn_toggle_pass = QPushButton()
+        self.btn_toggle_pass.setIcon(get_app_icon("eye"))
+        self.btn_toggle_pass.setIconSize(QSize(18, 18))
         self.btn_toggle_pass.setFixedSize(38, 38)
         self.btn_toggle_pass.setCursor(Qt.PointingHandCursor)
         self.btn_toggle_pass.setStyleSheet("""
@@ -127,7 +132,6 @@ class RouterSettingsCard(SettingsCard):
                 background-color: #1E293B;
                 border: 1px solid #334155;
                 border-radius: 8px;
-                font-size: 14px;
             }
             QPushButton:hover {
                 background-color: #334155;
@@ -149,6 +153,8 @@ class RouterSettingsCard(SettingsCard):
         conn_row.setSpacing(14)
 
         self.btn_test_router = QPushButton()
+        self.btn_test_router.setIcon(get_app_icon("zap"))
+        self.btn_test_router.setIconSize(QSize(16, 16))
         self.btn_test_router.setMinimumHeight(38)
         self.btn_test_router.setCursor(Qt.PointingHandCursor)
         self.btn_test_router.setStyleSheet("""
@@ -188,5 +194,5 @@ class RouterSettingsCard(SettingsCard):
         self.lbl_router_port.setText(t("lbl_router_port"))
         self.lbl_router_user.setText(t("lbl_router_user"))
         self.lbl_router_pass.setText(t("lbl_router_pass"))
-        self.btn_test_router.setText(f"⚡ {t('btn_test_conn')}")
+        self.btn_test_router.setText(f" {t('btn_test_conn')}")
         self.btn_toggle_pass.setToolTip(t("hide_pass") if self.password_visible else t("show_pass"))

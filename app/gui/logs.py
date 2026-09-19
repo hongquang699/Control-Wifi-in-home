@@ -7,10 +7,11 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QLineEdit, QComboBox
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QColor, QFont
 from database.events import EventDAO
 from core.i18n import t, i18n
+from gui.icons import get_app_icon
 from typing import Optional
 
 class LogsView(QWidget):
@@ -41,6 +42,8 @@ class LogsView(QWidget):
         header_layout.addStretch()
 
         self.btn_refresh = QPushButton()
+        self.btn_refresh.setIcon(get_app_icon("refresh"))
+        self.btn_refresh.setIconSize(QSize(16, 16))
         self.btn_refresh.setCursor(Qt.PointingHandCursor)
         self.btn_refresh.setStyleSheet("""
             QPushButton {
@@ -81,6 +84,7 @@ class LogsView(QWidget):
         filter_layout.addWidget(self.cbo_filter)
 
         self.txt_search = QLineEdit()
+        self.txt_search.addAction(get_app_icon("search"), QLineEdit.LeadingPosition)
         self.txt_search.setPlaceholderText("Tìm kiếm theo MAC, IP hoặc Mô tả...")
         self.txt_search.setStyleSheet("""
             QLineEdit {
@@ -168,25 +172,36 @@ class LogsView(QWidget):
             item_time.setForeground(QColor("#94A3B8"))
             self.table.setItem(row, 0, item_time)
 
-            # Cột 2: Loại sự kiện
-            lbl_type = QLabel()
-            lbl_type.setAlignment(Qt.AlignCenter)
-            if "BLOCK" in ev_type:
-                lbl_type.setText(f"🚫 {ev_type}")
-                lbl_type.setStyleSheet("color: #F43F5E; font-weight: bold; background: rgba(244, 63, 94, 0.15); border-radius: 6px; padding: 2px 6px; font-size: 10px;")
-            elif "JOIN" in ev_type:
-                lbl_type.setText(f"🟢 {ev_type}")
-                lbl_type.setStyleSheet("color: #10B981; font-weight: bold; background: rgba(16, 185, 129, 0.15); border-radius: 6px; padding: 2px 6px; font-size: 10px;")
-            elif "LEFT" in ev_type or "OFFLINE" in ev_type:
-                lbl_type.setText(f"⚪ {ev_type}")
-                lbl_type.setStyleSheet("color: #94A3B8; font-weight: bold; background: rgba(148, 163, 184, 0.15); border-radius: 6px; padding: 2px 6px; font-size: 10px;")
-            else:
-                lbl_type.setText(f"ℹ️ {ev_type}")
-                lbl_type.setStyleSheet("color: #38BDF8; font-weight: bold; background: rgba(56, 189, 248, 0.15); border-radius: 6px; padding: 2px 6px; font-size: 10px;")
-
+            # Cột 2: Loại sự kiện với icon vector chuẩn SVG
             container = QWidget()
             c_layout = QHBoxLayout(container)
-            c_layout.setContentsMargins(2, 2, 2, 2)
+            c_layout.setContentsMargins(6, 2, 6, 2)
+            c_layout.setSpacing(5)
+            c_layout.setAlignment(Qt.AlignCenter)
+
+            lbl_icon = QLabel()
+            lbl_icon.setFixedSize(13, 13)
+            lbl_type = QLabel(ev_type)
+            lbl_type.setFont(QFont("Segoe UI", 8, QFont.Bold))
+
+            if "BLOCK" in ev_type:
+                lbl_icon.setPixmap(get_app_icon("blocked").pixmap(13, 13))
+                lbl_type.setStyleSheet("color: #F43F5E;")
+                container.setStyleSheet("background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 6px;")
+            elif "JOIN" in ev_type:
+                lbl_icon.setPixmap(get_app_icon("check").pixmap(13, 13))
+                lbl_type.setStyleSheet("color: #10B981;")
+                container.setStyleSheet("background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px;")
+            elif "LEFT" in ev_type or "OFFLINE" in ev_type:
+                lbl_icon.setPixmap(get_app_icon("info").pixmap(13, 13))
+                lbl_type.setStyleSheet("color: #94A3B8;")
+                container.setStyleSheet("background: rgba(148, 163, 184, 0.12); border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 6px;")
+            else:
+                lbl_icon.setPixmap(get_app_icon("info").pixmap(13, 13))
+                lbl_type.setStyleSheet("color: #38BDF8;")
+                container.setStyleSheet("background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px;")
+
+            c_layout.addWidget(lbl_icon)
             c_layout.addWidget(lbl_type)
             self.table.setCellWidget(row, 1, container)
 
@@ -216,7 +231,7 @@ class LogsView(QWidget):
         if is_vi:
             self.lbl_title.setText("Nhật Ký Hoạt Động & Kiểm Toán")
             self.lbl_subtitle.setText("Lịch sử kết nối, ngắt kết nối và các thao tác bảo mật được ghi nhận vào SQLite cục bộ.")
-            self.btn_refresh.setText("🔄 Làm mới")
+            self.btn_refresh.setText(" Làm mới")
             self.txt_search.setPlaceholderText("Tìm kiếm theo MAC, IP hoặc Mô tả...")
             
             self.cbo_filter.clear()
@@ -229,7 +244,7 @@ class LogsView(QWidget):
         else:
             self.lbl_title.setText("Activity & Audit Logs")
             self.lbl_subtitle.setText("Connection history, disconnections, and security actions audited in local SQLite.")
-            self.btn_refresh.setText("🔄 Refresh")
+            self.btn_refresh.setText(" Refresh")
             self.txt_search.setPlaceholderText("Search by MAC, IP or Description...")
 
             self.cbo_filter.clear()

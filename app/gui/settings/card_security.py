@@ -9,7 +9,7 @@ from gui.settings.card_base import SettingsCard, STYLE_CHECKBOX
 
 class SecuritySettingsCard(SettingsCard):
     def __init__(self, parent=None):
-        super().__init__("🛡️", "card_sec_title", "card_sec_sub", parent)
+        super().__init__("shield_check", "card_sec_title", "card_sec_sub", parent)
 
         # 1. Checkbox Firewall + Hint
         fw_vbox = QVBoxLayout()

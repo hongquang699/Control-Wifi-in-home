@@ -7,10 +7,11 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QFrame, QMessageBox
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QColor, QFont
 from typing import List, Dict, Any
 from core.i18n import t, i18n
+from gui.icons import get_app_icon
 import time
 
 class AlertsView(QWidget):
@@ -77,7 +78,9 @@ class AlertsView(QWidget):
         header_layout.addLayout(title_box)
         header_layout.addStretch()
 
-        self.btn_refresh = QPushButton("🔄 Làm mới / Refresh")
+        self.btn_refresh = QPushButton()
+        self.btn_refresh.setIcon(get_app_icon("refresh"))
+        self.btn_refresh.setIconSize(QSize(16, 16))
         self.btn_refresh.setCursor(Qt.PointingHandCursor)
         self.btn_refresh.setStyleSheet("""
             QPushButton {
@@ -101,30 +104,36 @@ class AlertsView(QWidget):
         self.table = QTableWidget()
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["MỨC ĐỘ / LEVEL", "TIÊU ĐỀ / TITLE", "CHI TIẾT / DETAILS", "THỜI GIAN / TIME"])
-        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
         self.table.verticalHeader().setVisible(False)
-        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.setShowGrid(False)
+
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.Fixed)
+        self.table.setColumnWidth(0, 130)
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.Stretch)
+        header.setSectionResizeMode(3, QHeaderView.Fixed)
+        self.table.setColumnWidth(3, 140)
+
         self.table.setStyleSheet("""
             QTableWidget {
-                background-color: #0D1322;
-                border: 1px solid #1E293B;
+                background-color: #0A1224;
+                border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: 12px;
                 gridline-color: transparent;
-                color: #F8FAFC;
-                font-size: 12px;
             }
             QHeaderView::section {
-                background-color: #161F30;
+                background-color: #0F172A;
                 color: #94A3B8;
-                font-size: 11px;
                 font-weight: 700;
-                padding: 8px;
+                font-size: 11px;
+                text-transform: uppercase;
                 border: none;
-                border-bottom: 1px solid #1E293B;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding: 10px;
             }
             QTableWidget::item {
                 padding: 10px;
@@ -143,27 +152,38 @@ class AlertsView(QWidget):
             row = self.table.rowCount()
             self.table.insertRow(row)
 
-            # Cột 1: Level Badge
+            # Cột 1: Level Badge với icon vector chuẩn SVG
             lvl = alert["level"]
-            lbl_badge = QLabel()
-            lbl_badge.setAlignment(Qt.AlignCenter)
-            if lvl == "WARNING":
-                lbl_badge.setText("⚠️ WARNING")
-                lbl_badge.setStyleSheet("color: #F59E0B; font-weight: bold; background: rgba(245, 158, 11, 0.15); border-radius: 6px; padding: 3px 8px;")
-            elif lvl == "CRITICAL":
-                lbl_badge.setText("🚨 CRITICAL")
-                lbl_badge.setStyleSheet("color: #F43F5E; font-weight: bold; background: rgba(244, 63, 94, 0.15); border-radius: 6px; padding: 3px 8px;")
-            elif lvl == "SUCCESS":
-                lbl_badge.setText("✅ SUCCESS")
-                lbl_badge.setStyleSheet("color: #10B981; font-weight: bold; background: rgba(16, 185, 129, 0.15); border-radius: 6px; padding: 3px 8px;")
-            else:
-                lbl_badge.setText("ℹ️ INFO")
-                lbl_badge.setStyleSheet("color: #38BDF8; font-weight: bold; background: rgba(56, 189, 248, 0.15); border-radius: 6px; padding: 3px 8px;")
-
             container = QWidget()
             c_layout = QHBoxLayout(container)
-            c_layout.setContentsMargins(4, 4, 4, 4)
-            c_layout.addWidget(lbl_badge)
+            c_layout.setContentsMargins(6, 3, 6, 3)
+            c_layout.setSpacing(6)
+            c_layout.setAlignment(Qt.AlignCenter)
+
+            badge_icon = QLabel()
+            badge_icon.setFixedSize(14, 14)
+            badge_text = QLabel(lvl)
+            badge_text.setFont(QFont("Segoe UI", 9, QFont.Bold))
+
+            if lvl == "WARNING":
+                badge_icon.setPixmap(get_app_icon("warning").pixmap(14, 14))
+                badge_text.setStyleSheet("color: #F59E0B;")
+                container.setStyleSheet("background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px;")
+            elif lvl == "CRITICAL":
+                badge_icon.setPixmap(get_app_icon("shield_block").pixmap(14, 14))
+                badge_text.setStyleSheet("color: #F43F5E;")
+                container.setStyleSheet("background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 6px;")
+            elif lvl == "SUCCESS":
+                badge_icon.setPixmap(get_app_icon("check").pixmap(14, 14))
+                badge_text.setStyleSheet("color: #10B981;")
+                container.setStyleSheet("background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px;")
+            else:
+                badge_icon.setPixmap(get_app_icon("info").pixmap(14, 14))
+                badge_text.setStyleSheet("color: #38BDF8;")
+                container.setStyleSheet("background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px;")
+
+            c_layout.addWidget(badge_icon)
+            c_layout.addWidget(badge_text)
             self.table.setCellWidget(row, 0, container)
 
             # Cột 2: Title
@@ -192,8 +212,8 @@ class AlertsView(QWidget):
         if i18n.current_lang == "vi":
             self.lbl_title.setText("Cảnh Báo An Ninh Mạng")
             self.lbl_subtitle.setText("Theo dõi các hành vi bất thường, phát hiện thiết bị lạ và xung đột IP trong thời gian thực.")
-            self.btn_refresh.setText("🔄 Làm mới")
+            self.btn_refresh.setText(" Làm mới")
         else:
             self.lbl_title.setText("Security Alerts & Incidents")
             self.lbl_subtitle.setText("Monitor network anomalies, rogue device arrivals, and IP address conflicts in real-time.")
-            self.btn_refresh.setText("🔄 Refresh")
+            self.btn_refresh.setText(" Refresh")

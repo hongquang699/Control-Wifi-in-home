@@ -84,11 +84,7 @@ def build():
                 shutil.copy2(src, dst)
 
         if os.path.exists("assets"):
-            for asset_file in os.listdir("assets"):
-                src_a = os.path.join("assets", asset_file)
-                dst_a = os.path.join(target_assets, asset_file)
-                if os.path.isfile(src_a):
-                    shutil.copy2(src_a, dst_a)
+            shutil.copytree("assets", target_assets, dirs_exist_ok=True)
 
         db_src = os.path.join("data", "network.db")
         if os.path.exists(db_src):

@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QFrame, QTableWidget, QTableWidgetItem, QHeaderView, QLineEdit,
     QMessageBox
 )
-from PySide6.QtCore import Qt, Signal, QTimer
+from PySide6.QtCore import Qt, Signal, QTimer, QSize
 from PySide6.QtGui import QFont, QColor
 
 from database.devices import DeviceDAO
@@ -26,6 +26,7 @@ from core.device import Device
 from core.i18n import t, i18n
 from gui.widgets.waveform import LiveWaveformWidget
 from gui.device_detail import DeviceDetailDialog
+from gui.icons import get_app_icon
 
 
 class DashboardView(QWidget):
@@ -84,11 +85,17 @@ class DashboardView(QWidget):
         c1_box = QVBoxLayout(self.card_online)
         c1_box.setContentsMargins(10, 8, 10, 8)
         c1_box.setSpacing(4)
+        c1_header = QHBoxLayout()
         lbl_c1_title = QLabel("ONLINE")
         lbl_c1_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700;")
+        lbl_c1_icon = QLabel()
+        lbl_c1_icon.setPixmap(get_app_icon("wifi").pixmap(15, 15))
+        c1_header.addWidget(lbl_c1_title)
+        c1_header.addStretch()
+        c1_header.addWidget(lbl_c1_icon)
         self.lbl_val_online = QLabel("0")
         self.lbl_val_online.setStyleSheet("color: #10B981; font-size: 26px; font-weight: 800; font-family: 'Segoe UI';")
-        c1_box.addWidget(lbl_c1_title)
+        c1_box.addLayout(c1_header)
         c1_box.addWidget(self.lbl_val_online)
         top_cards_layout.addWidget(self.card_online, 1)
 
@@ -105,11 +112,17 @@ class DashboardView(QWidget):
         c2_box = QVBoxLayout(self.card_offline)
         c2_box.setContentsMargins(10, 8, 10, 8)
         c2_box.setSpacing(4)
+        c2_header = QHBoxLayout()
         lbl_c2_title = QLabel("OFFLINE")
         lbl_c2_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700;")
+        lbl_c2_icon = QLabel()
+        lbl_c2_icon.setPixmap(get_app_icon("devices").pixmap(15, 15))
+        c2_header.addWidget(lbl_c2_title)
+        c2_header.addStretch()
+        c2_header.addWidget(lbl_c2_icon)
         self.lbl_val_offline = QLabel("0")
         self.lbl_val_offline.setStyleSheet("color: #F8FAFC; font-size: 26px; font-weight: 800; font-family: 'Segoe UI';")
-        c2_box.addWidget(lbl_c2_title)
+        c2_box.addLayout(c2_header)
         c2_box.addWidget(self.lbl_val_offline)
         top_cards_layout.addWidget(self.card_offline, 1)
 
@@ -126,11 +139,17 @@ class DashboardView(QWidget):
         c3_box = QVBoxLayout(self.card_blocked)
         c3_box.setContentsMargins(10, 8, 10, 8)
         c3_box.setSpacing(4)
+        c3_header = QHBoxLayout()
         lbl_c3_title = QLabel("BLOCKED")
         lbl_c3_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700;")
+        lbl_c3_icon = QLabel()
+        lbl_c3_icon.setPixmap(get_app_icon("shield_block").pixmap(15, 15))
+        c3_header.addWidget(lbl_c3_title)
+        c3_header.addStretch()
+        c3_header.addWidget(lbl_c3_icon)
         self.lbl_val_blocked = QLabel("0")
         self.lbl_val_blocked.setStyleSheet("color: #F43F5E; font-size: 26px; font-weight: 800; font-family: 'Segoe UI';")
-        c3_box.addWidget(lbl_c3_title)
+        c3_box.addLayout(c3_header)
         c3_box.addWidget(self.lbl_val_blocked)
         top_cards_layout.addWidget(self.card_blocked, 1)
 
@@ -147,13 +166,19 @@ class DashboardView(QWidget):
         c4_box = QVBoxLayout(self.card_traffic)
         c4_box.setContentsMargins(10, 8, 10, 8)
         c4_box.setSpacing(4)
+        c4_header = QHBoxLayout()
         lbl_c4_title = QLabel("TRAFFIC")
         lbl_c4_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700;")
-        self.lbl_val_traffic_down = QLabel("↓ 24.5 MB/s")
+        lbl_c4_icon = QLabel()
+        lbl_c4_icon.setPixmap(get_app_icon("traffic").pixmap(15, 15))
+        c4_header.addWidget(lbl_c4_title)
+        c4_header.addStretch()
+        c4_header.addWidget(lbl_c4_icon)
+        self.lbl_val_traffic_down = QLabel("↓ 0.0 KB/s")
         self.lbl_val_traffic_down.setStyleSheet("color: #38BDF8; font-size: 13px; font-weight: 700; font-family: 'Fira Code', 'Consolas';")
-        self.lbl_val_traffic_up = QLabel("↑ 8.2 MB/s")
+        self.lbl_val_traffic_up = QLabel("↑ 0.0 KB/s")
         self.lbl_val_traffic_up.setStyleSheet("color: #818CF8; font-size: 12px; font-weight: 700; font-family: 'Fira Code', 'Consolas';")
-        c4_box.addWidget(lbl_c4_title)
+        c4_box.addLayout(c4_header)
         c4_box.addWidget(self.lbl_val_traffic_down)
         c4_box.addWidget(self.lbl_val_traffic_up)
         top_cards_layout.addWidget(self.card_traffic, 1)
@@ -171,13 +196,19 @@ class DashboardView(QWidget):
         c5_box = QVBoxLayout(self.card_sys)
         c5_box.setContentsMargins(10, 8, 10, 8)
         c5_box.setSpacing(4)
-        lbl_c5_title = QLabel("CPU / RAM / UPTIME")
+        c5_header = QHBoxLayout()
+        lbl_c5_title = QLabel("CPU / RAM")
         lbl_c5_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700;")
+        lbl_c5_icon = QLabel()
+        lbl_c5_icon.setPixmap(get_app_icon("cpu").pixmap(15, 15))
+        c5_header.addWidget(lbl_c5_title)
+        c5_header.addStretch()
+        c5_header.addWidget(lbl_c5_icon)
         self.lbl_val_sys_usage = QLabel("CPU 14% | RAM 32%")
         self.lbl_val_sys_usage.setStyleSheet("color: #F59E0B; font-size: 13px; font-weight: 700;")
         self.lbl_val_sys_uptime = QLabel("99.98% (14d 6h)")
         self.lbl_val_sys_uptime.setStyleSheet("color: #64748B; font-size: 11px; font-family: 'Fira Code';")
-        c5_box.addWidget(lbl_c5_title)
+        c5_box.addLayout(c5_header)
         c5_box.addWidget(self.lbl_val_sys_usage)
         c5_box.addWidget(self.lbl_val_sys_uptime)
         top_cards_layout.addWidget(self.card_sys, 1)
@@ -246,8 +277,9 @@ class DashboardView(QWidget):
 
         filter_layout.addStretch()
 
-        # Ô tìm kiếm
+        # Ô tìm kiếm với Vector SVG Icon Flaticon
         self.txt_search = QLineEdit()
+        self.txt_search.addAction(get_app_icon("search"), QLineEdit.LeadingPosition)
         self.txt_search.setPlaceholderText("Tìm theo IP, MAC, Tên...")
         self.txt_search.setStyleSheet("""
             QLineEdit {
@@ -414,31 +446,48 @@ class DashboardView(QWidget):
         for row, dev in enumerate(filtered):
             self.table.setRowHeight(row, 50)
 
-            # Cột 0: THIẾT BỊ & TÊN (2 dòng kèm icon thông minh)
+            # Cột 0: THIẾT BỊ & TÊN (Vector SVG Icon Flaticon)
             name = dev.custom_name or dev.hostname or dev.vendor or "Thiết bị mạng"
             dev_type = dev.device_type or "PC / Laptop"
             t_lower = (dev_type + " " + (dev.vendor or "") + " " + name).lower()
-            if any(x in t_lower for x in ["phone", "iphone", "samsung", "xiaomi", "mobile", "android", "oppo", "vivo"]):
-                dev_icon = "📱"
+            if any(x in t_lower for x in ["router", "ap", "access point", "gateway", "switch"]):
+                icon_key = "router"
+            elif any(x in t_lower for x in ["phone", "iphone", "samsung", "xiaomi", "mobile", "android", "oppo", "vivo", "tablet", "ipad"]):
+                icon_key = "smartphone"
             elif any(x in t_lower for x in ["laptop", "macbook", "notebook", "thinkpad"]):
-                dev_icon = "💻"
+                icon_key = "laptop"
             elif any(x in t_lower for x in ["tv", "television", "smart tv", "media", "roku", "chromecast", "firetv"]):
-                dev_icon = "📺"
+                icon_key = "tv"
             elif any(x in t_lower for x in ["printer", "canon", "epson", "hp print"]):
-                dev_icon = "🖨️"
-            elif any(x in t_lower for x in ["router", "ap", "access point", "gateway", "switch"]):
-                dev_icon = "🌐"
+                icon_key = "printer"
             elif any(x in t_lower for x in ["camera", "cam", "cctv", "ipcam"]):
-                dev_icon = "📷"
-            elif any(x in t_lower for x in ["tablet", "ipad"]):
-                dev_icon = "📱"
+                icon_key = "camera"
             else:
-                dev_icon = "💻"
+                icon_key = "devices"
 
-            lbl_name = QLabel(f"{dev_icon} <b>{name}</b><br><span style='color:#94A3B8; font-size:10px; margin-left: 20px;'>{dev_type}</span>")
-            lbl_name.setTextFormat(Qt.RichText)
-            lbl_name.setStyleSheet("background: transparent; border: none; padding-left: 6px;")
-            self.table.setCellWidget(row, 0, lbl_name)
+            c_name = QWidget()
+            c_name_layout = QHBoxLayout(c_name)
+            c_name_layout.setContentsMargins(6, 4, 6, 4)
+            c_name_layout.setSpacing(10)
+
+            icon_lbl = QLabel()
+            icon_lbl.setPixmap(get_app_icon(icon_key).pixmap(22, 22))
+            icon_lbl.setFixedSize(24, 24)
+
+            text_box = QVBoxLayout()
+            text_box.setSpacing(1)
+            text_box.setContentsMargins(0, 0, 0, 0)
+            lbl_n = QLabel(f"<b>{name}</b>")
+            lbl_n.setStyleSheet("color: #F8FAFC; font-size: 12px; background: transparent;")
+            lbl_t = QLabel(dev_type)
+            lbl_t.setStyleSheet("color: #94A3B8; font-size: 10px; background: transparent;")
+            text_box.addWidget(lbl_n)
+            text_box.addWidget(lbl_t)
+
+            c_name_layout.addWidget(icon_lbl)
+            c_name_layout.addLayout(text_box)
+            c_name_layout.addStretch()
+            self.table.setCellWidget(row, 0, c_name)
 
             # Cột 1: IP ADDRESS
             item_ip = QTableWidgetItem(dev.ip or "--")
@@ -457,12 +506,21 @@ class DashboardView(QWidget):
             item_vendor.setForeground(QColor("#CBD5E1"))
             self.table.setItem(row, 3, item_vendor)
 
-            # Cột 4: PHƯƠNG THỨC
+            # Cột 4: PHƯƠNG THỨC (Vector SVG Icon)
             medium = getattr(dev, "connection_type", "") or "Wi-Fi"
-            icon = "📶 Wi-Fi" if "Wi-Fi" in medium or "wifi" in medium.lower() else "🔌 LAN"
-            item_medium = QTableWidgetItem(icon)
-            item_medium.setForeground(QColor("#94A3B8"))
-            self.table.setItem(row, 4, item_medium)
+            is_wifi = "Wi-Fi" in medium or "wifi" in medium.lower()
+            c_conn = QWidget()
+            c_conn_layout = QHBoxLayout(c_conn)
+            c_conn_layout.setContentsMargins(6, 4, 6, 4)
+            c_conn_layout.setSpacing(6)
+            conn_icon = QLabel()
+            conn_icon.setPixmap(get_app_icon("wifi" if is_wifi else "ethernet").pixmap(14, 14))
+            conn_lbl = QLabel("Wi-Fi" if is_wifi else "LAN")
+            conn_lbl.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 500; background: transparent;")
+            c_conn_layout.addWidget(conn_icon)
+            c_conn_layout.addWidget(conn_lbl)
+            c_conn_layout.addStretch()
+            self.table.setCellWidget(row, 4, c_conn)
 
             # Cột 5: TRẠNG THÁI (Pill Badge)
             lbl_status = QLabel()
@@ -483,10 +541,12 @@ class DashboardView(QWidget):
             c_status_layout.addWidget(lbl_status)
             self.table.setCellWidget(row, 5, c_status)
 
-            # Cột 6: THAO TÁC (Nút Chi tiết + Nút Chặn / Bỏ chặn)
+            # Cột 6: THAO TÁC (Nút Chi tiết + Nút Chặn / Bỏ chặn kèm Vector Icons)
             is_blocked = dev.status == "BLOCKED"
             
             btn_detail = QPushButton("Chi tiết" if is_vi else "Details")
+            btn_detail.setIcon(get_app_icon("info"))
+            btn_detail.setIconSize(QSize(13, 13))
             btn_detail.setCursor(Qt.PointingHandCursor)
             btn_detail.setStyleSheet("""
                 QPushButton {
@@ -507,6 +567,8 @@ class DashboardView(QWidget):
             btn_detail.clicked.connect(lambda chk=False, d=dev: self._open_device_detail(d))
 
             btn_action = QPushButton(("Bỏ chặn" if is_vi else "Unblock") if is_blocked else ("Chặn" if is_vi else "Block"))
+            btn_action.setIcon(get_app_icon("shield_check" if is_blocked else "shield_block"))
+            btn_action.setIconSize(QSize(13, 13))
             btn_action.setCursor(Qt.PointingHandCursor)
             if is_blocked:
                 btn_action.setStyleSheet("""

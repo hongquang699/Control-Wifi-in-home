@@ -13,6 +13,7 @@ from security.blocker import BlockManager
 from core.logger import logger
 from core.i18n import t, i18n
 from gui.theme import COLOR_ACCENT_EMERALD, COLOR_ACCENT_ROSE
+from gui.icons import get_app_icon
 
 from gui.settings.card_base import SettingsCard
 from gui.settings.card_language import LanguageSettingsCard
@@ -212,7 +213,7 @@ class SettingsView(QWidget):
         self.btn_save.clicked.connect(self._save_settings)
 
     def retranslate_ui(self):
-        self.lbl_main_title.setText(f"⚙️ {t('set_title')}")
+        self.lbl_main_title.setText(t('set_title'))
         self.lbl_main_desc.setText(t("set_desc"))
 
         self.card_lang.retranslate_ui()
@@ -246,11 +247,11 @@ class SettingsView(QWidget):
         self.password_visible = not self.password_visible
         if self.password_visible:
             self.txt_router_pass.setEchoMode(QLineEdit.Normal)
-            self.btn_toggle_pass.setText("🙈")
+            self.btn_toggle_pass.setIcon(get_app_icon("eye_off"))
             self.btn_toggle_pass.setToolTip(t("hide_pass"))
         else:
             self.txt_router_pass.setEchoMode(QLineEdit.Password)
-            self.btn_toggle_pass.setText("👁️")
+            self.btn_toggle_pass.setIcon(get_app_icon("eye"))
             self.btn_toggle_pass.setToolTip(t("show_pass"))
 
     def _browse_nmap_path(self):
