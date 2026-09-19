@@ -6,7 +6,15 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 
-def setup_logger(name="network_manager", log_file="data/logs/network_manager.log", level="INFO"):
+APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_LOG_FILE = os.path.join(APP_DIR, "data", "logs", "network_manager.log")
+
+def setup_logger(name="network_manager", log_file=None, level="INFO"):
+    if log_file is None:
+        log_file = DEFAULT_LOG_FILE
+    elif not os.path.isabs(log_file):
+        log_file = os.path.join(APP_DIR, log_file)
+
     logger = logging.getLogger(name)
     
     # Nếu logger đã được cấu hình handlers thì không thêm lại

@@ -24,6 +24,8 @@ from gui.dashboard import DashboardView
 from gui.devices import DevicesView
 from gui.network_map import NetworkMapView
 from gui.traffic import TrafficView
+from gui.alerts import AlertsView
+from gui.logs import LogsView
 from gui.blocked import BlockedView
 from gui.settings import SettingsView
 from services.traffic_monitor import TrafficMonitor
@@ -129,7 +131,13 @@ class MainWindow(QMainWindow):
 
     def _load_config(self) -> dict:
         try:
-            with open("config/config.json", "r", encoding="utf-8") as f:
+            cfg_path = "config/config.json"
+            if not os.path.exists(cfg_path):
+                app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                target = os.path.join(app_root, "config", "config.json")
+                if os.path.exists(target):
+                    cfg_path = target
+            with open(cfg_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             return {}
@@ -151,58 +159,60 @@ class MainWindow(QMainWindow):
         sidebar_layout.setContentsMargins(0, 22, 0, 18)
         sidebar_layout.setSpacing(6)
 
-        # Brand Header
+        # Brand Header (NM Badge + Title matching screenshot)
         brand_card = QFrame()
-        brand_card.setStyleSheet("background: transparent; margin: 0 12px 16px 12px;")
+        brand_card.setStyleSheet("background: transparent; margin: 0 12px 14px 12px;")
         brand_card_layout = QVBoxLayout(brand_card)
         brand_card_layout.setContentsMargins(4, 0, 4, 0)
         brand_card_layout.setSpacing(6)
 
         brand_top = QHBoxLayout()
         brand_top.setSpacing(10)
-        lbl_logo = QLabel()
+        lbl_logo = QLabel("NM")
         lbl_logo.setAlignment(Qt.AlignCenter)
-        lbl_logo.setFixedSize(38, 38)
+        lbl_logo.setFixedSize(36, 36)
         lbl_logo.setStyleSheet("""
-            background-color: #0F172A;
-            border: 1px solid rgba(6, 182, 212, 0.4);
-            border-radius: 10px;
+            background-color: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 9px;
+            color: #38BDF8;
+            font-family: 'Fira Code', monospace;
+            font-weight: 800;
+            font-size: 13px;
         """)
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        logo_png_path = os.path.join(base_dir, "assets", "logo.png")
-        if os.path.exists(logo_png_path):
-            pix = QPixmap(logo_png_path).scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            lbl_logo.setPixmap(pix)
-        else:
-            lbl_logo.setText("🏠")
 
-        self.lbl_app_name = QLabel("NETWORK MANAGER")
-        self.lbl_app_name.setStyleSheet("font-size: 13px; font-weight: 800; color: #F8FAFC; letter-spacing: 0.8px;")
+        title_vbox = QVBoxLayout()
+        title_vbox.setSpacing(0)
+        lbl_app_t1 = QLabel("NETWORK")
+        lbl_app_t1.setStyleSheet("font-size: 13px; font-weight: 800; color: #F8FAFC; letter-spacing: 0.8px;")
+        lbl_app_t2 = QLabel("MANAGER")
+        lbl_app_t2.setStyleSheet("font-size: 11px; font-weight: 800; color: #38BDF8; letter-spacing: 0.8px;")
+        title_vbox.addWidget(lbl_app_t1)
+        title_vbox.addWidget(lbl_app_t2)
+
         brand_top.addWidget(lbl_logo)
-        brand_top.addWidget(self.lbl_app_name)
+        brand_top.addLayout(title_vbox)
         brand_top.addStretch()
         brand_card_layout.addLayout(brand_top)
 
-        self.lbl_brand_status = QLabel("● TRỰC TUYẾN / ONLINE")
-        self.lbl_brand_status.setStyleSheet("color: #10B981; font-size: 10px; font-weight: bold; margin-left: 42px; letter-spacing: 0.5px;")
-        brand_card_layout.addWidget(self.lbl_brand_status)
-
         sidebar_layout.addWidget(brand_card)
 
-        # Navigation Buttons
+        # 7 Navigation Buttons Matching Screenshot
         self.btn_nav_dashboard = NavButton("nav_dashboard", "📊")
         self.btn_nav_devices = NavButton("nav_devices", "💻")
-        self.btn_nav_map = NavButton("nav_map", "🗺️")
+        self.btn_nav_networks = NavButton("nav_networks", "🌐")
         self.btn_nav_traffic = NavButton("nav_traffic", "📈")
-        self.btn_nav_blocked = NavButton("nav_blocked", "🚫")
+        self.btn_nav_alerts = NavButton("nav_alerts", "🔔")
+        self.btn_nav_logs = NavButton("nav_logs", "📜")
         self.btn_nav_settings = NavButton("nav_settings", "⚙️")
 
         self.nav_buttons = [
             self.btn_nav_dashboard,
             self.btn_nav_devices,
-            self.btn_nav_map,
+            self.btn_nav_networks,
             self.btn_nav_traffic,
-            self.btn_nav_blocked,
+            self.btn_nav_alerts,
+            self.btn_nav_logs,
             self.btn_nav_settings
         ]
 
@@ -213,25 +223,38 @@ class MainWindow(QMainWindow):
         self.btn_nav_dashboard.setChecked(True)
         sidebar_layout.addStretch()
 
-        # Footer
-        footer_frame = QFrame()
-        footer_frame.setStyleSheet("""
-            background-color: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            margin: 0 14px;
-            padding: 8px;
+        # Bottom Agent Active Card (Matching screenshot)
+        self.agent_card = QFrame()
+        self.agent_card.setStyleSheet("""
+            QFrame {
+                background-color: #0D1322;
+                border: 1px solid #1E293B;
+                border-radius: 10px;
+                margin: 0 12px 14px 12px;
+                padding: 10px 12px;
+            }
         """)
-        footer_layout = QVBoxLayout(footer_frame)
-        footer_layout.setContentsMargins(10, 8, 10, 8)
-        footer_layout.setSpacing(3)
-        self.lbl_footer = QLabel("Network Manager v1.2")
-        self.lbl_footer.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: bold;")
-        lbl_subfooter = QLabel("Giám sát & Quản trị An toàn")
-        lbl_subfooter.setStyleSheet("color: #64748B; font-size: 10px;")
-        footer_layout.addWidget(self.lbl_footer)
-        footer_layout.addWidget(lbl_subfooter)
-        sidebar_layout.addWidget(footer_frame)
+        agent_layout = QVBoxLayout(self.agent_card)
+        agent_layout.setContentsMargins(10, 8, 10, 8)
+        agent_layout.setSpacing(3)
+        
+        agent_header = QHBoxLayout()
+        agent_header.setSpacing(6)
+        lbl_green_dot = QLabel("●")
+        lbl_green_dot.setStyleSheet("color: #10B981; font-size: 11px;")
+        lbl_agent_text = QLabel("Agent Active")
+        lbl_agent_text.setStyleSheet("color: #10B981; font-size: 11px; font-weight: 700; font-family: 'Fira Code', monospace;")
+        agent_header.addWidget(lbl_green_dot)
+        agent_header.addWidget(lbl_agent_text)
+        agent_header.addStretch()
+        agent_layout.addLayout(agent_header)
+
+        cidr_display = self.current_iface.cidr if self.current_iface else "192.168.1.0/24 & 110.0/24"
+        self.lbl_agent_subnets = QLabel(cidr_display)
+        self.lbl_agent_subnets.setStyleSheet("color: #94A3B8; font-size: 10px; font-family: 'Fira Code', monospace;")
+        agent_layout.addWidget(self.lbl_agent_subnets)
+
+        sidebar_layout.addWidget(self.agent_card)
 
         main_layout.addWidget(sidebar)
 
@@ -244,7 +267,7 @@ class MainWindow(QMainWindow):
 
         # Top Bar
         top_bar = QFrame()
-        top_bar.setFixedHeight(60)
+        top_bar.setFixedHeight(54)
         top_bar.setStyleSheet(f"background-color: #0C152B; border-bottom: 1px solid {COLOR_BORDER};")
         top_layout = QHBoxLayout(top_bar)
         top_layout.setContentsMargins(24, 0, 24, 0)
@@ -256,9 +279,9 @@ class MainWindow(QMainWindow):
             color: #10B981;
             border: 1px solid rgba(16, 185, 129, 0.3);
             border-radius: 14px;
-            padding: 5px 14px;
+            padding: 4px 12px;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11px;
         """)
         top_layout.addWidget(self.lbl_top_status)
 
@@ -274,10 +297,10 @@ class MainWindow(QMainWindow):
                 color: #F8FAFC;
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 8px;
-                padding: 5px 12px;
-                font-size: 12px;
+                padding: 4px 10px;
+                font-size: 11px;
                 font-weight: 600;
-                min-width: 125px;
+                min-width: 120px;
             }
             QComboBox:hover {
                 background-color: #152445;
@@ -294,36 +317,37 @@ class MainWindow(QMainWindow):
             background-color: rgba(6, 182, 212, 0.12);
             color: #06B6D4;
             border: 1px solid rgba(6, 182, 212, 0.3);
-            padding: 5px 14px;
+            padding: 4px 12px;
             border-radius: 14px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
         """)
         top_layout.addWidget(self.lbl_top_net)
 
         content_layout.addWidget(top_bar)
 
-        # Stacked Views
+        # Stacked Views (7 Views matching sidebar buttons)
         self.stack = QStackedWidget()
-        self.view_dashboard = DashboardView(self.device_dao, self.event_dao, traffic_monitor=self.traffic_monitor)
+        self.view_dashboard = DashboardView(self.device_dao, self.event_dao, block_manager=self.block_manager, traffic_monitor=self.traffic_monitor)
         self.view_devices = DevicesView(self.device_dao, self.event_dao, self.block_manager)
         self.view_map = NetworkMapView(self.device_dao, self.event_dao, self.block_manager, iface=self.current_iface)
         self.view_traffic = TrafficView(self.traffic_monitor)
-        self.view_blocked = BlockedView(self.device_dao, self.event_dao, self.block_manager)
+        self.view_alerts = AlertsView()
+        self.view_logs = LogsView(self.event_dao)
         self.view_settings = SettingsView(self.block_manager)
 
         self.view_dashboard.scan_requested.connect(self.start_scan)
         self.view_devices.data_changed.connect(self._sync_all_views)
         self.view_map.data_changed.connect(self._sync_all_views)
-        self.view_blocked.data_changed.connect(self._sync_all_views)
         self.view_settings.settings_saved.connect(self._on_settings_saved)
 
-        self.stack.addWidget(self.view_dashboard)
-        self.stack.addWidget(self.view_devices)
-        self.stack.addWidget(self.view_map)
-        self.stack.addWidget(self.view_traffic)
-        self.stack.addWidget(self.view_blocked)
-        self.stack.addWidget(self.view_settings)
+        self.stack.addWidget(self.view_dashboard)  # 0: Dashboard
+        self.stack.addWidget(self.view_devices)    # 1: Devices
+        self.stack.addWidget(self.view_map)        # 2: Networks
+        self.stack.addWidget(self.view_traffic)    # 3: Traffic
+        self.stack.addWidget(self.view_alerts)     # 4: Alerts
+        self.stack.addWidget(self.view_logs)       # 5: Logs
+        self.stack.addWidget(self.view_settings)   # 6: Settings
 
         content_layout.addWidget(self.stack)
         main_layout.addWidget(content_area)
@@ -337,8 +361,6 @@ class MainWindow(QMainWindow):
 
     def retranslate_ui(self):
         self.setWindowTitle(t("app_title"))
-        self.lbl_app_name.setText(t("app_brand"))
-        self.lbl_footer.setText(t("app_footer"))
         self.lbl_top_status.setText(t("status_ready"))
         self.status_bar.showMessage(t("ready_msg"))
 
@@ -368,7 +390,11 @@ class MainWindow(QMainWindow):
         elif index == 3:
             pass  # Traffic view cập nhật liên tục qua tín hiệu QTimer
         elif index == 4:
-            self.view_blocked.load_blocked_devices()
+            self.view_alerts.load_alerts()
+        elif index == 5:
+            self.view_logs.load_logs()
+        elif index == 6:
+            pass  # Settings view
 
     def start_scan(self):
         if self.scan_worker.isRunning():
@@ -411,7 +437,8 @@ class MainWindow(QMainWindow):
         self.view_dashboard.refresh_data()
         self.view_devices.load_devices()
         self.view_map.refresh_map()
-        self.view_blocked.load_blocked_devices()
+        self.view_alerts.load_alerts()
+        self.view_logs.load_logs()
 
     def _on_settings_saved(self, new_config: dict):
         self.config_data = new_config

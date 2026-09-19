@@ -30,7 +30,7 @@ from utils.validators import is_valid_ipv4, is_valid_mac, normalize_mac, is_vali
 class TestNetworkManager(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.test_db_path = "data/test_network.db"
+        cls.test_db_path = os.path.join(PROJECT_ROOT, "data", "test_network.db")
         if os.path.exists(cls.test_db_path):
             try:
                 os.remove(cls.test_db_path)
@@ -152,7 +152,7 @@ class TestNetworkManager(unittest.TestCase):
         from gui.app import MainWindow
         win = MainWindow(auto_scan_on_startup=False)
         self.assertIsNotNone(win)
-        self.assertEqual(win.stack.count(), 6)
+        self.assertEqual(win.stack.count(), 7)
         
         # Test chuyển ngôn ngữ trên MainWindow
         from core.i18n import i18n
@@ -187,11 +187,11 @@ class TestNetworkManager(unittest.TestCase):
         
         i18n.set_language("en")
         self.assertEqual(t("nav_dashboard"), "Dashboard")
-        self.assertEqual(t("nav_traffic"), "Network Usage")
+        self.assertEqual(t("nav_traffic"), "Traffic")
         
         i18n.set_language("vi")
         self.assertEqual(t("nav_dashboard"), "Tổng quan")
-        self.assertEqual(t("nav_traffic"), "Mức sử dụng mạng")
+        self.assertEqual(t("nav_traffic"), "Lưu lượng")
 
     def test_07_traffic_monitor_and_chart(self):
         """Kiểm tra dịch vụ TrafficMonitor và định dạng tốc độ lưu lượng mạng."""

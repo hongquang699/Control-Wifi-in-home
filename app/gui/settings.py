@@ -181,9 +181,19 @@ class SettingsView(QWidget):
         self.retranslate_ui()
         i18n.language_changed.connect(self._on_lang_changed)
 
+    def _get_config_path(self, filename: str) -> str:
+        if os.path.exists(os.path.join("config", filename)):
+            return os.path.join("config", filename)
+        app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        target = os.path.join(app_root, "config", filename)
+        if os.path.exists(target):
+            return target
+        return os.path.join("config", filename)
+
     def _load_config(self) -> dict:
         try:
-            with open("config/config.json", "r", encoding="utf-8") as f:
+            cfg_path = self._get_config_path("config.json")
+            with open(cfg_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
             logger.error(f"[Settings] Lỗi đọc config.json: {e}")
@@ -191,7 +201,8 @@ class SettingsView(QWidget):
 
     def _load_routers(self) -> dict:
         try:
-            with open("config/routers.json", "r", encoding="utf-8") as f:
+            routers_path = self._get_config_path("routers.json")
+            with open(routers_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
             logger.error(f"[Settings] Lỗi đọc routers.json: {e}")
@@ -928,9 +939,11 @@ class SettingsView(QWidget):
             self.routers_data[adapter_key]["enabled"] = True
 
         try:
-            with open("config/config.json", "w", encoding="utf-8") as f:
+            cfg_path = self._get_config_path("config.json")
+            routers_path = self._get_config_path("routers.json")
+            with open(cfg_path, "w", encoding="utf-8") as f:
                 json.dump(self.config_data, f, indent=2, ensure_ascii=False)
-            with open("config/routers.json", "w", encoding="utf-8") as f:
+            with open(routers_path, "w", encoding="utf-8") as f:
                 json.dump(self.routers_data, f, indent=2, ensure_ascii=False)
 
             new_adapter = BlockManager.create_adapter(adapter_key, self.routers_data.get(adapter_key, {}))

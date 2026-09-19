@@ -25,9 +25,12 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         
         # Navigation
         "nav_dashboard": "Tổng quan",
-        "nav_devices": "Thiết bị mạng",
+        "nav_devices": "Thiết bị",
+        "nav_networks": "Hạ tầng mạng",
         "nav_map": "Sơ đồ mạng",
-        "nav_traffic": "Mức sử dụng mạng",
+        "nav_traffic": "Lưu lượng",
+        "nav_alerts": "Cảnh báo",
+        "nav_logs": "Nhật ký",
         "nav_blocked": "Danh sách chặn",
         "nav_settings": "Cài đặt",
         
@@ -235,8 +238,11 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         # Navigation
         "nav_dashboard": "Dashboard",
         "nav_devices": "Devices",
-        "nav_map": "Network Map",
-        "nav_traffic": "Network Usage",
+        "nav_networks": "Networks",
+        "nav_map": "Networks",
+        "nav_traffic": "Traffic",
+        "nav_alerts": "Alerts",
+        "nav_logs": "Logs",
         "nav_blocked": "Blocked List",
         "nav_settings": "Settings",
         
@@ -442,8 +448,17 @@ class TranslationManager(QObject):
             cls._instance = cls()
         return cls._instance
 
+    def _get_config_path(self) -> str:
+        if os.path.exists("config/config.json"):
+            return "config/config.json"
+        app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        target = os.path.join(app_root, "config", "config.json")
+        if os.path.exists(target):
+            return target
+        return "config/config.json"
+
     def _load_saved_language(self):
-        config_path = "config/config.json"
+        config_path = self._get_config_path()
         if os.path.exists(config_path):
             try:
                 with open(config_path, "r", encoding="utf-8") as f:
@@ -457,7 +472,7 @@ class TranslationManager(QObject):
             self.current_lang = lang
             # Lưu lại vào config.json
             try:
-                config_path = "config/config.json"
+                config_path = self._get_config_path()
                 if os.path.exists(config_path):
                     with open(config_path, "r", encoding="utf-8") as f:
                         cfg = json.load(f)

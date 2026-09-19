@@ -7,16 +7,24 @@ import os
 from typing import Optional
 from core.logger import logger
 
+APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_DB_PATH = os.path.join(APP_DIR, "data", "network.db")
+
 class Database:
     _instance: Optional["Database"] = None
 
-    def __init__(self, db_path: str = "data/network.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: Optional[str] = None):
+        if db_path is None:
+            self.db_path = DEFAULT_DB_PATH
+        elif not os.path.isabs(db_path):
+            self.db_path = os.path.join(APP_DIR, db_path)
+        else:
+            self.db_path = db_path
         self._ensure_dir()
         self.init_db()
 
     @classmethod
-    def get_instance(cls, db_path: str = "data/network.db") -> "Database":
+    def get_instance(cls, db_path: Optional[str] = None) -> "Database":
         if cls._instance is None:
             cls._instance = cls(db_path)
         return cls._instance

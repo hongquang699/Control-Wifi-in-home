@@ -37,6 +37,8 @@ venv.bak/
 *.sqlite3
 data/*.db
 data/logs/
+app/data/*.db
+app/data/logs/
 *.log
 
 # Development / scratch captures

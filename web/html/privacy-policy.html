@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chính Sách Quyền Riêng Tư | Network Manager</title>
+  <meta name="description" content="Chính sách quyền riêng tư và cam kết bảo vệ dữ liệu mạng nội bộ của Network Manager.">
+  <link rel="icon" href="../images/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="bg-[#0b0f19] text-slate-100 font-sans min-h-screen flex flex-col justify-between p-6">
+
+  <!-- Header -->
+  <header class="w-full max-w-5xl mx-auto flex items-center justify-between py-4 border-b border-white/10 mb-8">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <img src="../images/logo.png" alt="Network Manager Logo" class="w-9 h-9 rounded-xl">
+      <span class="font-extrabold text-sm tracking-wider text-white">NETWORK <span class="text-sky-400">MANAGER</span></span>
+    </a>
+    <a href="index.html" class="text-xs text-sky-400 hover:underline">
+      Quay lại Trang chủ ➔
+    </a>
+  </header>
+
+  <!-- Content -->
+  <main class="max-w-4xl mx-auto glass-card p-8 sm:p-12 rounded-3xl border border-white/10 space-y-8 text-slate-300 text-xs sm:text-sm leading-relaxed">
+    
+    <div>
+      <div class="text-xs font-mono text-sky-400 uppercase tracking-wider mb-1">LEGAL & PRIVACY</div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Chính Sách Quyền Riêng Tư (Privacy Policy)</h1>
+      <p class="text-xs text-slate-400 mt-1 font-mono">Hiệu lực từ ngày 19 tháng 09 năm 2026</p>
+    </div>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-bold text-white">1. Cam Kết Xử Lý Dữ Liệu Cục Bộ (Local-First Processing)</h2>
+      <p>
+        Network Manager tuân thủ nguyên tắc <strong>Local-First</strong> tuyệt đối. Mọi tác vụ quét mạng, phân tích địa chỉ IP, địa chỉ MAC, tên máy trạm (Hostname) và tra cứu nhà sản xuất phần cứng (OUI Lookup) đều được thực thi trực tiếp trên máy tính của bạn và lưu trữ trong tệp cơ sở dữ liệu SQLite cục bộ (<code>data/network.db</code>).
+      </p>
+      <p>
+        Ứng dụng <strong>KHÔNG</strong> gửi bất kỳ dữ liệu mạng cá nhân, danh sách thiết bị hay lưu lượng truy cập nào về bất kỳ máy chủ bên thứ ba nào.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-bold text-white">2. Quyền Truy Cập Mạng & Administrator</h2>
+      <p>
+        Ứng dụng chỉ yêu cầu các quyền truy cập mạng tối thiểu cần thiết để gửi các gói tin ARP và ICMP Ping trong dải mạng nội bộ nhằm phát hiện trạng thái hoạt động của thiết bị. Quyền Administrator chỉ được sử dụng để tương tác với Tường lửa máy chủ (Windows Host Firewall) khi bạn chủ động kích hoạt thao tác chặn hoặc bỏ chặn thiết bị.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-bold text-white">3. Bảo Mật Mật Khẩu Router</h2>
+      <p>
+        Khi bạn cấu hình thông tin đăng nhập Router (TP-Link, OpenWrt, MikroTik), mật khẩu chỉ được lưu trữ nội bộ trong tệp cấu hình của bạn trên máy tính và chỉ được sử dụng để gửi các yêu cầu API quản trị trực tiếp tới địa chỉ Gateway cục bộ (vd: <code>192.168.1.1</code>).
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-bold text-white">4. Quyền Của Người Dùng</h2>
+      <p>
+        Bạn có toàn quyền kiểm tra, sao lưu hoặc xóa bỏ toàn bộ cơ sở dữ liệu và nhật ký sự kiện bất cứ lúc nào bằng cách xóa thư mục <code>data/</code> hoặc tùy chỉnh trong giao diện Cài đặt (Settings).
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-bold text-white">5. Liên Hệ Bộ Phận Bảo Mật</h2>
+      <p>
+        Mọi thắc mắc về an toàn thông tin và chính sách quyền riêng tư, vui lòng liên hệ qua email: <code class="font-mono text-sky-400">security@networkmanager.local</code>.
+      </p>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full max-w-5xl mx-auto py-6 text-center text-xs text-slate-500 mt-8 border-t border-white/10">
+    © 2026 Network Manager. Tôn trọng quyền riêng tư và an toàn dữ liệu mạng của bạn.
+  </footer>
+
+</body>
+</html>

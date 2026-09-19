@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /backend/
+Disallow: /data/
+
+Sitemap: http://localhost:8080/sitemap.xml

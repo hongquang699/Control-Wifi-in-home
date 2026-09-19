@@ -52,83 +52,57 @@ The application automatically discovers all active devices across subnets, colle
 
 | Tổng quan hệ thống (Dashboard) | Quản lý thiết bị kết nối (Devices) |
 | :---: | :---: |
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Devices](docs/screenshots/devices.png) |
+| ![Dashboard](web/images/dashboard.png) | ![Devices](web/images/devices.png) |
 | **Sơ đồ mạng đa tầng (Network Map)** | **Chi tiết & Lộ trình Internet (Device Details)** |
-| ![Network Map](docs/screenshots/network_map.png) | ![Device Details](docs/screenshots/device_detail.png) |
+| ![Network Map](web/images/network_map.png) | ![Device Details](web/images/device_detail.png) |
 
 ---
 
-## Directory Structure
+## Directory Structure (Cấu trúc phân tách App & Web)
+
+Dự án được phân chia độc lập và rõ ràng thành 2 phân hệ: **`app/`** (Ứng dụng Desktop) và **`web/`** (Hệ sinh thái Web & Phân phối):
 
 ```text
 Control-wifi/
-├── main.py                    # Application entry point (GUI / CLI)
-├── run.bat                    # Windows quick-launch script
-├── run_admin.bat              # Launch with Administrator privileges
-├── requirements.txt           # Python dependencies
-├── README.md                  # Project documentation
-├── LICENSE                    # MIT License
-├── assets/
-│   ├── logo.ico               # Windows application icon (multi-resolution)
-│   └── logo.png               # High-resolution master logo
-├── config/
-│   ├── config.json            # Scanner, timing, and app configuration
-│   └── routers.json           # Router credentials and adapter profiles
-├── core/
-│   ├── scanner.py             # Nmap XML & Native ARP/Ping network scanner
-│   ├── device.py              # Device data model
-│   ├── network.py             # Network interface, gateway, and subnet resolver
-│   ├── topology.py            # Network topology & hop-route analyzer
-│   ├── traffic.py             # Real-time traffic monitor
-│   ├── monitor.py             # State tracking and database synchronization
-│   ├── i18n.py                # Internationalization dictionary (VI / EN)
-│   └── logger.py              # Centralized rotating log system
-├── docs/
-│   └── screenshots/           # Application UI screenshots
-├── gui/
-│   ├── app.py                 # Main window, navigation sidebar, and top bar
-│   ├── theme.py               # Modern dark theme styles & widgets (QSS)
-│   ├── dashboard.py           # Overview metrics, info chips, and event table
-│   ├── devices.py             # 8-column responsive device table
-│   ├── device_detail.py       # Scrollable device inspector with pinned actions
-│   ├── network_map.py         # Hierarchical tree topology view
-│   ├── traffic_chart.py       # Real-time bandwidth wave chart
-│   ├── blocked.py             # Blacklist management view
-│   └── settings.py            # Configuration and router test panel
-├── router/
-│   ├── base.py                # Abstract BaseRouterAdapter
-│   ├── tplink.py              # TP-Link Access Control adapter
-│   ├── openwrt.py             # OpenWrt (LuCI / ubus / iptables) adapter
-│   ├── mikrotik.py            # MikroTik RouterOS adapter
-│   └── mock.py                # Safe simulation mock adapter
-├── scripts/
-│   ├── build.bat              # One-click PyInstaller build script
-│   ├── build_app.py           # Automated packaging and deployment script
-│   ├── create_desktop_shortcut.bat # Desktop shortcut generator
-│   ├── create_shortcut.ps1    # PowerShell shortcut helper
-│   ├── run_cli_scan.bat       # Quick command-line network scan
-│   └── setup_env.bat          # Auto venv setup & dependency installer
-├── security/
-│   ├── firewall.py            # Windows Host Firewall rule manager
-│   ├── blocker.py             # Unified BlockManager coordinator
-│   └── rules.py               # Blocking rule definitions
-├── database/
-│   ├── database.py            # SQLite connection manager & migrations
-│   ├── devices.py             # Device DAO
-│   └── events.py              # Event DAO
-├── services/
-│   ├── discovery.py           # Multithreaded network discovery service
-│   ├── identification.py      # MAC OUI lookup & device classification
-│   └── scheduler.py           # Background periodic scan worker (QThread)
-├── tests/
-│   └── test_all.py            # Complete automated test suite
-├── utils/
-│   ├── command.py             # Safe subprocess execution without console popups
-│   ├── network_utils.py       # Ping, ARP table parsing, reverse DNS
-│   └── validators.py          # IP, MAC, CIDR format validators
-└── data/
-    ├── network.db             # SQLite database
-    └── logs/                  # Application log files
+├── run_app.bat                # 1-click khởi chạy ứng dụng desktop
+├── run_admin.bat              # 1-click khởi chạy ứng dụng với quyền Admin
+├── serve_website.bat          # 1-click khởi chạy máy chủ Web & REST API
+├── README.md                  # Tài liệu tổng quan
+│
+├── app/                       # PHÂN HỆ ỨNG DỤNG DESKTOP (PYTHON / PYSIDE6)
+│   ├── main.py                # Điểm khởi động ứng dụng (GUI / CLI)
+│   ├── run.bat                # Script chạy ứng dụng
+│   ├── run_admin.bat          # Script chạy ứng dụng quyền Admin
+│   ├── requirements.txt       # Thư viện Python cho ứng dụng
+│   ├── NetworkManager.spec   # Cấu hình đóng gói PyInstaller
+│   ├── core/                  # Bộ lõi quét mạng, topology, traffic, i18n
+│   ├── gui/                   # Giao diện PySide6 hiện đại
+│   ├── router/                # Router adapters (TP-Link, OpenWrt, MikroTik, Mock)
+│   ├── security/              # Quản lý Windows Firewall & Blocker
+│   ├── services/              # Dịch vụ discovery, identification, scheduler
+│   ├── database/              # SQLite client & DAO
+│   ├── utils/                 # Tiện ích mạng, subprocess, validators
+│   ├── config/                # config.json, routers.json
+│   ├── data/                  # network.db, logs/
+│   ├── assets/                # logo.ico, logo.png
+│   ├── scripts/               # build.bat, build_app.py, run_cli_scan.bat...
+│   └── tests/                 # Toàn bộ test suite kiểm thử (test_all.py)
+│
+└── web/                       # PHÂN HỆ HỆ THỐNG WEB & PHÂN PHỐI
+    ├── html/                  # Thư mục tập trung toàn bộ các trang HTML
+    │   ├── index.html         # Trang web SPA 8-trong-1 hoàn chỉnh
+    │   ├── 404.html           # Trang báo lỗi 404 tùy biến
+    │   ├── thank-you.html     # Trang cảm ơn sau khi gửi biểu mẫu
+    │   └── privacy-policy.html# Trang chính sách quyền riêng tư
+    ├── serve_website.bat      # Script khởi chạy web cục bộ & REST API (cổng 8080)
+    ├── docker-compose.yml     # Docker Compose cho web & API
+    ├── Dockerfile             # Container build file cho backend API
+    ├── css/                   # Tệp stylesheet, dark mode, glassmorphism
+    ├── js/                    # Router 8 trang, song ngữ, canvas sóng
+    ├── images/                # Logo và các ảnh chụp màn hình ứng dụng
+    ├── backend/               # Máy chủ REST API (main.py, endpoints)
+    ├── downloads/             # Gói cài đặt Windows, Linux, macOS kèm SHA-256
+    └── docs/                  # Tài liệu cài đặt, sử dụng, đặc tả API
 ```
 
 ---
@@ -176,6 +150,7 @@ The project includes convenient `.bat` scripts for quick one-click operation on 
 
 | Script File | Purpose |
 | :--- | :--- |
+| **`serve_website.bat`** | Khởi chạy máy chủ web giới thiệu ứng dụng và tự động mở trình duyệt (Showcase Landing Page). |
 | **`run.bat`** | Launches the application (prioritizes standalone `.exe` if built, falls back to Python). |
 | **`run_admin.bat`** | Launches with Administrator privileges (optimal for Windows Firewall and raw packet scans). |
 | **`scripts/run_cli_scan.bat`** | Performs a fast terminal scan, printing discovered IP and MAC addresses in console. |
