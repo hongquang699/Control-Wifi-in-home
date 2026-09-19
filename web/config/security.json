@@ -1,0 +1,39 @@
+{
+  "security_version": "1.2.0",
+  "environment": "production",
+  "https_enforced": true,
+  "waf": {
+    "enabled": true,
+    "block_sqli": true,
+    "block_xss": true,
+    "block_path_traversal": true,
+    "block_command_injection": true
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "login_limit_per_minute": 5,
+    "download_limit_per_minute": 10,
+    "api_limit_per_minute": 100,
+    "ban_duration_seconds": 900
+  },
+  "authentication": {
+    "password_hash_algorithm": "PBKDF2-HMAC-SHA256",
+    "pbkdf2_iterations": 200000,
+    "session_ttl_seconds": 7200,
+    "max_failed_attempts": 5,
+    "lockout_duration_seconds": 900
+  },
+  "rbac": {
+    "roles": ["ADMIN", "OPERATOR", "USER"],
+    "default_role": "USER"
+  },
+  "audit_logging": {
+    "enabled": true,
+    "log_file": "logs/audit/audit.log",
+    "mask_sensitive_data": true
+  },
+  "backup": {
+    "retention_count": 7,
+    "storage_dir": "backups/"
+  }
+}

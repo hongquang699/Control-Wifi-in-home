@@ -135,8 +135,14 @@
         <a href="#/contact" class="nav-item px-3 py-2 rounded-xl hover:text-white hover:bg-slate-800/60 transition-colors" data-page="contact" data-i18n="nav_contact">Liên hệ</a>
       </nav>
 
-      <!-- Actions & Language Toggle -->
+      <!-- Actions & Language Toggle & RBAC Role -->
       <div class="flex items-center gap-3">
+        <!-- RBAC Role Quick Indicator & Auth Modal Trigger -->
+        <button id="topRoleBtn" onclick="openAuthModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-amber-500/50 text-xs font-semibold text-amber-300 transition-all cursor-pointer">
+          <span id="topRoleIcon">👑</span>
+          <span id="topRoleLabel">Admin</span>
+        </button>
+
         <button id="langToggleBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-sky-500/50 text-xs font-medium text-slate-200 transition-colors">
           <span id="currentLangLabel">🇻🇳 Tiếng Việt</span>
         </button>
@@ -618,13 +624,28 @@
                 <button data-demo-tab="settings" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
                   <span>⚙️</span> <span>Settings</span>
                 </button>
+                <button data-demo-tab="audit" class="demo-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
+                  <span>🛡️</span> <span class="flex-1">Audit Log</span>
+                  <span id="sidebarAuditRolePill" class="px-1.5 py-0.2 text-[9px] font-bold rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono">ADMIN</span>
+                </button>
               </nav>
             </div>
 
-            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] mt-6">
+            <!-- RBAC Current Role Box -->
+            <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] mt-4 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400 font-medium">Vai trò hiện tại:</span>
+                <span id="sidebarRoleBadge" class="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30">👑 ADMIN</span>
+              </div>
+              <button onclick="openAuthModal()" class="w-full py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>🔐</span> <span>Đổi Quyền / Đăng Nhập</span>
+              </button>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] mt-3">
               <div class="flex items-center gap-2 mb-1">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="font-semibold text-emerald-400 font-mono">Agent Active</span>
+                <span class="font-semibold text-emerald-400 font-mono">Security WAF Active</span>
               </div>
               <div class="text-slate-400 font-mono text-[10px]">192.168.1.0/24 & 110.0/24</div>
             </div>
@@ -1365,6 +1386,67 @@
               </div>
             </div>
 
+            <!-- 8. TAB AUDIT LOGS (Chỉ Admin) -->
+            <div id="demoTabAudit" class="demo-tab-panel hidden space-y-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div>
+                  <h3 class="font-bold text-white text-base flex items-center gap-2">
+                    <span>🛡️</span> <span>Nhật Ký Kiểm Toán Bảo Mật (Audit & Compliance Log)</span>
+                  </h3>
+                  <p class="text-xs text-slate-400">Ghi vết toàn diện sự kiện xác thực, WAF block, rate limit, chặn thiết bị và sao lưu dữ liệu</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button id="btnBackupDb" onclick="triggerDatabaseBackup()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer">
+                    <span id="backupSpinner">💾</span> <span>Sao Lưu DB Ngay</span>
+                  </button>
+                  <button onclick="refreshAuditLogs()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-500 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer">
+                    <span>🔄</span> <span>Làm Mới Log</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Stat Badges -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">TỔNG SỰ KIỆN AUDIT</div>
+                  <div id="auditTotalCount" class="text-xl font-bold font-mono text-sky-400 mt-1">--</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">SỰ KIỆN WAF / CHẶN</div>
+                  <div id="auditWafCount" class="text-xl font-bold font-mono text-rose-400 mt-1">--</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">ĐĂNG NHẬP & PHIÊN</div>
+                  <div id="auditLoginCount" class="text-xl font-bold font-mono text-emerald-400 mt-1">--</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-[#0d1322] border border-slate-800">
+                  <div class="text-[11px] text-slate-400 font-medium">BẢN SAO LƯU DATABASE</div>
+                  <div id="auditBackupCount" class="text-xl font-bold font-mono text-amber-400 mt-1">--</div>
+                </div>
+              </div>
+
+              <!-- Audit Events Table -->
+              <div class="rounded-2xl border border-slate-800 bg-[#0d1322] overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs font-mono">
+                    <thead class="bg-slate-900/90 text-slate-400 border-b border-slate-800">
+                      <tr>
+                        <th class="py-3 px-3.5 font-semibold">Thời Gian</th>
+                        <th class="py-3 px-3.5 font-semibold">Loại Sự Kiện</th>
+                        <th class="py-3 px-3.5 font-semibold">Tác Nhân</th>
+                        <th class="py-3 px-3.5 font-semibold">IP Client</th>
+                        <th class="py-3 px-3.5 font-semibold">Trạng Thái</th>
+                        <th class="py-3 px-3.5 font-semibold font-sans">Chi Tiết An Toàn (Masked Secret)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="auditEventsTableBody" class="divide-y divide-slate-800/60">
+                      <!-- Dynamically rendered -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <!-- DEVICE DETAIL MODAL POPUP -->
             <div id="deviceDetailModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
               <div class="max-w-md w-full rounded-2xl bg-[#0d1322] border border-slate-700 shadow-2xl p-5 space-y-4 animate-fade-in">
@@ -1421,6 +1503,80 @@
                   <button id="modalBtnToggleBlock" onclick="toggleModalBlock()" class="px-4 py-2 rounded-xl bg-rose-600/20 text-rose-300 border border-rose-500/40 hover:bg-rose-600/30 text-xs font-semibold transition-all">
                     Chặn Thiết Bị Này
                   </button>
+                </div>
+            </div>
+
+            <!-- SECURITY AUTH & RBAC MODAL (Multi-Layer Security Architecture) -->
+            <div id="securityAuthModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+              <div class="max-w-lg w-full rounded-3xl bg-[#0d1322] border border-slate-700 shadow-2xl p-6 space-y-5 animate-fade-in">
+                <!-- Header -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-lg">
+                      🔐
+                    </span>
+                    <div>
+                      <h3 class="font-bold text-white text-base">Xác Thực & Phân Quyền Bảo Mật (RBAC)</h3>
+                      <p class="text-[11px] text-slate-400">Hệ thống phòng thủ nhiều lớp với băm PBKDF2 & Token 256-bit</p>
+                    </div>
+                  </div>
+                  <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white text-lg font-mono p-1">✕</button>
+                </div>
+
+                <!-- 3 Quick Role Switch Buttons for Demo -->
+                <div class="space-y-2">
+                  <div class="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                    <span>Chuyển Nhanh Vai Trò (Mô Phỏng RBAC):</span>
+                    <span class="text-[10px] text-emerald-400 font-mono">3 Cấp Quyền</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="quickSwitchRole('admin')" class="p-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-500/60 text-left transition-all group cursor-pointer">
+                      <div class="font-bold text-amber-400 text-xs flex items-center gap-1">👑 Admin</div>
+                      <div class="text-[10px] text-slate-400 mt-1">Toàn quyền, Audit Log, Backup DB</div>
+                    </button>
+                    <button type="button" onclick="quickSwitchRole('operator')" class="p-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-500/60 text-left transition-all group cursor-pointer">
+                      <div class="font-bold text-sky-400 text-xs flex items-center gap-1">🛠️ Operator</div>
+                      <div class="text-[10px] text-slate-400 mt-1">Quét mạng, Chặn MAC, Cấu hình</div>
+                    </button>
+                    <button type="button" onclick="quickSwitchRole('viewer')" class="p-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-500/60 text-left transition-all group cursor-pointer">
+                      <div class="font-bold text-emerald-400 text-xs flex items-center gap-1">👁️ Viewer</div>
+                      <div class="text-[10px] text-slate-400 mt-1">Chỉ xem, Tải xuống phần mềm</div>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Custom Login Form -->
+                <form id="authLoginForm" onsubmit="handleAuthLogin(event)" class="space-y-3 pt-2 border-t border-slate-800">
+                  <div class="text-xs font-semibold text-slate-300">Hoặc Đăng Nhập Bằng Tài Khoản Quản Trị:</div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-[11px] text-slate-400 mb-1">Tài khoản:</label>
+                      <input id="authUsernameInput" type="text" placeholder="admin" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs font-mono focus:border-amber-500 outline-none">
+                    </div>
+                    <div>
+                      <label class="block text-[11px] text-slate-400 mb-1">Mật khẩu:</label>
+                      <input id="authPasswordInput" type="password" placeholder="••••••••" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs font-mono focus:border-amber-500 outline-none">
+                    </div>
+                  </div>
+                  <div id="authErrorMsg" class="hidden text-xs text-rose-400 font-mono bg-rose-500/10 border border-rose-500/20 p-2 rounded-xl"></div>
+                  <div class="flex items-center justify-between pt-1">
+                    <button type="button" onclick="handleAuthLogout()" class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white text-xs font-semibold border border-slate-800 transition-all cursor-pointer">
+                      Đăng Xuất
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold text-xs shadow-lg shadow-amber-500/20 hover:opacity-90 transition-all cursor-pointer">
+                      Xác Thực Đăng Nhập
+                    </button>
+                  </div>
+                </form>
+
+                <!-- Security Guarantee Footer -->
+                <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[10px] text-slate-400 space-y-1">
+                  <div class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                    <span>🛡️</span> <span>Chuẩn Bảo Mật Đa Lớp:</span>
+                  </div>
+                  <p>• Mật khẩu băm PBKDF2-HMAC-SHA256 (200.000 vòng) chống bẻ khóa từ điển.</p>
+                  <p>• Cơ chế khóa tài khoản 15 phút sau 5 lần nhập sai liên tiếp chống Brute-Force.</p>
+                  <p>• Token phiên làm việc mã hóa 256-bit thời hạn 2 giờ, tự động thu hồi khi đăng xuất.</p>
                 </div>
               </div>
             </div>

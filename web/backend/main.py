@@ -1,7 +1,12 @@
 """
-Network Manager - Unified Backend REST API & Web Server
-Provides endpoints for system stats, devices catalog, access control blocking,
-traffic monitor, security alerts, and downloads verification.
+Network Manager - Multi-Layer Secure Web & REST API Server
+Kiến trúc phòng thủ đa lớp (Defense-in-Depth):
+- Lớp 1: HTTPS/TLS & Security Headers (CSP, HSTS, X-Content-Type-Options, X-Frame-Options)
+- Lớp 2: Web Application Firewall (WAF) & Rate Limiting (Chống SQLi, XSS, Path Traversal, Brute-Force)
+- Lớp 3 & 4: Authentication & RBAC (PBKDF2-HMAC-SHA256, Session Token, Admin/Operator/User)
+- Lớp 5 & 6: Input Validation, Database Protection, Che giấu thông tin nhạy cảm
+- Lớp 7: Secure Download Service (SHA-256 integrity, chống upload độc hại)
+- Lớp 8, 9 & 10: Security Headers, Structured Audit Logging, Tự động sao lưu Database
 """
 
 import http.server
@@ -9,65 +14,166 @@ import socketserver
 import json
 import os
 import sys
-import time
-import math
-import hashlib
+
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 import urllib.parse
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
+
+# Thêm đường dẫn để import các module nội bộ
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+WEB_DIR = os.path.dirname(CURRENT_DIR)
+sys.path.insert(0, WEB_DIR)
+
+from backend.middleware.security_headers import apply_security_headers
+from backend.middleware.waf import inspect_request
+from backend.middleware.rate_limit import rate_limiter
+from backend.auth.session import session_manager, UserRole
+from backend.services.audit_service import audit_logger
+from backend.services.download_service import download_service
+from backend.services.backup_service import backup_service
+from backend.api.routes import APIRouter
 
 PORT = int(os.environ.get("PORT", 8080))
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = WEB_DIR
 
-MOCK_LOGS = [
+# Dữ liệu mẫu khởi tạo cho thiết bị và cảnh báo
+INIT_DEVICES = [
     {
         "id": 1,
-        "event_type": "DEVICE_JOINED",
-        "device_mac": "38:B1:DB:54:A8:12",
-        "device_ip": "192.168.1.102",
-        "device_name": "Dell XPS 15 (Workstation)",
-        "message": "Thiết bị kết nối vào mạng qua Wi-Fi Tổng",
-        "timestamp": "2026-09-19 09:15:20"
+        "ip": "192.168.1.102",
+        "mac": "38:B1:DB:54:A8:12",
+        "hostname": "DESKTOP-DELL-XPS",
+        "alias": "Dell XPS 15 (Workstation)",
+        "vendor": "Dell Inc.",
+        "device_type": "PC / Laptop",
+        "first_seen": "2026-09-18 08:30:12",
+        "last_seen": "Vừa xong",
+        "status": "ONLINE",
+        "blocked": False,
+        "connection_medium": "📶 Wi-Fi 6 (5GHz)",
+        "network_zone": "Wi-Fi Tổng (192.168.1.0/24)",
+        "ping_ms": 1.5,
+        "open_ports": [22, 443, 3389],
+        "hop_path": ["192.168.1.102", "192.168.1.1", "203.113.131.1", "8.8.8.8"]
     },
     {
         "id": 2,
-        "event_type": "SCAN_COMPLETED",
-        "device_mac": "--",
-        "device_ip": "192.168.1.0/24",
-        "device_name": "System Scanner",
-        "message": "Hoàn thành quét mạng định kỳ. Tìm thấy 7 thiết bị trực tuyến.",
-        "timestamp": "2026-09-19 09:10:00"
+        "ip": "192.168.1.189",
+        "mac": "3C:06:30:19:67:BC",
+        "hostname": "MacBook-Pro-Nam",
+        "alias": "MacBook Pro M2 (Nam)",
+        "vendor": "Apple, Inc.",
+        "device_type": "PC / Laptop",
+        "first_seen": "2026-09-18 09:12:00",
+        "last_seen": "Vừa xong",
+        "status": "ONLINE",
+        "blocked": False,
+        "connection_medium": "📶 Wi-Fi 6 (5GHz)",
+        "network_zone": "Wi-Fi Tổng (192.168.1.0/24)",
+        "ping_ms": 2.1,
+        "open_ports": [443, 5000],
+        "hop_path": ["192.168.1.189", "192.168.1.1", "203.113.131.1", "8.8.8.8"]
     },
     {
         "id": 3,
-        "event_type": "DEVICE_BLOCKED",
-        "device_mac": "BC:D1:D3:45:90:E2",
-        "device_ip": "192.168.1.115",
-        "device_name": "iPhone 15 Pro Max",
-        "message": "Đã gửi quy tắc chặn tới Router TP-Link ACL và Windows Firewall",
-        "timestamp": "2026-09-19 08:50:11"
+        "ip": "192.168.1.115",
+        "mac": "BC:D1:D3:45:90:E2",
+        "hostname": "iPhone-15-Pro",
+        "alias": "iPhone 15 Pro Max",
+        "vendor": "Apple, Inc.",
+        "device_type": "Smartphone",
+        "first_seen": "2026-09-18 10:05:44",
+        "last_seen": "Vừa xong",
+        "status": "ONLINE",
+        "blocked": False,
+        "connection_medium": "📶 Wi-Fi 5GHz",
+        "network_zone": "Wi-Fi Tổng (192.168.1.0/24)",
+        "ping_ms": 4.8,
+        "open_ports": [],
+        "hop_path": ["192.168.1.115", "192.168.1.1", "203.113.131.1", "8.8.8.8"]
     },
     {
         "id": 4,
-        "event_type": "DEVICE_UNBLOCKED",
-        "device_mac": "BC:D1:D3:45:90:E2",
-        "device_ip": "192.168.1.115",
-        "device_name": "iPhone 15 Pro Max",
-        "message": "Đã gỡ bỏ quy tắc chặn thiết bị thành công",
-        "timestamp": "2026-09-19 08:55:00"
+        "ip": "192.168.110.15",
+        "mac": "50:C7:BF:88:21:44",
+        "hostname": "Samsung-SmartTV-QLED",
+        "alias": "Samsung Smart 4K TV",
+        "vendor": "Samsung Electronics",
+        "device_type": "Smart TV",
+        "first_seen": "2026-09-17 18:22:10",
+        "last_seen": "Vừa xong",
+        "status": "ONLINE",
+        "blocked": False,
+        "connection_medium": "🔌 Dây LAN 1Gbps",
+        "network_zone": "Router Phụ (192.168.110.0/24)",
+        "ping_ms": 3.2,
+        "open_ports": [8080, 8001],
+        "hop_path": ["192.168.110.15", "192.168.110.1", "192.168.1.1", "8.8.8.8"]
     },
     {
         "id": 5,
-        "event_type": "DEVICE_OFFLINE",
-        "device_mac": "3C:06:30:19:67:BC",
-        "device_ip": "192.168.1.189",
-        "device_name": "MacBook Pro M2 (Nam)",
-        "message": "Thiết bị ngắt kết nối mạng",
-        "timestamp": "2026-09-18 22:30:00"
+        "ip": "192.168.110.45",
+        "mac": "68:C6:3A:99:14:02",
+        "hostname": "Ezviz-Cam-Gate",
+        "alias": "Camera Cổng Ngoài (Ezviz)",
+        "vendor": "Hangzhou Hikvision",
+        "device_type": "Camera IP",
+        "first_seen": "2026-09-16 12:00:00",
+        "last_seen": "Vừa xong",
+        "status": "ONLINE",
+        "blocked": False,
+        "connection_medium": "📶 Wi-Fi 2.4GHz",
+        "network_zone": "Router Phụ (192.168.110.0/24)",
+        "ping_ms": 8.5,
+        "open_ports": [554, 8000],
+        "hop_path": ["192.168.110.45", "192.168.110.1", "192.168.1.1", "8.8.8.8"]
+    },
+    {
+        "id": 6,
+        "ip": "192.168.110.88",
+        "mac": "24:6F:28:FE:19:AA",
+        "hostname": "ESP32-Relay-LivingRoom",
+        "alias": "Công Tắc Thông Minh Phòng Khách",
+        "vendor": "Espressif Inc.",
+        "device_type": "IoT Smart Device",
+        "first_seen": "2026-09-15 08:00:00",
+        "last_seen": "Vừa xong",
+        "status": "ONLINE",
+        "blocked": False,
+        "connection_medium": "📶 Wi-Fi 2.4GHz",
+        "network_zone": "Router Phụ (192.168.110.0/24)",
+        "ping_ms": 12.0,
+        "open_ports": [1883],
+        "hop_path": ["192.168.110.88", "192.168.110.1", "192.168.1.1", "8.8.8.8"]
+    },
+    {
+        "id": 7,
+        "ip": "192.168.1.205",
+        "mac": "88:66:5A:11:33:99",
+        "hostname": "Printer-HP-LaserJet",
+        "alias": "Máy In HP LaserJet Pro",
+        "vendor": "HP Inc.",
+        "device_type": "Printer",
+        "first_seen": "2026-09-17 14:10:00",
+        "last_seen": "3 giờ trước",
+        "status": "OFFLINE",
+        "blocked": False,
+        "connection_medium": "🔌 Dây LAN 100Mbps",
+        "network_zone": "Wi-Fi Tổng (192.168.1.0/24)",
+        "ping_ms": 0.0,
+        "open_ports": [9100, 631],
+        "hop_path": ["192.168.1.205", "192.168.1.1", "8.8.8.8"]
     }
 ]
 
-MOCK_SETTINGS = {
+INIT_SETTINGS = {
     "network": {
         "scan_interval_seconds": 60,
         "custom_subnets": ["192.168.1.0/24", "192.168.110.0/24"],
@@ -88,478 +194,323 @@ MOCK_SETTINGS = {
     }
 }
 
-# In-memory storage / Mock Database
-MOCK_DEVICES = [
+INIT_LOGS = [
     {
         "id": 1,
-        "ip": "192.168.1.102",
-        "mac": "38:B1:DB:54:A8:12",
-        "hostname": "DESKTOP-DELL-XPS",
-        "alias": "Dell XPS 15 (Workstation)",
-        "vendor": "Dell Inc.",
-        "device_type": "PC / Laptop",
-        "network_zone": "Wi-Fi Tổng (192.168.1.x)",
-        "subnet": "primary",
-        "medium": "Wi-Fi",
-        "latency_ms": 2,
-        "status": "ONLINE",
-        "first_seen": "2026-09-01T08:00:00Z",
-        "last_seen": "2026-09-19T09:00:00Z"
+        "event_type": "DEVICE_JOINED",
+        "device_mac": "38:B1:DB:54:A8:12",
+        "device_ip": "192.168.1.102",
+        "device_name": "Dell XPS 15 (Workstation)",
+        "message": "Thiết bị kết nối vào mạng qua Wi-Fi Tổng",
+        "timestamp": "2026-09-19 09:15:20"
     },
     {
         "id": 2,
-        "ip": "192.168.1.115",
-        "mac": "BC:D1:D3:45:90:E2",
-        "hostname": "iPhone-15-Pro",
-        "alias": "iPhone 15 Pro Max",
-        "vendor": "Apple, Inc.",
-        "device_type": "Smartphone / Tablet",
-        "network_zone": "Wi-Fi Tổng (192.168.1.x)",
-        "subnet": "primary",
-        "medium": "Wi-Fi",
-        "latency_ms": 14,
-        "status": "ONLINE",
-        "first_seen": "2026-09-10T14:20:00Z",
-        "last_seen": "2026-09-19T09:02:00Z"
-    },
-    {
-        "id": 3,
-        "ip": "192.168.110.45",
-        "mac": "64:1C:67:8A:23:4F",
-        "hostname": "Samsung-SmartTV",
-        "alias": "Samsung Neo QLED 4K TV",
-        "vendor": "Samsung Electronics",
-        "device_type": "IoT Smart Device",
-        "network_zone": "Router Phụ (192.168.110.x)",
-        "subnet": "secondary",
-        "medium": "LAN",
-        "latency_ms": 5,
-        "status": "ONLINE",
-        "first_seen": "2026-09-05T10:00:00Z",
-        "last_seen": "2026-09-19T09:01:00Z"
-    },
-    {
-        "id": 4,
-        "ip": "192.168.110.88",
-        "mac": "AC:BC:32:89:12:34",
-        "hostname": "Ezviz-C6N-Cam",
-        "alias": "Ezviz C6N Security Cam",
-        "vendor": "Hangzhou Hikvision",
-        "device_type": "IoT Smart Device",
-        "network_zone": "Router Phụ (192.168.110.x)",
-        "subnet": "secondary",
-        "medium": "Wi-Fi",
-        "latency_ms": 18,
-        "status": "ONLINE",
-        "first_seen": "2026-09-12T07:15:00Z",
-        "last_seen": "2026-09-19T08:59:00Z"
-    },
-    {
-        "id": 5,
-        "ip": "192.168.110.99",
-        "mac": "24:6F:28:FE:19:6A",
-        "hostname": "ESP32-Relay-01",
-        "alias": "ESP32 Smart Home Relay",
-        "vendor": "Espressif Inc.",
-        "device_type": "IoT Smart Device",
-        "network_zone": "Router Phụ (192.168.110.x)",
-        "subnet": "secondary",
-        "medium": "Wi-Fi",
-        "latency_ms": 9,
-        "status": "ONLINE",
-        "first_seen": "2026-09-15T19:00:00Z",
-        "last_seen": "2026-09-19T09:00:00Z"
-    },
-    {
-        "id": 6,
-        "ip": "192.168.1.2",
-        "mac": "50:D4:F7:2C:19:A1",
-        "hostname": "Archer-AX55",
-        "alias": "TP-Link Archer AX55 (Sub-Router)",
-        "vendor": "TP-Link Corporation",
-        "device_type": "Router / Gateway",
-        "network_zone": "Wi-Fi Tổng (192.168.1.x)",
-        "subnet": "primary",
-        "medium": "LAN",
-        "latency_ms": 1,
-        "status": "ONLINE",
-        "first_seen": "2026-08-20T00:00:00Z",
-        "last_seen": "2026-09-19T09:03:00Z"
-    },
-    {
-        "id": 7,
-        "ip": "192.168.1.189",
-        "mac": "3C:06:30:19:67:BC",
-        "hostname": "MacBook-Pro-Nam",
-        "alias": "MacBook Pro M2 (Nam)",
-        "vendor": "Apple, Inc.",
-        "device_type": "PC / Laptop",
-        "network_zone": "Wi-Fi Tổng (192.168.1.x)",
-        "subnet": "primary",
-        "medium": "Wi-Fi",
-        "latency_ms": 0,
-        "status": "OFFLINE",
-        "first_seen": "2026-09-18T16:00:00Z",
-        "last_seen": "2026-09-18T22:30:00Z"
+        "event_type": "SCAN_COMPLETED",
+        "device_mac": "--",
+        "device_ip": "192.168.1.0/24",
+        "device_name": "System Scanner",
+        "message": "Hoàn thành quét mạng định kỳ. Tìm thấy 7 thiết bị trực tuyến.",
+        "timestamp": "2026-09-19 09:10:00"
     }
 ]
 
-MOCK_ALERTS = [
+INIT_ALERTS = [
     {
-        "id": "alt-101",
-        "level": "INFO",
-        "title": "Hoàn tất quét mạng định kỳ",
-        "description": "Đã quét thành công 2 dải subnet 192.168.1.0/24 và 192.168.110.0/24 trong 0.82s.",
-        "timestamp": "2026-09-19T09:00:00Z"
+        "id": 1,
+        "severity": "CRITICAL",
+        "title": "Phát hiện ARP Spoofing từ IP lạ",
+        "device": "192.168.1.250",
+        "mac": "00:11:22:33:44:55",
+        "description": "Phát hiện gói tin ARP giả mạo Gateway 192.168.1.1. Có nguy cơ tấn công Man-in-the-Middle.",
+        "time": "10 phút trước",
+        "action_required": "Chặn thiết bị ngay lập tức"
     },
     {
-        "id": "alt-102",
-        "level": "WARNING",
-        "title": "Phát hiện thiết bị mới kết nối",
-        "description": "Thiết bị mới IP: 192.168.1.134, MAC: 7C:49:EB:11:8A:92 (Xiaomi) vừa kết nối Wi-Fi.",
-        "timestamp": "2026-09-19T08:45:12Z"
-    },
-    {
-        "id": "alt-103",
-        "level": "SUCCESS",
-        "title": "Đồng bộ Tường lửa Windows",
-        "description": "Các quy tắc chặn 2 chiều Inbound/Outbound đã đồng bộ an toàn.",
-        "timestamp": "2026-09-19T08:30:00Z"
+        "id": 2,
+        "severity": "WARNING",
+        "title": "Băng thông tải xuống vượt ngưỡng 90%",
+        "device": "192.168.110.15 (Samsung Smart TV)",
+        "mac": "50:C7:BF:88:21:44",
+        "description": "Lưu lượng phát trực tuyến 4K đạt 65.2 MB/s liên tục trong 15 phút.",
+        "time": "25 phút trước",
+        "action_required": "Giới hạn QoS dải 110.0/24"
     }
 ]
 
-def calculate_file_hash(filepath: str) -> str:
-    if not os.path.exists(filepath):
-        return "sha256_mock_sample"
-    hasher = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        while chunk := f.read(65536):
-            hasher.update(chunk)
-    return hasher.hexdigest()
+# Khởi tạo API Router tập trung
+api_router = APIRouter(INIT_DEVICES, INIT_SETTINGS, INIT_LOGS, INIT_ALERTS)
 
-class NetworkManagerHTTPHandler(http.server.SimpleHTTPRequestHandler):
-    """Handles both REST API endpoints and static web assets."""
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=BASE_DIR, **kwargs)
+class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
+    """
+    Handler HTTP phục vụ cả Static File và REST API với đầy đủ các tầng bảo mật:
+    - WAF (OWASP Top 10)
+    - Rate Limiting (Sliding window)
+    - Security Headers (CSP, HSTS, X-Content-Type-Options)
+    - RBAC Authorization
+    """
 
     def end_headers(self):
-        # Enable CORS and disable aggressive caching for API
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        """Gắn tự động toàn bộ Security Headers trước khi gửi response."""
+        apply_security_headers(self)
         super().end_headers()
 
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.end_headers()
+    def get_client_ip(self) -> str:
+        """Trích xuất địa chỉ IP thực của Client (hỗ trợ Nginx Reverse Proxy)."""
+        forwarded = self.headers.get("X-Forwarded-For")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+        real_ip = self.headers.get("X-Real-IP")
+        if real_ip:
+            return real_ip.strip()
+        return self.client_address[0]
 
-    def send_json(self, data: Any, status: int = 200):
-        body = json.dumps(data, indent=2, ensure_ascii=False).encode("utf-8")
+    def send_json(self, data: Any, status: int = 200, extra_headers: Optional[Dict[str, str]] = None):
+        """Trả về phản hồi JSON an toàn kèm header tiêu chuẩn."""
+        payload = json.dumps(data, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Content-Length", str(len(payload)))
+        if extra_headers:
+            for k, v in extra_headers.items():
+                self.send_header(k, v)
         self.end_headers()
-        self.wfile.write(body)
+        self.wfile.write(payload)
+
+    def _enforce_waf_and_rate_limit(self, body_text: str = "") -> bool:
+        """
+        Kiểm tra WAF và Rate Limit trước khi cho phép xử lý request.
+        Trả về True nếu được phép tiếp tục, False nếu bị chặn.
+        """
+        client_ip = self.get_client_ip()
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+        query = parsed.query
+
+        # 1. Kiểm tra WAF (SQLi, XSS, Path Traversal, Command Injection)
+        waf_res = inspect_request(path, query, body_text)
+        if waf_res:
+            audit_logger.log_event(
+                "WAF_BLOCKED",
+                actor="unknown",
+                ip=client_ip,
+                status="BLOCKED",
+                details={
+                    "path": path,
+                    "attack_type": waf_res.attack_type,
+                    "pattern": waf_res.matched_pattern
+                }
+            )
+            self.send_json(
+                {
+                    "error": "Yêu cầu bị từ chối bởi hệ thống WAF bảo mật (403 Forbidden).",
+                    "reason": f"Phát hiện dấu hiệu tấn công: {waf_res.attack_type}",
+                    "client_ip": client_ip
+                },
+                status=403
+            )
+            return False
+
+        # 2. Kiểm tra Rate Limiting
+        zone = "api"
+        max_req = 100
+        if path == "/api/v1/auth/login":
+            zone = "login"
+            max_req = 5
+        elif path.startswith("/downloads/"):
+            zone = "downloads"
+            max_req = 10
+
+        is_limited, retry_after = rate_limiter.is_rate_limited(client_ip, zone=zone, max_requests=max_req)
+        if is_limited:
+            audit_logger.log_event(
+                "RATE_LIMIT_HIT",
+                actor="unknown",
+                ip=client_ip,
+                status="BLOCKED",
+                details={"zone": zone, "retry_after": retry_after}
+            )
+            self.send_json(
+                {
+                    "error": "Quá nhiều yêu cầu trong thời gian ngắn (429 Too Many Requests).",
+                    "retry_after_seconds": retry_after,
+                    "client_ip": client_ip
+                },
+                status=429,
+                extra_headers={"Retry-After": str(retry_after)}
+            )
+            return False
+
+        return True
+
+    def do_HEAD(self):
+        self.do_GET()
 
     def do_GET(self):
+        client_ip = self.get_client_ip()
         parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path.rstrip("/")
+        path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
 
-        # 1. API: Healthcheck
-        if path == "/api/v1/health":
-            self.send_json({
-                "status": "healthy",
-                "service": "Network Manager REST API",
-                "version": "1.0.0",
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-            })
+        # 1. Kiểm tra WAF & Rate Limit
+        if not self._enforce_waf_and_rate_limit():
             return
 
-        # 2. API: System & Network Stats
-        if path == "/api/v1/stats":
-            total = len(MOCK_DEVICES)
-            online = sum(1 for d in MOCK_DEVICES if d["status"] == "ONLINE")
-            offline = sum(1 for d in MOCK_DEVICES if d["status"] == "OFFLINE")
-            blocked = sum(1 for d in MOCK_DEVICES if d["status"] == "BLOCKED")
-            self.send_json({
-                "total_devices": total,
-                "online_devices": online,
-                "offline_devices": offline,
-                "blocked_devices": blocked,
-                "traffic": {
-                    "download_speed_mbps": 24.5,
-                    "upload_speed_mbps": 8.2
-                },
-                "system": {
-                    "cpu_percent": 14.2,
-                    "ram_percent": 32.5,
-                    "uptime_display": "14d 6h 0m",
-                    "uptime_seconds": 1231200
-                }
-            })
+        auth_header = self.headers.get("Authorization")
+
+        # 2. Xử lý các yêu cầu REST API
+        if path.startswith("/api/"):
+            data, status = api_router.handle_get(path, query, auth_header, client_ip)
+            self.send_json(data, status=status)
             return
 
-        # 3. API: Devices Catalog
-        if path == "/api/v1/devices":
-            devices = list(MOCK_DEVICES)
-            if "subnet" in query:
-                s = query["subnet"][0]
-                devices = [d for d in devices if d["subnet"] == s]
-            if "status" in query:
-                st = query["status"][0].upper()
-                devices = [d for d in devices if d["status"] == st]
-            if "search" in query:
-                q = query["search"][0].lower()
-                devices = [d for d in devices if q in d["name"].lower() or q in d["ip"].lower() or q in d["mac"].lower() or q in d["vendor"].lower()]
-            self.send_json(devices)
-            return
+        # 3. Xử lý tải xuống tệp tin an toàn (/downloads/...)
+        if path.startswith("/downloads/"):
+            is_safe, abs_path, err = download_service.resolve_safe_download(path, client_ip)
+            if not is_safe:
+                self.send_json({"error": err}, status=403 if "từ chối" in err else 404)
+                return
 
-        # 4. API: Security Alerts
-        if path == "/api/v1/alerts":
-            self.send_json(MOCK_ALERTS)
-            return
-
-        # 5. API: Networks & Subnets Discovery
-        if path == "/api/v1/networks":
-            networks_data = {
-                "active_interface": {
-                    "name": "Wi-Fi 6 (Intel AX211)",
-                    "ip": "192.168.1.102",
-                    "mac": "38:B1:DB:54:A8:12",
-                    "gateway": "192.168.1.1",
-                    "netmask": "255.255.255.0",
-                    "dns": ["8.8.8.8", "1.1.1.1"]
-                },
-                "subnets": [
-                    {
-                        "id": "primary",
-                        "cidr": "192.168.1.0/24",
-                        "label": "Wi-Fi Tổng (Modem ISP)",
-                        "gateway": "192.168.1.1",
-                        "total_devices": sum(1 for d in MOCK_DEVICES if d.get("subnet") == "primary"),
-                        "router_model": "VNPT / Viettel GPON Gateway"
-                    },
-                    {
-                        "id": "secondary",
-                        "cidr": "192.168.110.0/24",
-                        "label": "Router Phụ (Phòng Ngủ / IoT)",
-                        "gateway": "192.168.110.1",
-                        "total_devices": sum(1 for d in MOCK_DEVICES if d.get("subnet") == "secondary"),
-                        "router_model": "TP-Link Archer AX55 (AP Mode)"
-                    }
-                ],
-                "topology_summary": {
-                    "tiers": 3,
-                    "internet_accessible": True,
-                    "hop_route": [
-                        "192.168.1.102 (Local Station)",
-                        "192.168.1.1 (Gateway ISP)",
-                        "203.113.131.1 (WAN Uplink)",
-                        "8.8.8.8 (Global Internet)"
-                    ]
-                }
-            }
-            self.send_json(networks_data)
-            return
-
-        # 6. API: Real-time Traffic Waveform & Bandwidth
-        if path == "/api/v1/traffic":
-            cur_down = 24.5
-            cur_up = 8.2
-            samples = []
-            for i in range(60):
-                t_val = i * 0.15
-                d = round(20 + 8 * math.sin(t_val) + 3 * math.sin(t_val * 2.1), 2)
-                u = round(7 + 3 * math.cos(t_val * 1.3), 2)
-                samples.append({"step": i, "download_mbps": max(0.5, d), "upload_mbps": max(0.2, u)})
-            self.send_json({
-                "current_download_mbps": cur_down,
-                "current_upload_mbps": cur_up,
-                "peak_download_mbps": 78.4,
-                "peak_upload_mbps": 22.1,
-                "unit": "MB/s",
-                "samples_count": 60,
-                "history": samples
-            })
-            return
-
-        # 7. API: Audit Event Logs
-        if path == "/api/v1/logs":
-            limit = int(query.get("limit", [50])[0])
-            self.send_json(MOCK_LOGS[:limit])
-            return
-
-        # 8. API: System Settings
-        if path == "/api/v1/settings":
-            self.send_json(MOCK_SETTINGS)
-            return
-
-        # 9. API: Single Device Detail by MAC
-        path_parts = parsed.path.strip("/").split("/")
-        if len(path_parts) == 4 and path_parts[0] == "api" and path_parts[1] == "v1" and path_parts[2] == "devices":
-            mac = urllib.parse.unquote(path_parts[3])
-            device = next((d for d in MOCK_DEVICES if d["mac"].upper() == mac.upper()), None)
-            if device:
-                self.send_json(device)
-            else:
-                self.send_json({"error": f"Device with MAC {mac} not found"}, status=404)
-            return
-
-        # 10. API: Downloads Catalog with SHA-256
-        if path == "/api/v1/downloads":
-            win_path = os.path.join(BASE_DIR, "downloads", "windows", "NetworkManager-v1.0.0-windows-x64.zip")
-            linux_path = os.path.join(BASE_DIR, "downloads", "linux", "NetworkManager-v1.0.0-linux-x64.tar.gz")
-            macos_path = os.path.join(BASE_DIR, "downloads", "macos", "NetworkManager-v1.0.0-darwin-arm64.dmg")
-            
-            downloads = [
-                {
-                    "platform": "windows",
-                    "title": "Windows x64",
-                    "filename": "NetworkManager-v1.0.0-windows-x64.zip",
-                    "size_display": "45.2 MB",
-                    "release_date": "19/09/2026",
-                    "version": "1.0.0",
-                    "sha256": calculate_file_hash(win_path),
-                    "url": "/downloads/windows/NetworkManager-v1.0.0-windows-x64.zip"
-                },
-                {
-                    "platform": "linux",
-                    "title": "Linux x64",
-                    "filename": "NetworkManager-v1.0.0-linux-x64.tar.gz",
-                    "size_display": "38.6 MB",
-                    "release_date": "19/09/2026",
-                    "version": "1.0.0",
-                    "sha256": calculate_file_hash(linux_path),
-                    "url": "/downloads/linux/NetworkManager-v1.0.0-linux-x64.tar.gz"
-                },
-                {
-                    "platform": "macos",
-                    "title": "macOS Apple Silicon",
-                    "filename": "NetworkManager-v1.0.0-darwin-arm64.dmg",
-                    "size_display": "42.1 MB",
-                    "release_date": "19/09/2026",
-                    "version": "1.0.0",
-                    "sha256": calculate_file_hash(macos_path),
-                    "url": "/downloads/macos/NetworkManager-v1.0.0-darwin-arm64.dmg"
-                }
-            ]
-            self.send_json(downloads)
-            return
-
-        # HTML Page Routing: Route root and direct HTML page URLs to html/ folder
-        clean_path = parsed.path
-        if clean_path in ("/", "/index.html", ""):
-            self.path = "/html/index.html"
-        elif clean_path in ("/404.html", "/thank-you.html", "/privacy-policy.html"):
-            self.path = f"/html{clean_path}"
-
-        # Default: Fallback to static file server
-        super().do_GET()
-
-    def send_error(self, code, message=None, explain=None):
-        if code == 404:
-            custom_404 = os.path.join(BASE_DIR, "html", "404.html")
-            if os.path.exists(custom_404):
-                with open(custom_404, "rb") as f:
+            # Gửi tệp tin đính kèm an toàn
+            try:
+                with open(abs_path, "rb") as f:
                     content = f.read()
-                self.send_response(404)
-                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/octet-stream")
+                self.send_header("Content-Disposition", f'attachment; filename="{os.path.basename(abs_path)}"')
                 self.send_header("Content-Length", str(len(content)))
                 self.end_headers()
                 self.wfile.write(content)
-                return
-        super().send_error(code, message, explain)
+            except Exception as e:
+                self.send_json({"error": f"Lỗi đọc file: {e}"}, status=500)
+            return
+
+        # 4. Chặn truy cập thư mục nội bộ nhạy cảm
+        forbidden_folders = ["/config", "/logs", "/backups", "/backend", "/.git"]
+        if any(path.startswith(fb) for fb in forbidden_folders):
+            audit_logger.log_event("FORBIDDEN_DIR_ACCESS", ip=client_ip, status="BLOCKED", details={"path": path})
+            self.send_json({"error": "Truy cập bị từ chối (403 Forbidden)."}, status=403)
+            return
+
+        # 5. Phục vụ Frontend Tĩnh từ web/html/, css, js, images
+        rel_path = path.lstrip("/")
+        if not rel_path or rel_path == "index.html":
+            file_path = os.path.join(BASE_DIR, "html", "index.html")
+        elif rel_path in ("privacy-policy.html", "thank-you.html", "404.html"):
+            file_path = os.path.join(BASE_DIR, "html", rel_path)
+        else:
+            file_path = os.path.join(BASE_DIR, rel_path)
+
+        canonical_path = os.path.abspath(file_path)
+        canonical_base = os.path.abspath(BASE_DIR)
+
+        if not canonical_path.startswith(canonical_base) or not os.path.exists(canonical_path):
+            # Trả về 404 tùy chỉnh
+            f404 = os.path.join(BASE_DIR, "html", "404.html")
+            if os.path.exists(f404):
+                with open(f404, "rb") as f:
+                    body_404 = f.read()
+                self.send_response(404)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body_404)))
+                self.end_headers()
+                self.wfile.write(body_404)
+            else:
+                self.send_error(404, "File not found")
+            return
+
+        # Định dạng MIME type
+        mime_types = {
+            ".html": "text/html; charset=utf-8",
+            ".css": "text/css; charset=utf-8",
+            ".js": "application/javascript; charset=utf-8",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".ico": "image/x-icon",
+            ".svg": "image/svg+xml",
+            ".json": "application/json; charset=utf-8",
+            ".xml": "application/xml; charset=utf-8",
+            ".txt": "text/plain; charset=utf-8"
+        }
+        ext = os.path.splitext(canonical_path)[1].lower()
+        content_type = mime_types.get(ext, "application/octet-stream")
+
+        try:
+            with open(canonical_path, "rb") as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        except Exception as e:
+            self.send_error(500, f"Error reading file: {e}")
 
     def do_POST(self):
+        client_ip = self.get_client_ip()
         parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path.rstrip("/")
-        path_parts = path.strip("/").split("/")
+        path = parsed.path
 
-        # POST /api/v1/scan
-        if path == "/api/v1/scan":
-            self.send_json({
-                "success": True,
-                "message": "Quá trình quét mạng ARP & Ping đa luồng đã hoàn tất.",
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                "total_scanned_subnets": 2,
-                "duration_seconds": 1.15,
-                "found_devices_count": len(MOCK_DEVICES)
-            })
+        # Đọc body của request
+        content_length = int(self.headers.get("Content-Length", 0))
+        if content_length > 5 * 1024 * 1024:  # Giới hạn 5MB
+            self.send_json({"error": "Dung lượng payload vượt quá 5MB."}, status=413)
             return
 
-        # POST /api/v1/settings
-        if path == "/api/v1/settings":
-            content_len = int(self.headers.get("Content-Length", 0))
-            post_data = self.rfile.read(content_len) if content_len > 0 else b"{}"
-            try:
-                data = json.loads(post_data.decode("utf-8"))
-                for k, v in data.items():
-                    if isinstance(v, dict) and k in MOCK_SETTINGS:
-                        MOCK_SETTINGS[k].update(v)
-                    else:
-                        MOCK_SETTINGS[k] = v
-                self.send_json({"success": True, "settings": MOCK_SETTINGS})
-            except Exception as e:
-                self.send_json({"error": str(e)}, status=400)
+        body_bytes = self.rfile.read(content_length) if content_length > 0 else b"{}"
+        try:
+            body_text = body_bytes.decode("utf-8")
+            body_json = json.loads(body_text) if body_text.strip() else {}
+        except Exception:
+            body_text = ""
+            body_json = {}
+
+        # 1. Kiểm tra WAF & Rate Limit
+        if not self._enforce_waf_and_rate_limit(body_text=body_text):
             return
 
-        # Handler: /api/v1/devices/<mac>/block or unblock
-        if len(path_parts) == 5 and path_parts[0] == "api" and path_parts[1] == "v1" and path_parts[2] == "devices":
-            mac = urllib.parse.unquote(path_parts[3])
-            action = path_parts[4]
+        auth_header = self.headers.get("Authorization")
 
-            device = next((d for d in MOCK_DEVICES if d["mac"].upper() == mac.upper()), None)
-            if not device:
-                self.send_json({"error": "Device not found"}, status=404)
-                return
+        # 2. Xử lý qua API Router
+        if path.startswith("/api/"):
+            data, status = api_router.handle_post(path, body_json, auth_header, client_ip)
+            self.send_json(data, status=status)
+            return
 
-            if action == "block":
-                device["status"] = "BLOCKED"
-                self.send_json({
-                    "success": True,
-                    "mac": mac,
-                    "status": "BLOCKED",
-                    "message": f"Đã gửi lệnh chặn MAC {mac} tới Router và Tường lửa Windows."
-                })
-                return
-            elif action == "unblock":
-                device["status"] = "ONLINE"
-                self.send_json({
-                    "success": True,
-                    "mac": mac,
-                    "status": "ONLINE",
-                    "message": f"Đã gỡ bỏ lệnh chặn MAC {mac} khỏi Router và Tường lửa Windows."
-                })
-                return
+        self.send_json({"error": "Endpoint không hỗ trợ POST"}, status=405)
 
-        self.send_json({"error": "Endpoint not found"}, status=404)
+
+class ThreadedHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    allow_reuse_address = True
+    daemon_threads = True
+
 
 def run_server(port: int = PORT):
-    print(f"==================================================")
-    print(f"  NETWORK MANAGER - BACKEND API & WEB SERVER")
-    print(f"==================================================")
-    print(f"[*] Serving files from: {BASE_DIR}")
-    print(f"[*] API Server running at: http://localhost:{port}")
-    print(f"[*] REST Endpoints available at: http://localhost:{port}/api/v1/")
-    print(f"[*] Press Ctrl+C to terminate.")
+    print("=" * 65)
+    print("    NETWORK MANAGER - MÁY CHỦ BẢO MẬT ĐA LỚP (MULTI-LAYER SECURITY)")
+    print("=" * 65)
+    print(f"[*] Cổng lắng nghe: {port}")
+    print(f"[*] Thư mục gốc Web: {BASE_DIR}")
+    print(f"[*] Địa chỉ truy cập: http://localhost:{port}")
+    print(f"[*] Hệ thống WAF: KÍCH HOẠT (Chặn SQLi, XSS, Path Traversal, Cmd Inj)")
+    print(f"[*] Hệ thống Rate Limiting: KÍCH HOẠT (Sliding-Window IP Guard)")
+    print(f"[*] Hệ thống Xác thực RBAC: KÍCH HOẠT (Admin, Operator, User)")
+    print(f"[*] Hệ thống Audit Log: KÍCH HOẠT (web/logs/audit/audit.log)")
+    print("-" * 65)
 
-    with socketserver.TCPServer(("", port), NetworkManagerHTTPHandler) as httpd:
+    with ThreadedHTTPServer(("", port), MultiLayerSecureHandler) as httpd:
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
-            print("\n[!] Shutting down server gracefully...")
+            print("\n[*] Đang dừng máy chủ an toàn...")
+            httpd.shutdown()
+
 
 if __name__ == "__main__":
-    port = PORT
+    p = PORT
     if len(sys.argv) > 1:
-        for i, arg in enumerate(sys.argv[1:], 1):
-            if arg in ("--port", "-p") and i < len(sys.argv) - 1:
-                try:
-                    port = int(sys.argv[i + 1])
-                except ValueError:
-                    pass
-            elif arg.isdigit():
-                port = int(arg)
-    run_server(port)
+        try:
+            p = int(sys.argv[1])
+        except ValueError:
+            pass
+    run_server(p)
