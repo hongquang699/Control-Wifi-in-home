@@ -29,6 +29,8 @@ DEFAULT_SECURITY_HEADERS = {
     # 7. Cô lập tiến trình duyệt web (Cross-Origin Protections)
     "Cross-Origin-Opener-Policy": "same-origin",
     "Cross-Origin-Resource-Policy": "same-origin",
+    "Cross-Origin-Embedder-Policy": "credentialless",
+    "X-Permitted-Cross-Domain-Policies": "none",
 
     # 8. Chính sách bảo mật nội dung tối ưu (Content-Security-Policy)
     "Content-Security-Policy": (

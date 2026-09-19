@@ -68,3 +68,54 @@ class HostFirewallManager:
         safe_run_command(cmd_out, timeout_seconds=5)
         logger.info(f"[Firewall] Đã gỡ bỏ rule chặn IP {valid_ip} trên Windows Firewall.")
         return True, f"Đã gỡ bỏ rule chặn IP {valid_ip} trên Windows Firewall."
+
+    @staticmethod
+    def enable_host_quarantine(gateway_ip: str = "192.168.1.1") -> Tuple[bool, str]:
+        """
+        Chế độ cách ly khẩn cấp (Emergency Host Quarantine):
+        Khóa toàn bộ lưu lượng Inbound & Outbound trên máy trạm,
+        chỉ giữ kết nối Loopback (127.0.0.1) và Router Gateway để quản trị.
+        """
+        try:
+            valid_gw = validate_ip(gateway_ip)
+        except CommandSecurityViolation as e:
+            return False, str(e)
+
+        # 1. Chặn toàn bộ Inbound
+        cmd_block_in = [
+            "netsh", "advfirewall", "firewall", "add", "rule",
+            "name=NetManager_Quarantine_IN",
+            "dir=in", "action=block"
+        ]
+        # 2. Cho phép Gateway Inbound
+        cmd_allow_gw_in = [
+            "netsh", "advfirewall", "firewall", "add", "rule",
+            "name=NetManager_Quarantine_GW_IN",
+            "dir=in", "action=allow", f"remoteip={valid_gw}"
+        ]
+        # 3. Cho phép Gateway Outbound
+        cmd_allow_gw_out = [
+            "netsh", "advfirewall", "firewall", "add", "rule",
+            "name=NetManager_Quarantine_GW_OUT",
+            "dir=out", "action=allow", f"remoteip={valid_gw}"
+        ]
+
+        safe_run_command(cmd_block_in, timeout_seconds=5)
+        safe_run_command(cmd_allow_gw_in, timeout_seconds=5)
+        safe_run_command(cmd_allow_gw_out, timeout_seconds=5)
+        logger.warning(f"[Firewall] Kích hoạt chế độ cách ly máy trạm (Emergency Quarantine). Chỉ giữ Gateway {valid_gw}.")
+        return True, f"Đã kích hoạt chế độ cách ly khẩn cấp cho máy trạm (Chỉ giữ Gateway {valid_gw})."
+
+    @staticmethod
+    def disable_host_quarantine() -> Tuple[bool, str]:
+        """Gỡ bỏ chế độ cách ly khẩn cấp."""
+        cmd_del_in = ["netsh", "advfirewall", "firewall", "delete", "rule", "name=NetManager_Quarantine_IN"]
+        cmd_del_gw_in = ["netsh", "advfirewall", "firewall", "delete", "rule", "name=NetManager_Quarantine_GW_IN"]
+        cmd_del_gw_out = ["netsh", "advfirewall", "firewall", "delete", "rule", "name=NetManager_Quarantine_GW_OUT"]
+
+        safe_run_command(cmd_del_in, timeout_seconds=5)
+        safe_run_command(cmd_del_gw_in, timeout_seconds=5)
+        safe_run_command(cmd_del_gw_out, timeout_seconds=5)
+        logger.info("[Firewall] Đã tắt chế độ cách ly khẩn cấp máy trạm.")
+        return True, "Đã tắt chế độ cách ly khẩn cấp máy trạm thành công."
+

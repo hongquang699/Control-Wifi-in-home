@@ -23,7 +23,21 @@ from .safe_exec import (
 )
 from .vault import (
     encrypt_secret,
-    decrypt_secret
+    decrypt_secret,
+    decrypt_secret_secure
+)
+from .zeroize import (
+    zeroize_memory,
+    SecureBuffer
+)
+from .process_guard import (
+    is_debugger_present,
+    detect_suspicious_modules,
+    verify_process_security
+)
+from .dns_guard import (
+    get_active_dns_servers,
+    evaluate_dns_security
 )
 from .rbac import (
     rbac_manager,
@@ -58,6 +72,14 @@ __all__ = [
     "CommandSecurityViolation",
     "encrypt_secret",
     "decrypt_secret",
+    "decrypt_secret_secure",
+    "zeroize_memory",
+    "SecureBuffer",
+    "is_debugger_present",
+    "detect_suspicious_modules",
+    "verify_process_security",
+    "get_active_dns_servers",
+    "evaluate_dns_security",
     "rbac_manager",
     "require_role",
     "require_permission",
@@ -72,3 +94,4 @@ __all__ = [
     "AppAuditLogger",
     "app_audit_logger"
 ]
+

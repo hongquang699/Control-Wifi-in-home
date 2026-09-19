@@ -20,7 +20,11 @@ from security.safe_exec import (
     validate_ip, validate_mac, validate_subnet, safe_run_command,
     CommandSecurityViolation
 )
-from security.vault import encrypt_secret, decrypt_secret
+from security.vault import encrypt_secret, decrypt_secret, decrypt_secret_secure
+from security.zeroize import zeroize_memory, SecureBuffer
+from security.process_guard import is_debugger_present, detect_suspicious_modules, verify_process_security
+from security.dns_guard import evaluate_dns_security, get_active_dns_servers
+from security.firewall import HostFirewallManager
 from security.rbac import (
     rbac_manager, require_role, require_permission,
     PermissionDeniedError
@@ -196,5 +200,68 @@ class TestAppSecuritySuite(unittest.TestCase):
                     except Exception:
                         pass
 
+    def test_08_memory_zeroization(self):
+        # 1. Kiểm tra zeroize_memory với bytearray
+        b = bytearray(b"SecretPassword123!")
+        self.assertNotEqual(b, bytearray(len(b)))
+        zeroize_memory(b)
+        self.assertEqual(b, bytearray(len(b)))
+
+        # 2. Kiểm tra SecureBuffer context manager
+        with SecureBuffer("SensitiveTokenXYZ") as buf:
+            self.assertEqual(buf.get_string(), "SensitiveTokenXYZ")
+            self.assertFalse(buf.is_wiped)
+
+        # Sau khi ra khỏi context -> buffer phải được wipe sạch
+        self.assertTrue(buf.is_wiped)
+        with self.assertRaises(ValueError):
+            buf.get_string()
+
+        # 3. Kiểm tra decrypt_secret_secure
+        enc = encrypt_secret("RouterAdminSuperPass2026")
+        with decrypt_secret_secure(enc) as sec_buf:
+            self.assertEqual(sec_buf.get_string(), "RouterAdminSuperPass2026")
+        self.assertTrue(sec_buf.is_wiped)
+
+    def test_09_process_guard_integrity(self):
+        status = verify_process_security()
+        self.assertIn("secure", status)
+        self.assertIn("debugger_detected", status)
+        self.assertIn("suspicious_modules", status)
+        self.assertIsInstance(status["suspicious_modules"], list)
+        self.assertIsInstance(is_debugger_present(), bool)
+        self.assertIsInstance(detect_suspicious_modules(), list)
+
+    def test_10_dns_guard_evaluation(self):
+        # 1. DNS an toàn (Cloudflare + Google + Gateway)
+        safe_eval = evaluate_dns_security(["1.1.1.1", "8.8.8.8", "192.168.1.1"], gateway_ip="192.168.1.1")
+        self.assertTrue(safe_eval["secure"])
+        self.assertEqual(safe_eval["threat_level"], "NORMAL")
+        self.assertEqual(len(safe_eval["suspicious_dns"]), 0)
+
+        # 2. DNS chứa IP lạ khả nghi
+        malicious_ip = "123.45.67.89"
+        threat_eval = evaluate_dns_security(["1.1.1.1", malicious_ip], gateway_ip="192.168.1.1")
+        self.assertFalse(threat_eval["secure"])
+        self.assertEqual(threat_eval["threat_level"], "CRITICAL")
+        self.assertIn(malicious_ip, threat_eval["suspicious_dns"])
+
+    def test_11_host_quarantine_validation(self):
+        # Validate IP từ chối IP chứa ký tự độc hại
+        res_bad, msg_bad = HostFirewallManager.enable_host_quarantine("192.168.1.1; whoami")
+        self.assertFalse(res_bad)
+        self.assertTrue(len(msg_bad) > 0)
+
+        # Gọi với IP hợp lệ
+        res, msg = HostFirewallManager.enable_host_quarantine("192.168.1.1")
+        self.assertIsInstance(res, bool)
+        self.assertTrue(len(msg) > 0)
+
+        # Tắt cách ly
+        res_off, msg_off = HostFirewallManager.disable_host_quarantine()
+        self.assertIsInstance(res_off, bool)
+        self.assertTrue(len(msg_off) > 0)
+
 if __name__ == "__main__":
     unittest.main()
+

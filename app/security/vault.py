@@ -121,3 +121,16 @@ def decrypt_secret(encrypted_bundle: str) -> str:
     except Exception:
         # Nếu giải mã thất bại (do đổi máy hoặc file lỗi), fallback an toàn
         return encrypted_bundle
+
+
+def decrypt_secret_secure(encrypted_bundle: str):
+    """
+    Giải mã bí mật và đóng gói trong đối tượng SecureBuffer.
+    Cho phép sử dụng trong context manager và tự động zeroize bộ nhớ sau khi dùng:
+    with decrypt_secret_secure(bundle) as sec:
+        use(sec.get_string())
+    """
+    from security.zeroize import SecureBuffer
+    decrypted_str = decrypt_secret(encrypted_bundle)
+    return SecureBuffer(decrypted_str)
+

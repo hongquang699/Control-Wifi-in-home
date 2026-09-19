@@ -14,14 +14,16 @@ try:
         waf_engine, rate_limiter as web_rate_limiter,
         apply_security_headers as apply_web_security_headers,
         csrf_protector, audit_logger as sec_audit_logger,
-        cors_manager, vpn_guard
+        cors_manager, vpn_guard,
+        request_guard, mask_sensitive_data
     )
 except ImportError:
     from security import (
         waf_engine, rate_limiter as web_rate_limiter,
         apply_security_headers as apply_web_security_headers,
         csrf_protector, audit_logger as sec_audit_logger,
-        cors_manager, vpn_guard
+        cors_manager, vpn_guard,
+        request_guard, mask_sensitive_data
     )
 
 from backend.middleware.security_headers import apply_security_headers
@@ -71,8 +73,9 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
         return self.client_address[0]
 
     def send_json(self, data: Any, status: int = 200, extra_headers: Optional[Dict[str, str]] = None):
-        """Trả về phản hồi JSON an toàn kèm header tiêu chuẩn."""
-        payload = json.dumps(data, ensure_ascii=False).encode("utf-8")
+        """Trả về phản hồi JSON an toàn kèm header tiêu chuẩn và khử dữ liệu nhạy cảm."""
+        masked_data = mask_sensitive_data(data)
+        payload = json.dumps(masked_data, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(payload)))
@@ -84,13 +87,30 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
 
     def _enforce_waf_and_rate_limit(self, body_text: str = "") -> bool:
         """
-        Kiểm tra WAF và Rate Limit trước khi cho phép xử lý request.
+        Kiểm tra Request Guard, WAF và Rate Limit trước khi cho phép xử lý request.
         Trả về True nếu được phép tiếp tục, False nếu bị chặn.
         """
         client_ip = self.get_client_ip()
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = parsed.query
+
+        # 0. Kiểm tra kích thước và MIME type của Request (web.security.request_guard)
+        is_req_valid, req_err_code, req_err_msg = request_guard.validate_request(
+            method=self.command,
+            path=path,
+            headers=dict(self.headers)
+        )
+        if not is_req_valid:
+            self.send_json(
+                {
+                    "error": req_err_msg or "Yêu cầu HTTP bị từ chối bởi Request Guard.",
+                    "status": req_err_code,
+                    "client_ip": client_ip
+                },
+                status=req_err_code
+            )
+            return False
 
         # 1. Kiểm tra WAF Chuyên Biệt (web.security.waf_engine)
         is_safe, rule_name, reason = waf_engine.inspect_request(

@@ -134,10 +134,13 @@ Control-wifi/
 │   │   ├── __init__.py             # Security facade export
 │   │   ├── safe_exec.py            # Zero command injection, IP/MAC validators
 │   │   ├── vault.py                # Hardware-bound credentials encryption (MachineGuid)
+│   │   ├── zeroize.py              # Memory zeroization & credential wiping
+│   │   ├── process_guard.py        # Process integrity & anti-debugging/hook guard
+│   │   ├── dns_guard.py            # DNS integrity & rogue DHCP server detector
 │   │   ├── rbac.py                 # Role-Based Access Control (Admin, Operator, Viewer)
 │   │   ├── integrity.py            # HMAC-SHA256 file & DB integrity verifier
 │   │   ├── arp_guard.py            # Anti-ARP poisoning & spoofing monitor
-│   │   ├── firewall.py             # Bidirectional Windows Host Firewall manager
+│   │   ├── firewall.py             # Bidirectional Windows Host Firewall & Quarantine
 │   │   ├── blocker.py              # Multi-layer isolation coordinator
 │   │   └── audit_logger.py         # Forensic compliance audit logger
 │   ├── services/                   # OUI lookup service, background scheduler
@@ -165,12 +168,15 @@ Control-wifi/
     ├── logs/                       # Web audit logs (web/logs/audit/)
     ├── nginx/                      # Nginx reverse proxy configurations
     ├── scripts/                    # Automated build scripts (build_all.py)
-    └── security/                   # WEB SECURITY SUITE (7 CORE API GUARDS)
+    └── security/                   # WEB SECURITY SUITE (ENTERPRISE DEFENSE)
         ├── __init__.py             # Security facade export
         ├── crypto.py               # PBKDF2-HMAC-SHA256 (600,000 rounds) & constant-time crypto
-        ├── waf.py                  # OWASP Top 10 WAF (SQLi, NoSQLi, XSS, RCE, Bad Bots)
+        ├── waf.py                  # OWASP Top 10 WAF (SQLi, NoSQLi, SSRF, SSTI, JNDI, RCE)
         ├── rate_limiter.py         # Sliding-Window Rate Limiter & Auto-Jail
-        ├── headers.py              # Enterprise Security Headers (CSP, HSTS, XFO)
+        ├── account_lockout.py      # Account Lockout against distributed credential stuffing
+        ├── headers.py              # Enterprise Security Headers (CSP, HSTS, COOP, COEP, CORP)
+        ├── request_guard.py        # Request size limiter (< 2MB) & MIME type validator
+        ├── data_masker.py          # Sensitive data masker (passwords, tokens, secret keys)
         ├── csrf.py                 # Anti-CSRF Guard (Double-Submit Token)
         ├── cors.py                 # CORS Manager with RFC preflight & origin whitelist
         ├── vpn_guard.py            # VPN Network Guard & private route restriction

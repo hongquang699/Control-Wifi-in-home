@@ -148,4 +148,26 @@ To prevent stray files during development or runtime:
 
 ---
 
+## 8. Enterprise Defense-in-Depth Enhancements (Phase 2 Upgrade)
+
+### Desktop Application Hardening
+- **Memory Zeroization (`app/security/zeroize.py`)**: Overwrites physical byte buffers with null bytes (`0x00`) immediately after consuming plaintext router passwords or session tokens. Implemented as a RAII context manager (`with SecureBuffer(...) as buf:`).
+- **Process Integrity & Anti-Hook Guard (`app/security/process_guard.py`)**: Checks Windows PEB `BeingDebugged` and `CheckRemoteDebuggerPresent`. Enumerates active DLL modules in process address space via `psapi.EnumProcessModules` to detect injected hooks (Frida, Detours, Cheat Engine, MinHook).
+- **DNS Guard (`app/security/dns_guard.py`)**: Inspects adapter DNS configurations via PowerShell WMI cmdlets. Classifies addresses into Trusted Public DNS (Cloudflare, Google, Quad9), Private Gateway, and flags unknown public IPs as potential Rogue DNS / DHCP Hijacking.
+- **Emergency Host Quarantine (`app/security/firewall.py`)**: Instant firewall isolation mode blocking 100% of non-loopback inbound and outbound traffic except the local gateway management address.
+
+### Web Server & REST API Hardening
+- **Advanced WAF Expansion (`web/security/waf.py`)**: Inspects query strings, bodies, and key HTTP headers (`User-Agent`, `Referer`, `X-Forwarded-For`) for:
+  - **SSRF**: Cloud metadata IPs (`169.254.169.254`, `metadata.google.internal`, Alibaba/Tencent metadata).
+  - **SSTI**: Jinja2/Mako/Twig template injection expressions (`{{...}}`, `#{...}`).
+  - **JNDI / Log4j**: Remote codebase lookup patterns (`${jndi:ldap...}`, `${jndi:rmi...}`).
+  - **Protocol Wrappers**: Dangerous wrapper protocols (`php://`, `gopher://`, `dict://`, `file:///etc/`).
+- **Account Lockout Manager (`web/security/account_lockout.py`)**: Enforces username-based lockout (5 failed attempts -> 15-minute freeze), defeating distributed botnets rotating source IP addresses.
+- **Request Size & MIME Guard (`web/security/request_guard.py`)**: Restricts request payloads to 2MB (HTTP 413) and enforces valid API MIME types (HTTP 415), preventing memory exhaustion attacks.
+- **Data Masking Engine (`web/security/data_masker.py`)**: Recursively traverses outbound API JSON structures and scrubs passwords, secrets, and private keys into `********`.
+- **Extended Security Headers (`web/security/headers.py`)**: Enforces `Permissions-Policy` (disabling camera, mic, geolocation), `Cross-Origin-Embedder-Policy: credentialless`, and `X-Permitted-Cross-Domain-Policies: none`.
+
+---
+
 **Network Manager Engineering Documentation — Updated 2026**
+

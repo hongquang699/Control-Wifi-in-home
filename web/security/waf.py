@@ -71,7 +71,31 @@ class WAFEngine:
             re.compile(r"(tojson\s*\(|db\.[a-zA-Z0-9_]+\.(find|insert|update|remove|drop)\()", re.IGNORECASE),
         ]
 
-        # 6. Các User-Agent độc hại và công cụ rà quét lỗ hổng tự động
+        # 6. Các mẫu Server-Side Request Forgery (SSRF) & Cloud Metadata Access
+        self.ssrf_patterns = [
+            re.compile(r"(https?://(169\.254\.169\.254|metadata\.google\.internal|instance-data|metadata\.tencentyun\.com|100\.100\.100\.200))", re.IGNORECASE),
+            re.compile(r"(https?://(127\.0\.0\.1|localhost|\[::1\])\b)", re.IGNORECASE),
+        ]
+
+        # 7. Các mẫu Server-Side Template Injection (SSTI)
+        self.ssti_patterns = [
+            re.compile(r"(\{\{.*?(config|class|mro|subclasses|globals|builtins|lipsum|os|popen|read).*?\}\})", re.IGNORECASE),
+            re.compile(r"(\{\{\s*[0-9]+\s*[\*+-/]\s*[0-9]+\s*\}\})", re.IGNORECASE),
+            re.compile(r"(#\{.*?(eval|exec|load).*?\})", re.IGNORECASE),
+        ]
+
+        # 8. Các mẫu JNDI / Log4j RCE
+        self.jndi_patterns = [
+            re.compile(r"(\$\{\s*(jndi|ldap|rmi|dns|corba|iiop)\s*:\s*)", re.IGNORECASE),
+        ]
+
+        # 9. Lạm dụng Protocol Wrappers & Remote File Inclusion (RFI)
+        self.proto_wrap_patterns = [
+            re.compile(r"(\b(gopher|dict|php|data|expect|phar)\s*://)", re.IGNORECASE),
+            re.compile(r"(file\s*:///(etc|windows|proc|sys))", re.IGNORECASE),
+        ]
+
+        # 10. Các User-Agent độc hại và công cụ rà quét lỗ hổng tự động
         self.bad_user_agents = [
             "sqlmap", "nikto", "masscan", "nmap", "dirbuster",
             "havij", "acunetix", "w3af", "nessus", "openvas",
@@ -90,18 +114,27 @@ class WAFEngine:
         Trả về: (is_safe: bool, rule_name: Optional[str], reason: Optional[str])
         """
         # 1. Kiểm tra User-Agent độc hại
-        user_agent = headers.get("User-Agent", "").lower()
+        user_agent = headers.get("User-Agent", headers.get("user-agent", "")).lower()
         for bad_ua in self.bad_user_agents:
             if bad_ua in user_agent:
                 return False, "MALICIOUS_USER_AGENT", f"Phát hiện công cụ quét tự động: '{bad_ua}'"
 
-        # 2. Giải mã URL và kiểm tra URL Path & Query String
+        # 2. Quét các tiêu đề HTTP nhạy cảm (User-Agent, Referer, X-Forwarded-For)
+        headers_to_scan = ["User-Agent", "user-agent", "Referer", "referer", "X-Forwarded-For", "x-forwarded-for", "X-Api-Version"]
+        for h_key in headers_to_scan:
+            h_val = headers.get(h_key)
+            if h_val:
+                is_safe, rule, reason = self._scan_text(h_val, f"HTTP Header '{h_key}'")
+                if not is_safe:
+                    return False, rule, reason
+
+        # 3. Giải mã URL và kiểm tra URL Path & Query String
         decoded_path = urllib.parse.unquote(urllib.parse.unquote(path))
         is_safe, rule, reason = self._scan_text(decoded_path, "URL Path/Query")
         if not is_safe:
             return False, rule, reason
 
-        # 3. Kiểm tra Request Body nếu có
+        # 4. Kiểm tra Request Body nếu có
         if body:
             decoded_body = urllib.parse.unquote(body)
             is_safe, rule, reason = self._scan_text(decoded_body, "Request Body")
@@ -127,6 +160,16 @@ class WAFEngine:
             if pat.search(text):
                 return False, "XSS_ATTACK", f"Phát hiện mã Cross-Site Scripting (XSS) tại {location}"
 
+        # Kiểm tra JNDI / Log4j (ưu tiên phân loại trước command injection)
+        for pat in self.jndi_patterns:
+            if pat.search(text):
+                return False, "JNDI_LOG4J_ATTACK", f"Phát hiện chuỗi khai thác JNDI / Log4j độc hại tại {location}"
+
+        # Kiểm tra SSTI
+        for pat in self.ssti_patterns:
+            if pat.search(text):
+                return False, "SSTI_ATTACK", f"Phát hiện mẫu Server-Side Template Injection (SSTI) tại {location}"
+
         # Kiểm tra RCE / Command Injection
         for pat in self.rce_patterns:
             if pat.search(text):
@@ -136,6 +179,16 @@ class WAFEngine:
         for pat in self.nosql_patterns:
             if pat.search(text):
                 return False, "NOSQL_INJECTION", f"Phát hiện mẫu NoSQL Injection độc hại tại {location}"
+
+        # Kiểm tra SSRF
+        for pat in self.ssrf_patterns:
+            if pat.search(text):
+                return False, "SSRF_ATTACK", f"Phát hiện mẫu tấn công Server-Side Request Forgery (SSRF) tại {location}"
+
+        # Kiểm tra Protocol Wrappers
+        for pat in self.proto_wrap_patterns:
+            if pat.search(text):
+                return False, "PROTOCOL_WRAPPER_ATTACK", f"Phát hiện lạm dụng Protocol Wrapper / RFI tại {location}"
 
         return True, None, None
 

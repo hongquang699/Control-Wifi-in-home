@@ -104,10 +104,13 @@ Control-wifi/
 │   │   ├── __init__.py             # Export facade an toàn
 │   │   ├── safe_exec.py            # Chống Command Injection, kiểm tra IP/MAC
 │   │   ├── vault.py                # Két mã hóa mật khẩu theo phần cứng máy tính
+│   │   ├── zeroize.py              # Xóa sạch bộ nhớ đệm RAM chứa mật khẩu sau khi dùng
+│   │   ├── process_guard.py        # Giám sát toàn vẹn tiến trình, chống Debug & DLL Hook
+│   │   ├── dns_guard.py            # Giám sát đầu độc DNS, phát hiện máy chủ DHCP DNS lạ
 │   │   ├── rbac.py                 # Kiểm soát truy cập dựa trên vai trò (RBAC)
 │   │   ├── integrity.py            # Kiểm tra toàn vẹn file cấu hình & DB (HMAC-SHA256)
 │   │   ├── arp_guard.py            # Phát hiện ARP Poisoning / Spoofing
-│   │   ├── firewall.py             # Tường lửa Windows 2 chiều an toàn
+│   │   ├── firewall.py             # Tường lửa Windows 2 chiều & Cách ly khẩn cấp (Quarantine)
 │   │   ├── blocker.py              # Bộ điều phối chặn đa tầng tích hợp RBAC
 │   │   └── audit_logger.py         # Nhật ký kiểm toán pháp chứng
 │   ├── services/                   # Dịch vụ định danh OUI, background scheduler
@@ -127,9 +130,12 @@ Control-wifi/
     ├── security/                   # GÓI BẢO MẬT ĐỘC LẬP CHO WEB SERVER
     │   ├── __init__.py             # Export facade an toàn
     │   ├── crypto.py               # PBKDF2-HMAC-SHA256 (600,000 rounds) & constant-time
-    │   ├── waf.py                  # OWASP Top 10 WAF (SQLi, XSS, RCE, Bot Filter)
+    │   ├── waf.py                  # WAF nâng cao (SQLi, NoSQLi, SSRF, SSTI, JNDI, RCE)
     │   ├── rate_limiter.py         # Sliding-Window Rate Limiter & Auto-Jail
-    │   ├── headers.py              # Military-Grade Security Headers (CSP, HSTS)
+    │   ├── account_lockout.py      # Khóa tài khoản chống brute-force phân tán botnet
+    │   ├── headers.py              # Tiêu đề an ninh quân sự (CSP, HSTS, COOP, COEP, CORP)
+    │   ├── request_guard.py        # Giới hạn kích thước payload (< 2MB) & MIME type
+    │   ├── data_masker.py          # Che giấu dữ liệu nhạy cảm (passwords, tokens, secret keys)
     │   ├── csrf.py                 # Chống tấn công CSRF (Double-Submit Token)
     │   ├── cors.py                 # Quản lý CORS, whitelist origins & RFC preflight
     │   ├── vpn_guard.py            # Thẩm định VPN & bảo vệ route nhạy cảm

@@ -61,6 +61,22 @@ from .vpn_guard import (
     vpn_guard
 )
 
+from .account_lockout import (
+    AccountLockoutManager,
+    account_lockout_manager
+)
+
+from .request_guard import (
+    RequestGuard,
+    RequestGuardViolation,
+    request_guard
+)
+
+from .data_masker import (
+    mask_sensitive_data,
+    is_sensitive_key
+)
+
 __all__ = [
     "hash_password",
     "verify_password",
@@ -85,5 +101,13 @@ __all__ = [
     "CORSManager",
     "cors_manager",
     "VPNNetworkGuard",
-    "vpn_guard"
+    "vpn_guard",
+    "AccountLockoutManager",
+    "account_lockout_manager",
+    "RequestGuard",
+    "RequestGuardViolation",
+    "request_guard",
+    "mask_sensitive_data",
+    "is_sensitive_key"
 ]
+
