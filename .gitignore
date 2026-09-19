@@ -32,13 +32,16 @@ ENV/
 env.bak/
 venv.bak/
 
-# SQLite databases, test DBs & logs
+# SQLite databases, test DBs, integrity signatures & logs
 *.db
 *.sqlite3
 data/*.db
 data/logs/
 app/data/*.db
 app/data/logs/
+app/data/.integrity.sig
+.integrity.sig
+web/logs/
 *.log
 
 # Development / scratch captures

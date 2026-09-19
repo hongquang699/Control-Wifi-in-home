@@ -14,7 +14,8 @@ from typing import Dict, Tuple
 from security.vault import _get_hardware_entropy
 from core.logger import logger
 
-INTEGRITY_SIG_FILE = "data/.integrity.sig"
+APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+INTEGRITY_SIG_FILE = os.path.join(APP_DIR, "data", ".integrity.sig")
 
 def _get_integrity_key() -> bytes:
     master = _get_hardware_entropy()
@@ -41,9 +42,9 @@ def save_baseline_signatures(files_to_track: list = None):
     """Ghi nhận lại chữ ký mẫu (baseline) cho các tệp hệ thống."""
     if files_to_track is None:
         files_to_track = [
-            "config/config.json",
-            "config/routers.json",
-            "data/network.db"
+            os.path.join(APP_DIR, "config", "config.json"),
+            os.path.join(APP_DIR, "config", "routers.json"),
+            os.path.join(APP_DIR, "data", "network.db")
         ]
 
     manifest = {}
@@ -90,7 +91,11 @@ def verify_file_integrity(file_path: str) -> Tuple[bool, str]:
 
 def verify_all_system_files() -> Dict[str, Tuple[bool, str]]:
     """Kiểm tra toàn bộ hệ thống tệp quan trọng."""
-    targets = ["config/config.json", "config/routers.json", "data/network.db"]
+    targets = [
+        os.path.join(APP_DIR, "config", "config.json"),
+        os.path.join(APP_DIR, "config", "routers.json"),
+        os.path.join(APP_DIR, "data", "network.db")
+    ]
     results = {}
     for tgt in targets:
         if os.path.exists(tgt):

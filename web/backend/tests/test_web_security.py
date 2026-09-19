@@ -190,8 +190,9 @@ class TestWebSecuritySuite(unittest.TestCase):
         self.assertIn("LỖI TOÀN VẸN", tamper_msg)
 
         # Dọn dẹp test
-        if os.path.exists(audit.log_file):
-            os.remove(audit.log_file)
+        import shutil
+        if os.path.exists(log_dir):
+            shutil.rmtree(log_dir, ignore_errors=True)
 
 if __name__ == "__main__":
     unittest.main()

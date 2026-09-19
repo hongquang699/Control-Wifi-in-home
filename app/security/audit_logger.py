@@ -12,8 +12,12 @@ import threading
 from typing import Dict, Any, List, Optional
 from core.logger import logger
 
+APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 class AppAuditLogger:
-    def __init__(self, log_path: str = "data/audit_compliance.log"):
+    def __init__(self, log_path: Optional[str] = None):
+        if log_path is None:
+            log_path = os.path.join(APP_DIR, "data", "logs", "audit_compliance.log")
         self.log_path = log_path
         self._lock = threading.Lock()
         os.makedirs(os.path.dirname(self.log_path), exist_ok=True)

@@ -161,29 +161,40 @@ class TestAppSecuritySuite(unittest.TestCase):
         router = MockRouterAdapter()
         bm = BlockManager(router_adapter=router, device_dao=dev_dao, event_dao=evt_dao, enable_host_firewall=False)
 
-        # Thêm thiết bị mẫu
-        from core.device import Device
-        dev = Device(ip="192.168.1.50", mac="11:22:33:44:55:66", hostname="TestPC", status="ONLINE")
-        dev_dao.upsert_device(dev)
+        try:
+            # Thêm thiết bị mẫu
+            from core.device import Device
+            dev = Device(ip="192.168.1.50", mac="11:22:33:44:55:66", hostname="TestPC", status="ONLINE")
+            dev_dao.upsert_device(dev)
 
-        # Khi là VIEWER -> Chặn bị từ chối
-        rbac_manager.set_role("VIEWER")
-        success, msg = bm.block_device(mac="11:22:33:44:55:66")
-        self.assertFalse(success)
-        self.assertIn("Từ chối quyền", msg)
+            # Khi là VIEWER -> Chặn bị từ chối
+            rbac_manager.set_role("VIEWER")
+            success, msg = bm.block_device(mac="11:22:33:44:55:66")
+            self.assertFalse(success)
+            self.assertIn("Từ chối quyền", msg)
 
-        # Khi là ADMIN -> Chặn thành công
-        rbac_manager.set_role("ADMIN")
-        success, msg = bm.block_device(mac="11:22:33:44:55:66")
-        self.assertTrue(success)
-        d = dev_dao.get_device_by_mac("11:22:33:44:55:66")
-        self.assertTrue(d.blocked)
+            # Khi là ADMIN -> Chặn thành công
+            rbac_manager.set_role("ADMIN")
+            success, msg = bm.block_device(mac="11:22:33:44:55:66")
+            self.assertTrue(success)
+            d = dev_dao.get_device_by_mac("11:22:33:44:55:66")
+            self.assertTrue(d.blocked)
 
-        # Bỏ chặn
-        success, msg = bm.unblock_device(mac="11:22:33:44:55:66")
-        self.assertTrue(success)
-        d = dev_dao.get_device_by_mac("11:22:33:44:55:66")
-        self.assertFalse(d.blocked)
+            # Bỏ chặn
+            success, msg = bm.unblock_device(mac="11:22:33:44:55:66")
+            self.assertTrue(success)
+            d = dev_dao.get_device_by_mac("11:22:33:44:55:66")
+            self.assertFalse(d.blocked)
+        finally:
+            import gc
+            gc.collect()
+            for suffix in ["", "-wal", "-shm"]:
+                p = test_db + suffix
+                if os.path.exists(p):
+                    try:
+                        os.remove(p)
+                    except Exception:
+                        pass
 
 if __name__ == "__main__":
     unittest.main()
