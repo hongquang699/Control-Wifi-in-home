@@ -56,6 +56,8 @@ class RateLimiter:
             limit = self.default_limit
             if any(k in endpoint.lower() for k in ["/login", "/auth", "/token", "/admin"]):
                 limit = self.auth_limit
+            elif endpoint.lower().startswith("/downloads/"):
+                limit = 180  # Hạn mức rộng rãi cho tải file và tài nguyên tĩnh
 
             # 3. Lọc lịch sử trong cửa sổ 60 giây qua
             window_start = now - 60.0
@@ -69,8 +71,8 @@ class RateLimiter:
                 violations = self._violations.get(client_ip, 0) + 1
                 self._violations[client_ip] = violations
 
-                # Nếu vi phạm nhiều lần liên tiếp -> đưa vào Jail
-                if violations >= self.jail_threshold:
+                # Nếu vi phạm nhiều lần liên tiếp -> đưa vào Jail (trừ loopback cục bộ)
+                if violations >= self.jail_threshold and client_ip not in ("127.0.0.1", "::1", "localhost"):
                     ban_duration = self.default_jail_duration * min(10, violations - self.jail_threshold + 1)
                     self._jailed_ips[client_ip] = now + ban_duration
                     return False, ban_duration, f"Phát hiện hành vi tấn công từ chối dịch vụ. IP đã bị đưa vào danh sách cách ly {ban_duration}s."
@@ -86,6 +88,10 @@ class RateLimiter:
 
     def record_security_violation(self, client_ip: str, weight: int = 2):
         """Ghi nhận trực tiếp một vi phạm an ninh (ví dụ: bị WAF chặn) để tăng tốc độ cách ly IP."""
+        # Không tự động khóa vĩnh viễn loopback cục bộ để tránh cản trở quản trị máy trạm
+        if client_ip in ("127.0.0.1", "::1", "localhost"):
+            return
+
         now = time.time()
         with self._lock:
             violations = self._violations.get(client_ip, 0) + weight
@@ -99,6 +105,13 @@ class RateLimiter:
         with self._lock:
             self._jailed_ips.pop(client_ip, None)
             self._violations.pop(client_ip, None)
+
+    def reset(self):
+        """Xóa toàn bộ dữ liệu bộ đếm và danh sách cách ly."""
+        with self._lock:
+            self._request_logs.clear()
+            self._violations.clear()
+            self._jailed_ips.clear()
 
     def get_jailed_ips(self) -> Dict[str, float]:
         """Lấy danh sách các IP đang bị cách ly cùng thời gian hết hạn."""

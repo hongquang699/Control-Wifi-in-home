@@ -183,6 +183,12 @@ class WAFEngine:
         # Kiểm tra SSRF
         for pat in self.ssrf_patterns:
             if pat.search(text):
+                # Bỏ qua nếu là Referer hoặc Origin hợp lệ trỏ về localhost / loopback của chính máy chủ
+                if any(hdr in location for hdr in ["Header 'Referer'", "Header 'referer'", "Header 'Origin'", "Header 'origin'"]):
+                    # Chỉ chặn nếu cố tình nhắm vào Cloud Metadata nội bộ nhạy cảm (169.254, metadata.google, etc.)
+                    if any(cloud_host in text.lower() for cloud_host in ["169.254.169.254", "metadata.google", "instance-data", "metadata.tencentyun", "100.100.100.200"]):
+                        return False, "SSRF_ATTACK", f"Phát hiện mẫu tấn công Server-Side Request Forgery (SSRF) tại {location}"
+                    continue
                 return False, "SSRF_ATTACK", f"Phát hiện mẫu tấn công Server-Side Request Forgery (SSRF) tại {location}"
 
         # Kiểm tra Protocol Wrappers

@@ -102,12 +102,15 @@ class DownloadService:
         # Làm sạch dấu gạch chéo
         clean_rel = rel_path.lstrip("/\\")
         
-        # Tạo đường dẫn tuyệt đối
+        # Tạo đường dẫn tuyệt đối chuẩn hóa (case-insensitive trên Windows)
         target_path = os.path.abspath(os.path.join(self.web_root, clean_rel))
         canonical_downloads = os.path.abspath(self.downloads_dir)
 
+        target_norm = os.path.normcase(target_path)
+        downloads_norm = os.path.normcase(canonical_downloads)
+
         # Kiểm tra xem đường dẫn đích có nằm hoàn toàn bên trong downloads_dir hay không
-        if not target_path.startswith(canonical_downloads):
+        if not target_norm.startswith(downloads_norm):
             audit_logger.log_event(
                 "PATH_TRAVERSAL_ATTEMPT",
                 actor=actor,

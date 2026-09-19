@@ -159,6 +159,8 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
                 status=429,
                 extra_headers={"Retry-After": str(retry_after)}
             )
+            return False
+
         # 3. Kiểm tra VPN & Mạng Riêng Tư (web.security.vpn_guard)
         is_vpn_allowed, vpn_err = vpn_guard.validate_route_access(client_ip, path)
         if not is_vpn_allowed:
@@ -211,16 +213,27 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             try:
-                with open(abs_path, "rb") as f:
-                    content = f.read()
+                file_size = os.path.getsize(abs_path)
                 self.send_response(200)
                 self.send_header("Content-Type", "application/octet-stream")
                 self.send_header("Content-Disposition", f'attachment; filename="{os.path.basename(abs_path)}"')
-                self.send_header("Content-Length", str(len(content)))
+                self.send_header("Content-Length", str(file_size))
+                self.send_header("Accept-Ranges", "bytes")
+                self.send_header("Cache-Control", "public, max-age=3600")
                 self.end_headers()
-                self.wfile.write(content)
+
+                # Stream file theo từng block 64KB để không tốn RAM và tải mượt mà
+                with open(abs_path, "rb") as f:
+                    while chunk := f.read(65536):
+                        self.wfile.write(chunk)
+            except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
+                # Client hủy tải file hoặc đóng kết nối trình duyệt
+                pass
             except Exception as e:
-                self.send_json({"error": f"Lỗi đọc file: {e}"}, status=500)
+                try:
+                    self.send_json({"error": f"Lỗi đọc file: {e}"}, status=500)
+                except Exception:
+                    pass
             return
 
         # 4. Chặn truy cập thư mục nội bộ nhạy cảm

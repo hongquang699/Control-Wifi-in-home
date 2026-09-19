@@ -19,11 +19,18 @@ if WEB_DIR not in sys.path:
     sys.path.insert(0, WEB_DIR)
 
 from backend.server import MultiLayerSecureHandler, ThreadedHTTPServer
+try:
+    from web.security import rate_limiter as web_rate_limiter
+except ImportError:
+    from security import rate_limiter as web_rate_limiter
 
 PORT = int(os.environ.get("PORT", 8080))
 BASE_DIR = WEB_DIR
 
 def run_server(port: int = PORT):
+    # Khởi tạo lại trạng thái rate limiter khi máy chủ bắt đầu chạy
+    web_rate_limiter.reset()
+
     print("=" * 65)
     print("    NETWORK MANAGER - MÁY CHỦ BẢO MẬT ĐA LỚP (MULTI-LAYER SECURITY)")
     print("=" * 65)
