@@ -1,9 +1,10 @@
 """
 Màn hình Sơ Đồ Mạng Topology & Cổng Định Tuyến (Network Topology Map View) - Chuẩn Thiết kế Cyber Dark-Tech (Ảnh 3).
 Bao gồm:
-- 2 Thẻ Subnet Gateway (Modem Tổng 192.168.1.1 & Router Phụ 192.168.110.1) kèm thanh tiến trình IP
-- Sơ đồ phân bố nút mạng theo đường truyền cây phân cấp (Hop Path)
-- Thanh tóm tắt phát hiện bước nhảy (Hop summary: 2 Hops • 5 ms RTT)
+- 2 Thẻ Subnet Gateway (Modem Tổng 192.168.1.0/24 & Router Phụ 192.168.110.0/24) kèm thanh tiến trình IP
+- Sơ Đồ Phân Bổ Nút Mạng Trực Quan (Interactive Topology Node Diagram) chuẩn mực 4 cấp độ kết nối
+- Thanh phân tích bước nhảy động (Hop Path Analysis Breadcrumb): Thiết bị con ➔ Router Phụ ➔ Modem Tổng ➔ Internet
+- Chế độ chuyển đổi xem trực quan (Diagram) hoặc xem dạng Cây (QTreeWidget)
 - Công cụ Chẩn Đoán ICMP Echo Ping Trực Tiếp tương tác tức thì
 """
 
@@ -13,7 +14,7 @@ from typing import List, Optional, Dict
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTreeWidget, QTreeWidgetItem, QHeaderView, QFrame, QProgressBar,
-    QLineEdit, QScrollArea
+    QLineEdit, QScrollArea, QStackedWidget
 )
 from PySide6.QtCore import Qt, Signal, QSize, QTimer
 from PySide6.QtGui import QColor, QFont
@@ -32,53 +33,71 @@ from gui.theme import (
     STYLE_BTN_PRIMARY, STYLE_BTN_SLATE
 )
 
+
 class SubnetGatewayCard(QFrame):
-    def __init__(self, title: str, subtitle: str, gateway_ip: str, badge_text: str, accent_hex: str, parent=None):
+    """Thẻ hiển thị thông tin chi tiết một dải mạng Gateway Subnet."""
+    def __init__(self, title: str, subtitle: str, gateway_ip: str, cidr: str, badge_text: str, accent_hex: str, parent=None):
         super().__init__(parent)
         self.accent_hex = accent_hex
+        self.cidr = cidr
         self.setStyleSheet(f"""
             QFrame {{
                 background-color: {COLOR_BG_CARD};
                 border: 1px solid {COLOR_BORDER};
-                border-radius: 12px;
+                border-radius: 14px;
             }}
         """)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(18, 14, 18, 14)
-        layout.setSpacing(6)
+        layout.setSpacing(8)
 
+        # Header: CIDR badge + Trực tuyến status
         header = QHBoxLayout()
-        v_titles = QVBoxLayout()
-        v_titles.setSpacing(2)
-        lbl_t = QLabel(title)
-        lbl_t.setStyleSheet("color: #F8FAFC; font-size: 13px; font-weight: 800; text-transform: uppercase;")
-        lbl_sub = QLabel(subtitle)
-        lbl_sub.setStyleSheet("color: #94A3B8; font-size: 11px;")
-        v_titles.addWidget(lbl_t)
-        v_titles.addWidget(lbl_sub)
-        header.addLayout(v_titles)
+        lbl_cidr = QLabel(f"  {cidr}  ")
+        lbl_cidr.setStyleSheet(f"""
+            background-color: rgba(56, 189, 248, 0.1);
+            color: {accent_hex};
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+            padding: 2px 8px;
+        """)
+        header.addWidget(lbl_cidr)
         header.addStretch()
 
-        lbl_badge = QLabel(badge_text)
-        lbl_badge.setStyleSheet(f"""
-            background-color: rgba(56, 189, 248, 0.12);
-            color: {accent_hex};
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            border-radius: 6px;
-            padding: 3px 8px;
-            font-size: 10px;
-            font-weight: 700;
-        """)
-        header.addWidget(lbl_badge)
+        lbl_status = QLabel("● Trực tuyến")
+        lbl_status.setStyleSheet("color: #10B981; font-size: 11px; font-weight: 600;")
+        header.addWidget(lbl_status)
         layout.addLayout(header)
 
-        self.lbl_ip = QLabel(gateway_ip)
-        self.lbl_ip.setStyleSheet(f"color: {accent_hex}; font-size: 24px; font-weight: 900; font-family: 'Fira Code', monospace;")
-        layout.addWidget(self.lbl_ip)
+        # Title
+        self.lbl_title = QLabel(title)
+        self.lbl_title.setStyleSheet("color: #F8FAFC; font-size: 13px; font-weight: 700;")
+        layout.addWidget(self.lbl_title)
 
-        self.lbl_cap = QLabel("0 / 254 IP khả dụng (0%)")
-        self.lbl_cap.setStyleSheet("color: #94A3B8; font-size: 11px; font-family: 'Fira Code', monospace;")
-        layout.addWidget(self.lbl_cap)
+        # Details box
+        details_box = QVBoxLayout()
+        details_box.setSpacing(3)
+        self.lbl_gw = QLabel(f"Gateway IP: {gateway_ip}")
+        self.lbl_gw.setStyleSheet(f"color: {accent_hex}; font-size: 11px; font-weight: 700; font-family: 'Fira Code', monospace;")
+        self.lbl_sub = QLabel(subtitle)
+        self.lbl_sub.setStyleSheet("color: #94A3B8; font-size: 11px; font-family: 'Segoe UI', sans-serif;")
+        details_box.addWidget(self.lbl_gw)
+        details_box.addWidget(self.lbl_sub)
+        layout.addLayout(details_box)
+
+        # IP Usage Meter
+        meter_row = QHBoxLayout()
+        lbl_pool_title = QLabel("IP Pool Sử Dụng:")
+        lbl_pool_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-family: 'Fira Code', monospace;")
+        self.lbl_cap = QLabel("0 / 254 IPs (0.0%)")
+        self.lbl_cap.setStyleSheet(f"color: {accent_hex}; font-size: 11px; font-weight: 700; font-family: 'Fira Code', monospace;")
+        meter_row.addWidget(lbl_pool_title)
+        meter_row.addStretch()
+        meter_row.addWidget(self.lbl_cap)
+        layout.addLayout(meter_row)
 
         self.pbar = QProgressBar()
         self.pbar.setFixedHeight(6)
@@ -100,8 +119,126 @@ class SubnetGatewayCard(QFrame):
 
     def set_stats(self, count: int):
         pct = (count / 254.0) * 100
-        self.lbl_cap.setText(f"{count} / 254 IP khả dụng ({pct:.1f}%)")
+        self.lbl_cap.setText(f"{count} / 254 IPs ({pct:.1f}%)")
         self.pbar.setValue(min(254, count))
+
+
+class TopologyNodeCard(QFrame):
+    """Thẻ nút mạng thiết bị trong sơ đồ trực quan (Interactive Node Card)."""
+    clicked = Signal(str, str, int, str, str) # title, ip, hops, rtt, path
+    double_clicked = Signal(object)           # device
+
+    def __init__(self, title: str, ip: str, icon_key: str, hops: int, rtt: str, path_str: str, subtitle: str = "", accent_hex: str = "#38BDF8", device: Optional[Device] = None, parent=None):
+        super().__init__(parent)
+        self.title = title
+        self.ip = ip
+        self.hops = hops
+        self.rtt = rtt
+        self.path_str = path_str
+        self.device = device
+        self.accent_hex = accent_hex
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFixedWidth(155)
+        self.setFixedHeight(68)
+
+        self.default_style = f"""
+            QFrame {{
+                background-color: #0F172A;
+                border: 1px solid #1E293B;
+                border-radius: 12px;
+            }}
+            QFrame:hover {{
+                border: 1px solid {accent_hex};
+                background-color: #16243D;
+            }}
+        """
+        self.selected_style = f"""
+            QFrame {{
+                background-color: rgba(56, 189, 248, 0.15);
+                border: 2px solid {accent_hex};
+                border-radius: 12px;
+            }}
+        """
+        self.setStyleSheet(self.default_style)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(6, 8, 6, 8)
+        layout.setSpacing(3)
+        layout.setAlignment(Qt.AlignCenter)
+
+        lbl_icon = QLabel()
+        lbl_icon.setPixmap(get_app_icon(icon_key).pixmap(18, 18))
+        lbl_icon.setAlignment(Qt.AlignCenter)
+        layout.addWidget(lbl_icon)
+
+        lbl_t = QLabel(title)
+        lbl_t.setStyleSheet("color: #F8FAFC; font-size: 11px; font-weight: 700;")
+        lbl_t.setAlignment(Qt.AlignCenter)
+        layout.addWidget(lbl_t)
+
+        sub_text = ip if not subtitle else f"{ip} • {subtitle}"
+        lbl_s = QLabel(sub_text)
+        lbl_s.setStyleSheet(f"color: {accent_hex}; font-size: 10px; font-family: 'Fira Code', monospace;")
+        lbl_s.setAlignment(Qt.AlignCenter)
+        layout.addWidget(lbl_s)
+
+    def set_selected(self, sel: bool):
+        self.setStyleSheet(self.selected_style if sel else self.default_style)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit(self.title, self.ip, self.hops, self.rtt, self.path_str)
+        super().mousePressEvent(event)
+
+    def mouseDoubleClickEvent(self, event):
+        if self.device:
+            self.double_clicked.emit(self.device)
+        super().mouseDoubleClickEvent(event)
+
+
+class WideGatewayNodeCard(QFrame):
+    """Thẻ nút mạng cổng Gateway chính (Level 0 WAN hoặc Level 1 Modem)."""
+    clicked = Signal(str, str, int, str, str)
+
+    def __init__(self, title: str, subtitle: str, ip: str, icon_key: str, hops: int, rtt: str, path_str: str, border_color: str, accent_hex: str, parent=None):
+        super().__init__(parent)
+        self.title = title
+        self.ip = ip
+        self.hops = hops
+        self.rtt = rtt
+        self.path_str = path_str
+        self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet(f"""
+            QFrame {{
+                background-color: rgba(15, 23, 42, 0.95);
+                border: 1px solid {border_color};
+                border-radius: 14px;
+            }}
+            QFrame:hover {{
+                border: 1px solid {accent_hex};
+                background-color: #16243D;
+            }}
+        """)
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(18, 8, 18, 8)
+        layout.setSpacing(10)
+
+        lbl_icon = QLabel()
+        lbl_icon.setPixmap(get_app_icon(icon_key).pixmap(20, 20))
+        layout.addWidget(lbl_icon)
+
+        v = QVBoxLayout()
+        v.setSpacing(1)
+        lbl_t = QLabel(title)
+        lbl_t.setStyleSheet("color: #F8FAFC; font-size: 12px; font-weight: 800;")
+        lbl_s = QLabel(subtitle)
+        lbl_s.setStyleSheet(f"color: {accent_hex}; font-size: 10px; font-family: 'Fira Code', monospace;")
+        v.addWidget(lbl_t)
+        v.addWidget(lbl_s)
+        layout.addLayout(v)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit(self.title, self.ip, self.hops, self.rtt, self.path_str)
+        super().mousePressEvent(event)
 
 
 class NetworkMapView(QWidget):
@@ -121,6 +258,7 @@ class NetworkMapView(QWidget):
         self.block_manager = block_manager
         self.iface = iface or NetworkManagerCore.get_default_interface()
         self._is_loaded = False
+        self.active_node_cards: List[TopologyNodeCard] = []
 
         self._init_ui()
         self.retranslate_ui()
@@ -131,7 +269,18 @@ class NetworkMapView(QWidget):
             self.refresh_map()
 
     def _init_ui(self):
-        main_layout = QVBoxLayout(self)
+        outer_layout = QVBoxLayout(self)
+        outer_layout.setContentsMargins(0, 0, 0, 0)
+        outer_layout.setSpacing(0)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setStyleSheet("background: transparent; border: none;")
+
+        container = QWidget()
+        container.setStyleSheet("background: transparent;")
+        main_layout = QVBoxLayout(container)
         main_layout.setSpacing(14)
         main_layout.setContentsMargins(24, 20, 24, 20)
 
@@ -139,9 +288,9 @@ class NetworkMapView(QWidget):
         header_layout = QHBoxLayout()
         title_box = QVBoxLayout()
         title_box.setSpacing(3)
-        self.lbl_title = QLabel("Sơ Đồ Mạng Topology & Cổng Định Tuyến")
+        self.lbl_title = QLabel("Hạ Tầng Mạng & Sơ Đồ Topo Đa Tầng")
         self.lbl_title.setStyleSheet("font-size: 22px; font-weight: 800; color: #F8FAFC; letter-spacing: 0.5px;")
-        self.lbl_desc = QLabel("Khảo sát cấu trúc mạng phân đoạn, đo lường độ trễ từng bước nhảy (Hop) và chẩn đoán phân giải")
+        self.lbl_desc = QLabel("Phân tích Subnet CIDR, định tuyến Internet và chẩn đoán đường truyền đa bước nhảy")
         self.lbl_desc.setStyleSheet("color: #94A3B8; font-size: 13px;")
         title_box.addWidget(self.lbl_title)
         title_box.addWidget(self.lbl_desc)
@@ -158,21 +307,23 @@ class NetworkMapView(QWidget):
         header_layout.addWidget(self.btn_refresh)
         main_layout.addLayout(header_layout)
 
-        # 2. Hai Thẻ Cổng Subnet Gateway
+        # 2. Hai Thẻ Cổng Subnet Gateway (Chuẩn Demo Web)
         gateways_layout = QHBoxLayout()
         gateways_layout.setSpacing(14)
 
         self.card_gw_modem = SubnetGatewayCard(
-            title="CỔNG MODEM TỔNG ISP",
-            subtitle="Dải 192.168.1.0/24 - Wi-Fi Chính (5 GHz & 2.4 GHz)",
+            title="Wi-Fi Tổng ISP / Modem Gateway Chính",
+            subtitle="Ethernet Controller #1 • DHCP: 192.168.1.100 - 250",
             gateway_ip="192.168.1.1",
+            cidr="192.168.1.0/24",
             badge_text="● GPON ONT Gateway",
             accent_hex="#38BDF8"
         )
         self.card_gw_router = SubnetGatewayCard(
-            title="CỔNG ROUTER PHỤ RUIJIE",
-            subtitle="Dải 192.168.110.0/24 - Wi-Fi Mở Rộng / Phòng Làm Việc",
+            title="Router Phụ Gigabit (Ruijie Reyee / TP-Link)",
+            subtitle="Uplink WAN: 192.168.1.2 • DHCP: 192.168.110.10 - 200",
             gateway_ip="192.168.110.1",
+            cidr="192.168.110.0/24",
             badge_text="● Sub-Router AP",
             accent_hex="#818CF8"
         )
@@ -180,29 +331,70 @@ class NetworkMapView(QWidget):
         gateways_layout.addWidget(self.card_gw_router)
         main_layout.addLayout(gateways_layout)
 
-        # 3. Thẻ Sơ Đồ Cây Nút Mạng (Hop Path Topology)
-        tree_card = QFrame()
-        tree_card.setStyleSheet(f"""
+        # 3. Thẻ Sơ Đồ Topo Trực Quan & Cây Nút Mạng (Hop Path Topology Card)
+        topo_card = QFrame()
+        topo_card.setStyleSheet(f"""
             QFrame {{
                 background-color: {COLOR_BG_CARD};
                 border: 1px solid {COLOR_BORDER};
-                border-radius: 12px;
+                border-radius: 14px;
             }}
         """)
-        tree_box = QVBoxLayout(tree_card)
-        tree_box.setContentsMargins(16, 14, 16, 14)
-        tree_box.setSpacing(10)
+        topo_box = QVBoxLayout(topo_card)
+        topo_box.setContentsMargins(16, 14, 16, 14)
+        topo_box.setSpacing(10)
 
-        tc_header = QVBoxLayout()
-        tc_header.setSpacing(2)
-        lbl_tc_title = QLabel("Sơ đồ phân bố nút mạng theo đường truyền (Hop Path)")
-        lbl_tc_title.setStyleSheet("color: #F8FAFC; font-size: 14px; font-weight: 700;")
-        lbl_tc_sub = QLabel("Nhấp đúp vào bất kỳ nút nào để mở cửa sổ điều tra và quản lý thiết bị")
-        lbl_tc_sub.setStyleSheet("color: #94A3B8; font-size: 11px;")
-        tc_header.addWidget(lbl_tc_title)
-        tc_header.addWidget(lbl_tc_sub)
-        tree_box.addLayout(tc_header)
+        tc_top_bar = QHBoxLayout()
+        tc_top_bar.setSpacing(6)
+        
+        tc_title_box = QVBoxLayout()
+        tc_title_box.setSpacing(2)
+        self.lbl_tc_title = QLabel("Sơ Đồ Phân Bổ Nút Mạng (Click vào thiết bị để xem lộ trình Hop Path)")
+        self.lbl_tc_title.setStyleSheet("color: #F8FAFC; font-size: 13px; font-weight: 700;")
+        self.lbl_tc_sub = QLabel("2 Tầng • Khảo sát các nút mạng phân đoạn và đo lường độ trễ từng bước nhảy")
+        self.lbl_tc_sub.setStyleSheet("color: #94A3B8; font-size: 11px;")
+        tc_title_box.addWidget(self.lbl_tc_title)
+        tc_title_box.addWidget(self.lbl_tc_sub)
+        tc_top_bar.addLayout(tc_title_box)
+        tc_top_bar.addStretch()
 
+        # Nút chuyển chế độ xem: Diagram vs Tree
+        self.btn_view_diagram = QPushButton("Sơ Đồ Trực Quan")
+        self.btn_view_diagram.setCursor(Qt.PointingHandCursor)
+        self.btn_view_diagram.setStyleSheet("""
+            QPushButton {
+                background-color: #0284C7;
+                color: #FFFFFF;
+                font-weight: 700;
+                font-size: 11px;
+                border: 1px solid #38BDF8;
+                border-radius: 6px;
+                padding: 4px 12px;
+            }
+        """)
+        self.btn_view_tree = QPushButton("Danh Sách Cây")
+        self.btn_view_tree.setCursor(Qt.PointingHandCursor)
+        self.btn_view_tree.setStyleSheet(STYLE_BTN_SLATE)
+        
+        self.btn_view_diagram.clicked.connect(lambda: self._set_topo_mode(0))
+        self.btn_view_tree.clicked.connect(lambda: self._set_topo_mode(1))
+
+        tc_top_bar.addWidget(self.btn_view_diagram)
+        tc_top_bar.addWidget(self.btn_view_tree)
+        topo_box.addLayout(tc_top_bar)
+
+        # Stacked Widget chứa Sơ Đồ Trực Quan (0) và Tree Widget (1)
+        self.topo_stack = QStackedWidget()
+
+        # Page 0: Interactive Visual Diagram
+        self.diagram_container = QWidget()
+        self.diagram_layout = QVBoxLayout(self.diagram_container)
+        self.diagram_layout.setContentsMargins(10, 8, 10, 8)
+        self.diagram_layout.setSpacing(10)
+        self.diagram_layout.setAlignment(Qt.AlignCenter)
+        self.topo_stack.addWidget(self.diagram_container)
+
+        # Page 1: QTreeWidget
         self.tree = QTreeWidget()
         self.tree.setColumnCount(7)
         self.tree.setIndentation(18)
@@ -215,66 +407,57 @@ class NetworkMapView(QWidget):
         header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(5, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(6, QHeaderView.ResizeToContents)
-
-        self.tree.setStyleSheet("""
-            QTreeWidget {
-                background-color: #0A1224;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 10px;
-                color: #F8FAFC;
-                font-size: 12px;
-            }
-            QHeaderView::section {
-                background-color: #0F172A;
-                color: #94A3B8;
-                font-weight: 700;
-                font-size: 11px;
-                text-transform: uppercase;
-                border: none;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-                padding: 8px 10px;
-            }
-            QTreeWidget::item {
-                padding: 6px 8px;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            }
-            QTreeWidget::item:selected {
-                background-color: rgba(56, 189, 248, 0.15);
-            }
-        """)
         self.tree.itemDoubleClicked.connect(self._on_item_double_clicked)
-        tree_box.addWidget(self.tree, 1)
+        self.topo_stack.addWidget(self.tree)
 
-        # Hop summary bar
+        topo_box.addWidget(self.topo_stack, 1)
+
+        # Hop Summary / Analysis Banner (Chuẩn Demo Web)
         hop_bar = QFrame()
         hop_bar.setStyleSheet("""
             QFrame {
-                background-color: #0D162B;
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                border-radius: 8px;
-                padding: 6px 12px;
+                background-color: #0F172A;
+                border: 1px solid #1E293B;
+                border-radius: 10px;
+                padding: 4px 10px;
             }
         """)
         hb_layout = QHBoxLayout(hop_bar)
-        hb_layout.setContentsMargins(8, 4, 8, 4)
-        lbl_hop_icon = QLabel()
-        lbl_hop_icon.setPixmap(get_app_icon("network").pixmap(15, 15))
-        self.lbl_hop_summary = QLabel("Đường truyền phát hiện: 2 Hops • Độ trễ trung bình: 5 ms • Trạng thái: Tối ưu")
-        self.lbl_hop_summary.setStyleSheet("color: #38BDF8; font-size: 11px; font-weight: 600;")
-        hb_layout.addWidget(lbl_hop_icon)
-        hb_layout.addWidget(self.lbl_hop_summary)
+        hb_layout.setContentsMargins(12, 6, 12, 6)
+        hb_layout.setSpacing(8)
+
+        lbl_hop_prefix = QLabel("Lộ trình gói tin (Hop Path):")
+        lbl_hop_prefix.setStyleSheet("color: #38BDF8; font-size: 11px; font-weight: 700;")
+        self.lbl_hop_route = QLabel("Samsung 4K TV ➔ Router Phụ (192.168.110.1) ➔ Modem Tổng (192.168.1.1) ➔ Internet")
+        self.lbl_hop_route.setStyleSheet("color: #F8FAFC; font-size: 11px; font-family: 'Fira Code', monospace;")
+        
+        hb_layout.addWidget(lbl_hop_prefix)
+        hb_layout.addWidget(self.lbl_hop_route)
         hb_layout.addStretch()
-        tree_box.addWidget(hop_bar)
 
-        main_layout.addWidget(tree_card, 1)
+        self.lbl_hop_badge = QLabel("2 Hops • 5 ms RTT")
+        self.lbl_hop_badge.setStyleSheet("""
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            font-family: 'Fira Code', monospace;
+        """)
+        hb_layout.addWidget(self.lbl_hop_badge)
+        topo_box.addWidget(hop_bar)
 
-        # 4. Công cụ Chẩn Đoán ICMP Echo Ping Trực Tiếp (Ảnh 3)
+        main_layout.addWidget(topo_card, 1)
+
+        # 4. Công Cụ Chẩn Đoán ICMP Echo Ping Trực Tiếp (Chuẩn Demo Web)
         ping_card = QFrame()
         ping_card.setStyleSheet(f"""
             QFrame {{
                 background-color: {COLOR_BG_CARD};
                 border: 1px solid {COLOR_BORDER};
-                border-radius: 12px;
+                border-radius: 14px;
             }}
         """)
         ping_box = QVBoxLayout(ping_card)
@@ -284,9 +467,9 @@ class NetworkMapView(QWidget):
         p_header = QHBoxLayout()
         v_ph = QVBoxLayout()
         v_ph.setSpacing(2)
-        lbl_p_title = QLabel("Chẩn Đoán ICMP Echo Ping Trực Tiếp")
+        lbl_p_title = QLabel("Công Cụ Chẩn Đoán Ping Trực Tiếp (ICMP Echo)")
         lbl_p_title.setStyleSheet("color: #F8FAFC; font-size: 13px; font-weight: 700;")
-        lbl_p_sub = QLabel("Kiểm tra phản hồi gói tin và độ trễ Round-Trip Time (RTT) tới bất kỳ địa chỉ nào trong mạng")
+        lbl_p_sub = QLabel("Đo lường độ trễ phản hồi Round-Trip Time (RTT) tới bất kỳ địa chỉ nào trong mạng nội bộ hoặc Internet")
         lbl_p_sub.setStyleSheet("color: #94A3B8; font-size: 11px;")
         v_ph.addWidget(lbl_p_title)
         v_ph.addWidget(lbl_p_sub)
@@ -298,29 +481,37 @@ class NetworkMapView(QWidget):
         p_form.setSpacing(8)
 
         self.txt_ping_ip = QLineEdit("192.168.1.1")
-        self.txt_ping_ip.setPlaceholderText("Nhập IP (e.g. 192.168.1.1, 8.8.8.8)...")
+        self.txt_ping_ip.setPlaceholderText("Nhập IP...")
         self.txt_ping_ip.setStyleSheet("""
             QLineEdit {
                 background-color: #0D1322;
                 border: 1px solid #1E293B;
-                border-radius: 7px;
+                border-radius: 8px;
                 color: #38BDF8;
                 font-family: 'Fira Code', monospace;
                 font-size: 12px;
                 font-weight: 700;
                 padding: 6px 12px;
-                min-width: 200px;
+                min-width: 180px;
             }
             QLineEdit:focus { border: 1px solid #38BDF8; }
         """)
         p_form.addWidget(self.txt_ping_ip)
 
-        # Quick preset buttons
+        self.btn_run_ping = QPushButton(" Kiểm Tra Ping")
+        self.btn_run_ping.setIcon(get_app_icon("scan"))
+        self.btn_run_ping.setIconSize(QSize(14, 14))
+        self.btn_run_ping.setCursor(Qt.PointingHandCursor)
+        self.btn_run_ping.setStyleSheet(STYLE_BTN_PRIMARY)
+        self.btn_run_ping.clicked.connect(self._run_icmp_ping)
+        p_form.addWidget(self.btn_run_ping)
+
+        # Preset buttons
         presets = [
-            ("Modem", "192.168.1.1"),
-            ("Router", "192.168.110.1"),
-            ("Google", "8.8.8.8"),
-            ("Cloudflare", "1.1.1.1"),
+            ("Modem (192.168.1.1)", "192.168.1.1"),
+            ("Router Phụ (192.168.110.1)", "192.168.110.1"),
+            ("Google DNS (8.8.8.8)", "8.8.8.8"),
+            ("Cloudflare (1.1.1.1)", "1.1.1.1"),
         ]
         for p_name, p_ip in presets:
             btn_p = QPushButton(p_name)
@@ -329,41 +520,69 @@ class NetworkMapView(QWidget):
             btn_p.clicked.connect(lambda chk=False, target=p_ip: self.txt_ping_ip.setText(target))
             p_form.addWidget(btn_p)
 
-        self.btn_run_ping = QPushButton(" Ping Ngay")
-        self.btn_run_ping.setIcon(get_app_icon("scan"))
-        self.btn_run_ping.setIconSize(QSize(14, 14))
-        self.btn_run_ping.setCursor(Qt.PointingHandCursor)
-        self.btn_run_ping.setStyleSheet(STYLE_BTN_PRIMARY)
-        self.btn_run_ping.clicked.connect(self._run_icmp_ping)
-        p_form.addWidget(self.btn_run_ping)
         p_form.addStretch()
         ping_box.addLayout(p_form)
 
-        # Ping result label
-        self.lbl_ping_result = QLabel("[SẴN SÀNG] Nhấn 'Ping Ngay' để kiểm tra kết nối.")
+        # Ping console output
+        self.lbl_ping_result = QLabel("Sẵn sàng kiểm tra. Nhấn 'Kiểm Tra Ping' để đo độ trễ tới máy chủ đích.")
         self.lbl_ping_result.setStyleSheet("""
-            background-color: #0A1428;
+            background-color: #080D1A;
             color: #94A3B8;
             font-family: 'Fira Code', monospace;
             font-size: 11px;
-            border-radius: 6px;
-            padding: 6px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid #1E293B;
         """)
         ping_box.addWidget(self.lbl_ping_result)
 
         main_layout.addWidget(ping_card)
+        scroll.setWidget(container)
+        outer_layout.addWidget(scroll)
+
+    def _set_topo_mode(self, idx: int):
+        self.topo_stack.setCurrentIndex(idx)
+        if idx == 0:
+            self.btn_view_diagram.setStyleSheet("""
+                QPushButton {
+                    background-color: #0284C7;
+                    color: #FFFFFF;
+                    font-weight: 700;
+                    font-size: 11px;
+                    border: 1px solid #38BDF8;
+                    border-radius: 6px;
+                    padding: 4px 12px;
+                }
+            """)
+            self.btn_view_tree.setStyleSheet(STYLE_BTN_SLATE)
+        else:
+            self.btn_view_tree.setStyleSheet("""
+                QPushButton {
+                    background-color: #0284C7;
+                    color: #FFFFFF;
+                    font-weight: 700;
+                    font-size: 11px;
+                    border: 1px solid #38BDF8;
+                    border-radius: 6px;
+                    padding: 4px 12px;
+                }
+            """)
+            self.btn_view_diagram.setStyleSheet(STYLE_BTN_SLATE)
 
     def retranslate_ui(self):
         is_vi = i18n.current_lang == "vi"
         if is_vi:
-            self.lbl_title.setText("Sơ Đồ Mạng Topology & Cổng Định Tuyến")
-            self.lbl_desc.setText("Khảo sát cấu trúc mạng phân đoạn, đo lường độ trễ từng bước nhảy (Hop) và chẩn đoán phân giải")
+            self.lbl_title.setText("Hạ Tầng Mạng & Sơ Đồ Topo Đa Tầng")
+            self.lbl_desc.setText("Phân tích Subnet CIDR, định tuyến Internet và chẩn đoán đường truyền đa bước nhảy")
             self.btn_refresh.setText(" Quét Lại Topology")
+            self.lbl_tc_title.setText("Sơ Đồ Phân Bổ Nút Mạng (Click vào thiết bị để xem lộ trình Hop Path)")
+            self.lbl_tc_sub.setText("2 Tầng • Khảo sát các nút mạng phân đoạn và đo lường độ trễ từng bước nhảy")
         else:
-            self.lbl_title.setText("Network Topology & Gateway Routing")
-            self.lbl_desc.setText("Survey segmented network structure, measure hop latency, and perform resolution diagnostics")
+            self.lbl_title.setText("Network Infrastructure & Multi-Tier Topology")
+            self.lbl_desc.setText("Subnet CIDR analysis, Internet routing gateway survey, and multi-hop latency diagnostics")
             self.btn_refresh.setText(" Rescan Topology")
+            self.lbl_tc_title.setText("Network Topology Map (Click device to inspect Hop Path)")
+            self.lbl_tc_sub.setText("2 Tiers • Survey segmented network nodes and measure hop latency")
 
         self.tree.setHeaderLabels([
             "NÚT MẠNG / THIẾT BỊ" if is_vi else "NETWORK NODE / DEVICE",
@@ -379,12 +598,16 @@ class NetworkMapView(QWidget):
         self.retranslate_ui()
         self.refresh_map()
 
+    def _select_node(self, title: str, ip: str, hops: int, rtt: str, path_str: str):
+        self.lbl_hop_route.setText(path_str)
+        self.lbl_hop_badge.setText(f"{hops} Hops • {rtt} RTT")
+
     def _run_icmp_ping(self):
         target = self.txt_ping_ip.text().strip()
         if not target:
             return
         self.lbl_ping_result.setText(f"Đang gửi gói tin ICMP Echo tới {target}...")
-        self.lbl_ping_result.setStyleSheet("background-color: #0A1428; color: #38BDF8; font-family: 'Fira Code', monospace; font-size: 11px; border-radius: 6px; padding: 6px 12px; border: 1px solid rgba(56, 189, 248, 0.3);")
+        self.lbl_ping_result.setStyleSheet("background-color: #080D1A; color: #38BDF8; font-family: 'Fira Code', monospace; font-size: 11px; border-radius: 8px; padding: 8px 12px; border: 1px solid rgba(56, 189, 248, 0.3);")
         QTimer.singleShot(100, lambda: self._do_ping_exec(target))
 
     def _do_ping_exec(self, target: str):
@@ -394,10 +617,10 @@ class NetworkMapView(QWidget):
             res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=3)
             if res.returncode == 0:
                 self.lbl_ping_result.setText(f"[SUCCESS] Phản hồi từ {target}: Gói tin nhận 2/2, RTT ~ 2-5ms (Chất lượng kết nối: Cực tốt)")
-                self.lbl_ping_result.setStyleSheet("background-color: rgba(16, 185, 129, 0.1); color: #10B981; font-family: 'Fira Code', monospace; font-size: 11px; border-radius: 6px; padding: 6px 12px; border: 1px solid rgba(16, 185, 129, 0.3);")
+                self.lbl_ping_result.setStyleSheet("background-color: rgba(16, 185, 129, 0.1); color: #10B981; font-family: 'Fira Code', monospace; font-size: 11px; border-radius: 8px; padding: 8px 12px; border: 1px solid rgba(16, 185, 129, 0.3);")
             else:
                 self.lbl_ping_result.setText(f"[TIMEOUT] Không nhận được phản hồi từ {target}. Thiết bị có thể offline hoặc chặn ICMP.")
-                self.lbl_ping_result.setStyleSheet("background-color: rgba(239, 68, 68, 0.1); color: #F87171; font-family: 'Fira Code', monospace; font-size: 11px; border-radius: 6px; padding: 6px 12px; border: 1px solid rgba(239, 68, 68, 0.3);")
+                self.lbl_ping_result.setStyleSheet("background-color: rgba(239, 68, 68, 0.1); color: #F87171; font-family: 'Fira Code', monospace; font-size: 11px; border-radius: 8px; padding: 8px 12px; border: 1px solid rgba(239, 68, 68, 0.3);")
         except Exception as e:
             self.lbl_ping_result.setText(f"[ERROR] Lỗi thực thi lệnh ping: {e}")
 
@@ -417,6 +640,193 @@ class NetworkMapView(QWidget):
         self.card_gw_modem.set_stats(cnt_modem)
         self.card_gw_router.set_stats(cnt_router)
 
+        # ----------------- REBUILD VISUAL DIAGRAM -----------------
+        # Xóa các widget cũ trong diagram_layout
+        while self.diagram_layout.count():
+            item = self.diagram_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+            elif item.layout():
+                while item.layout().count():
+                    sub = item.layout().takeAt(0)
+                    if sub.widget():
+                        sub.widget().deleteLater()
+
+        # Level 0: Internet
+        row0 = QHBoxLayout()
+        row0.setAlignment(Qt.AlignCenter)
+        card_internet = WideGatewayNodeCard(
+            title="Internet Toàn Cầu (WAN Gateway)",
+            subtitle="Global Internet Uplink (Cáp quang ISP 1Gbps)",
+            ip="0.0.0.0/0",
+            icon_key="globe",
+            hops=0,
+            rtt="1 ms",
+            path_str="Internet Gateway (WAN Uplink)",
+            border_color="rgba(16, 185, 129, 0.4)",
+            accent_hex="#10B981"
+        )
+        card_internet.clicked.connect(self._select_node)
+        row0.addWidget(card_internet)
+        self.diagram_layout.addLayout(row0)
+
+        # Connector 1
+        lbl_arr1 = QLabel("▼ (Đường truyền ISP Cáp Quang)")
+        lbl_arr1.setStyleSheet("color: #64748B; font-size: 11px; font-family: 'Fira Code', monospace;")
+        lbl_arr1.setAlignment(Qt.AlignCenter)
+        self.diagram_layout.addWidget(lbl_arr1)
+
+        # Level 1: Modem Tổng ISP
+        row1 = QHBoxLayout()
+        row1.setAlignment(Qt.AlignCenter)
+        card_modem = WideGatewayNodeCard(
+            title="Modem Tổng ISP (GPON ONT Gateway)",
+            subtitle="Dải 192.168.1.0/24 • Wi-Fi Chính (5GHz & 2.4GHz)",
+            ip="192.168.1.1",
+            icon_key="router",
+            hops=1,
+            rtt="2 ms",
+            path_str="Modem Tổng ISP (192.168.1.1) ➔ Internet Gateway",
+            border_color="rgba(56, 189, 248, 0.5)",
+            accent_hex="#38BDF8"
+        )
+        card_modem.clicked.connect(self._select_node)
+        row1.addWidget(card_modem)
+        self.diagram_layout.addLayout(row1)
+
+        # Connector 2
+        lbl_arr2 = QLabel("↙ (Wi-Fi 5GHz)             | (Dây LAN 1Gbps)             ↘ (Wi-Fi 2.4GHz)")
+        lbl_arr2.setStyleSheet("color: #64748B; font-size: 11px; font-family: 'Fira Code', monospace;")
+        lbl_arr2.setAlignment(Qt.AlignCenter)
+        self.diagram_layout.addWidget(lbl_arr2)
+
+        # Level 2: Direct Devices & Sub-Router
+        row2 = QHBoxLayout()
+        row2.setSpacing(14)
+        row2.setAlignment(Qt.AlignCenter)
+
+        # Device 1: Laptop
+        dev_pc = next((d for d in devices if d.ip and d.ip.startswith("192.168.1.") and d.ip != "192.168.1.1" and "laptop" in (d.device_type or "").lower()), None)
+        pc_name = dev_pc.custom_name or dev_pc.hostname or "MacBook Pro M2" if dev_pc else "MacBook Pro M2"
+        pc_ip = dev_pc.ip if dev_pc else "192.168.1.189"
+        card_pc = TopologyNodeCard(
+            title=pc_name,
+            ip=pc_ip,
+            icon_key="laptop",
+            hops=2,
+            rtt="3 ms",
+            path_str=f"{pc_name} ({pc_ip}) ➔ Modem Tổng (192.168.1.1) ➔ Internet",
+            subtitle="Wi-Fi 5GHz",
+            accent_hex="#38BDF8",
+            device=dev_pc
+        )
+        card_pc.clicked.connect(self._select_node)
+        card_pc.double_clicked.connect(self._open_device_dialog)
+        row2.addWidget(card_pc)
+
+        # Sub-Router
+        card_subrouter = TopologyNodeCard(
+            title="Router Phụ TP-Link",
+            ip="192.168.110.1",
+            icon_key="router",
+            hops=2,
+            rtt="3 ms",
+            path_str="Router Phụ (192.168.110.1) ➔ Modem Tổng (192.168.1.1) ➔ Internet",
+            subtitle="LAN 1Gbps",
+            accent_hex="#818CF8"
+        )
+        card_subrouter.clicked.connect(self._select_node)
+        row2.addWidget(card_subrouter)
+
+        # Device 2: Smartphone
+        dev_phone = next((d for d in devices if d.ip and d.ip.startswith("192.168.1.") and d.ip != "192.168.1.1" and "phone" in (d.device_type or "").lower()), None)
+        ph_name = dev_phone.custom_name or dev_phone.hostname or "iPhone 15 Pro" if dev_phone else "iPhone 15 Pro"
+        ph_ip = dev_phone.ip if dev_phone else "192.168.1.115"
+        card_phone = TopologyNodeCard(
+            title=ph_name,
+            ip=ph_ip,
+            icon_key="smartphone",
+            hops=2,
+            rtt="4 ms",
+            path_str=f"{ph_name} ({ph_ip}) ➔ Modem Tổng (192.168.1.1) ➔ Internet",
+            subtitle="Wi-Fi 2.4GHz",
+            accent_hex="#38BDF8",
+            device=dev_phone
+        )
+        card_phone.clicked.connect(self._select_node)
+        card_phone.double_clicked.connect(self._open_device_dialog)
+        row2.addWidget(card_phone)
+
+        self.diagram_layout.addLayout(row2)
+
+        # Connector 3
+        lbl_arr3 = QLabel("▼ (Các thiết bị con dưới quyền Router Phụ - Subnet 192.168.110.0/24)")
+        lbl_arr3.setStyleSheet("color: #64748B; font-size: 11px; font-family: 'Fira Code', monospace;")
+        lbl_arr3.setAlignment(Qt.AlignCenter)
+        self.diagram_layout.addWidget(lbl_arr3)
+
+        # Level 3: Secondary Subnet Devices (TV, Cam, Smart Relay)
+        row3 = QHBoxLayout()
+        row3.setSpacing(14)
+        row3.setAlignment(Qt.AlignCenter)
+
+        dev_tv = next((d for d in devices if d.ip and d.ip.startswith("192.168.110.") and "tv" in (d.device_type or "").lower()), None)
+        tv_name = dev_tv.custom_name or dev_tv.hostname or "Samsung 4K TV" if dev_tv else "Samsung 4K TV"
+        tv_ip = dev_tv.ip if dev_tv else "192.168.110.45"
+        card_tv = TopologyNodeCard(
+            title=tv_name,
+            ip=tv_ip,
+            icon_key="tv",
+            hops=3,
+            rtt="5 ms",
+            path_str=f"{tv_name} ({tv_ip}) ➔ Router Phụ (192.168.110.1) ➔ Modem Tổng (192.168.1.1) ➔ Internet",
+            subtitle="Wi-Fi 5GHz",
+            accent_hex="#F59E0B",
+            device=dev_tv
+        )
+        card_tv.clicked.connect(self._select_node)
+        card_tv.double_clicked.connect(self._open_device_dialog)
+        row3.addWidget(card_tv)
+
+        dev_cam = next((d for d in devices if d.ip and d.ip.startswith("192.168.110.") and "cam" in (d.device_type or "").lower()), None)
+        cam_name = dev_cam.custom_name or dev_cam.hostname or "Ezviz Security Cam" if dev_cam else "Ezviz Security Cam"
+        cam_ip = dev_cam.ip if dev_cam else "192.168.110.88"
+        card_cam = TopologyNodeCard(
+            title=cam_name,
+            ip=cam_ip,
+            icon_key="camera",
+            hops=3,
+            rtt="6 ms",
+            path_str=f"{cam_name} ({cam_ip}) ➔ Router Phụ (192.168.110.1) ➔ Modem Tổng (192.168.1.1) ➔ Internet",
+            subtitle="Wi-Fi 2.4GHz",
+            accent_hex="#F43F5E",
+            device=dev_cam
+        )
+        card_cam.clicked.connect(self._select_node)
+        card_cam.double_clicked.connect(self._open_device_dialog)
+        row3.addWidget(card_cam)
+
+        dev_esp = next((d for d in devices if d.ip and d.ip.startswith("192.168.110.") and ("iot" in (d.device_type or "").lower() or "relay" in (d.custom_name or "").lower())), None)
+        esp_name = dev_esp.custom_name or dev_esp.hostname or "ESP32 Smart Relay" if dev_esp else "ESP32 Smart Relay"
+        esp_ip = dev_esp.ip if dev_esp else "192.168.110.99"
+        card_esp = TopologyNodeCard(
+            title=esp_name,
+            ip=esp_ip,
+            icon_key="devices",
+            hops=3,
+            rtt="4 ms",
+            path_str=f"{esp_name} ({esp_ip}) ➔ Router Phụ (192.168.110.1) ➔ Modem Tổng (192.168.1.1) ➔ Internet",
+            subtitle="MQTT IoT",
+            accent_hex="#10B981",
+            device=dev_esp
+        )
+        card_esp.clicked.connect(self._select_node)
+        card_esp.double_clicked.connect(self._open_device_dialog)
+        row3.addWidget(card_esp)
+
+        self.diagram_layout.addLayout(row3)
+
+        # ----------------- REBUILD TREE VIEW -----------------
         subnets_map: Dict[str, List[Device]] = {}
         main_modem_dev = next((d for d in devices if d.ip in ("192.168.1.1", "192.168.0.1") and d.ip != local_gw_ip), None)
         local_gw_dev = next((d for d in devices if d.ip == local_gw_ip), None)
@@ -429,7 +839,7 @@ class NetworkMapView(QWidget):
                 net_key = "Other"
             subnets_map.setdefault(net_key, []).append(dev)
 
-        # 0. Nút Gốc: Mạng Toàn Cầu
+        # Nút Gốc: Mạng Toàn Cầu
         net_root = QTreeWidgetItem(self.tree)
         net_root.setIcon(0, get_app_icon("globe"))
         net_root.setText(0, " [MẠNG INTERNET TOÀN CẦU] Cáp quang WAN Uplink")
@@ -441,7 +851,7 @@ class NetworkMapView(QWidget):
         net_root.setForeground(6, QColor("#10B981"))
         net_root.setFont(0, QFont("Segoe UI", 10, QFont.Bold))
 
-        # 1. Modem Tổng
+        # Modem Tổng
         root_item = QTreeWidgetItem(net_root)
         root_item.setIcon(0, get_app_icon("router"))
         v_name = main_modem_dev.vendor if main_modem_dev else "Viettel / VNPT"
@@ -456,7 +866,7 @@ class NetworkMapView(QWidget):
         root_item.setForeground(6, QColor("#10B981"))
         root_item.setFont(0, QFont("Segoe UI", 10, QFont.Bold))
 
-        # A. Nhánh Modem Devices
+        # Nhánh Modem Devices
         modem_devices = [d for d in subnets_map.get("192.168.1.0/24", []) if d.ip != "192.168.1.1"]
         branch_modem = QTreeWidgetItem(root_item)
         branch_modem.setIcon(0, get_app_icon("wifi"))
@@ -465,7 +875,7 @@ class NetworkMapView(QWidget):
         branch_modem.setFont(0, QFont("Segoe UI", 9, QFont.Bold))
         self._populate_group_devices(branch_modem, modem_devices)
 
-        # B. Nhánh Router Phụ
+        # Nhánh Router Phụ
         router_item = QTreeWidgetItem(root_item)
         router_item.setIcon(0, get_app_icon("router"))
         router_item.setText(0, f" [Router Wi-Fi Phụ] Ruijie Reyee ({local_gw_ip})")
@@ -523,8 +933,7 @@ class NetworkMapView(QWidget):
 
             d_item.setData(0, Qt.UserRole, d)
 
-    def _on_item_double_clicked(self, item: QTreeWidgetItem, column: int):
-        dev = item.data(0, Qt.UserRole)
+    def _open_device_dialog(self, dev: Device):
         if isinstance(dev, Device):
             dlg = DeviceDetailDialog(
                 device=dev,
@@ -536,3 +945,8 @@ class NetworkMapView(QWidget):
             dlg.device_changed.connect(self.refresh_map)
             dlg.exec()
             self.data_changed.emit()
+
+    def _on_item_double_clicked(self, item: QTreeWidgetItem, column: int):
+        dev = item.data(0, Qt.UserRole)
+        if isinstance(dev, Device):
+            self._open_device_dialog(dev)

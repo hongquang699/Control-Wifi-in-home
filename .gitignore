@@ -48,6 +48,8 @@ web/logs/
 scratch_shots/
 scratch_shots_*/
 data/screenshots/
+app/*.png
+app/previews_new/
 
 # IDE & Editor files
 .vscode/

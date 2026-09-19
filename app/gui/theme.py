@@ -9,14 +9,14 @@ from PySide6.QtGui import QFont, QColor
 from core.i18n import t
 
 # 1. Bảng màu cao cấp (Modern Luxury Dark Palette)
-COLOR_BG_MAIN = "#050B18"         # Nền chính không gian sâu (Dark Tech Canvas)
-COLOR_BG_SIDEBAR = "#070E1E"      # Nền sidebar sắc nét
-COLOR_BG_CARD = "#0A1326"         # Nền thẻ container (Glass Card)
-COLOR_BG_CARD_HOVER = "#0F1C36"   # Thẻ khi hover
-COLOR_BG_INPUT = "#080F1E"        # Nền ô nhập liệu / combobox
+COLOR_BG_MAIN = "#0B0F19"         # Nền chính không gian sâu (Dark Tech Canvas)
+COLOR_BG_SIDEBAR = "#0D1322"      # Nền sidebar sắc nét
+COLOR_BG_CARD = "#0D1322"         # Nền thẻ container (Glass Card)
+COLOR_BG_CARD_HOVER = "#131C31"   # Thẻ khi hover
+COLOR_BG_INPUT = "#0D1322"        # Nền ô nhập liệu / combobox
 
-COLOR_BORDER = "rgba(255, 255, 255, 0.08)"
-COLOR_BORDER_LIGHT = "rgba(255, 255, 255, 0.15)"
+COLOR_BORDER = "#1E293B"
+COLOR_BORDER_LIGHT = "rgba(255, 255, 255, 0.12)"
 COLOR_BORDER_FOCUS = "#38BDF8"    # Cyan sáng khi focus
 
 COLOR_TEXT_PRIMARY = "#F8FAFC"    # Chữ sáng chính
@@ -164,7 +164,7 @@ STYLE_BTN_EMERALD = """
 GLOBAL_QSS = """
 /* Cửa sổ & Nền */
 QMainWindow, QDialog {
-    background-color: #060A14;
+    background-color: #0B0F19;
     color: #F8FAFC;
     font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
 }
@@ -173,11 +173,16 @@ QLabel, QPushButton, QLineEdit, QComboBox, QTableWidget, QTreeWidget, QHeaderVie
     font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
 }
 
+QLabel {
+    border: none;
+    background: transparent;
+}
+
 /* Thanh trạng thái Status Bar */
 QStatusBar {
-    background-color: #091022;
+    background-color: #0D1322;
     color: #64748B;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    border-top: 1px solid #1E293B;
     padding: 6px 14px;
     font-size: 11px;
     font-weight: 500;
@@ -221,9 +226,9 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
 
 /* Ô nhập liệu hiện đại */
 QLineEdit {
-    background-color: #0A1224;
+    background-color: #0D1322;
     border: 1px solid #1E293B;
-    border-radius: 9px;
+    border-radius: 10px;
     color: #F8FAFC;
     padding: 7px 14px;
     font-size: 12px;
@@ -231,19 +236,19 @@ QLineEdit {
 }
 QLineEdit:focus {
     border: 1px solid #0EA5E9;
-    background-color: #0E1A33;
+    background-color: #121A2D;
 }
 QLineEdit:disabled {
-    background-color: #060B14;
+    background-color: #0B0F19;
     color: #64748B;
     border: 1px solid #1E293B;
 }
 
 /* Hộp chọn ComboBox */
 QComboBox {
-    background-color: #0A1224;
+    background-color: #0D1322;
     border: 1px solid #1E293B;
-    border-radius: 9px;
+    border-radius: 10px;
     color: #F8FAFC;
     padding: 6px 14px;
     font-size: 12px;
@@ -251,7 +256,7 @@ QComboBox {
 }
 QComboBox:hover {
     border: 1px solid #334155;
-    background-color: #0E1A33;
+    background-color: #121A2D;
 }
 QComboBox:focus {
     border: 1px solid #0EA5E9;
@@ -261,10 +266,10 @@ QComboBox::drop-down {
     width: 22px;
 }
 QComboBox QAbstractItemView {
-    background-color: #0A1224;
+    background-color: #0D1322;
     color: #F8FAFC;
     border: 1px solid #1E293B;
-    border-radius: 9px;
+    border-radius: 10px;
     selection-background-color: #0284C7;
     selection-color: #FFFFFF;
     outline: none;
@@ -273,42 +278,43 @@ QComboBox QAbstractItemView {
 
 /* Bảng dữ liệu không viền thừa */
 QTableWidget {
-    background-color: #0A1224;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
+    background-color: #0D1322;
+    border: 1px solid #1E293B;
+    border-radius: 14px;
     color: #F8FAFC;
     gridline-color: transparent;
-    selection-background-color: rgba(14, 165, 233, 0.16);
+    selection-background-color: rgba(56, 189, 248, 0.12);
     selection-color: #FFFFFF;
     outline: none;
 }
 QTableWidget::item {
-    padding: 6px 10px;
+    padding: 8px 10px;
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid #1E293B;
+    background-color: transparent;
 }
 QTableWidget::item:selected {
-    background-color: rgba(14, 165, 233, 0.16);
+    background-color: rgba(56, 189, 248, 0.12);
 }
 QTableWidget::item:hover {
-    background-color: #0F1D38;
+    background-color: #131C31;
 }
 QHeaderView::section {
-    background-color: #0D162B;
+    background-color: #0F172A;
     color: #94A3B8;
     padding: 10px 10px;
     font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid #1E293B;
 }
 
 /* Cây phân tầng QTreeWidget */
 QTreeWidget {
-    background-color: #0A1224;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
+    background-color: #0D1322;
+    border: 1px solid #1E293B;
+    border-radius: 14px;
     color: #F8FAFC;
     outline: none;
     padding: 8px;
@@ -316,9 +322,10 @@ QTreeWidget {
 QTreeWidget::item {
     padding: 8px 6px;
     border-radius: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 QTreeWidget::item:hover {
-    background-color: #0F1D38;
+    background-color: #131C31;
 }
 QTreeWidget::item:selected {
     background-color: rgba(14, 165, 233, 0.18);

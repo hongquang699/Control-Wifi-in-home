@@ -25,36 +25,36 @@ from gui.theme import (
 )
 
 class TrafficMetricCard(QFrame):
-    def __init__(self, title: str, value: str = "0.0 MB/s", accent_hex: str = "#38BDF8", icon_name: str = "traffic", parent=None):
+    def __init__(self, title: str, value: str = "0.0 MB/s", accent_hex: str = "#38BDF8", subtitle: str = "", parent=None):
         super().__init__(parent)
         self.accent_hex = accent_hex
         self.setStyleSheet(f"""
             QFrame {{
                 background-color: {COLOR_BG_CARD};
                 border: 1px solid {COLOR_BORDER};
-                border-radius: 12px;
+                border-radius: 14px;
             }}
         """)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(14, 12, 14, 12)
         layout.setSpacing(4)
 
-        header = QHBoxLayout()
         self.lbl_title = QLabel(title)
-        self.lbl_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700; text-transform: uppercase;")
-        lbl_icon = QLabel()
-        lbl_icon.setPixmap(get_app_icon(icon_name).pixmap(15, 15))
-        header.addWidget(self.lbl_title)
-        header.addStretch()
-        header.addWidget(lbl_icon)
-        layout.addLayout(header)
+        self.lbl_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 600; text-transform: uppercase;")
+        layout.addWidget(self.lbl_title)
 
         self.lbl_val = QLabel(value)
         self.lbl_val.setStyleSheet(f"color: {accent_hex}; font-size: 22px; font-weight: 800; font-family: 'Fira Code', monospace;")
         layout.addWidget(self.lbl_val)
 
-    def set_value(self, val: str):
+        self.lbl_sub = QLabel(subtitle)
+        self.lbl_sub.setStyleSheet("color: #64748B; font-size: 10px; font-family: 'Fira Code', monospace;")
+        layout.addWidget(self.lbl_sub)
+
+    def set_value(self, val: str, sub: str = ""):
         self.lbl_val.setText(val)
+        if sub:
+            self.lbl_sub.setText(sub)
 
 
 class TrafficView(QWidget):
@@ -134,10 +134,10 @@ class TrafficView(QWidget):
         cards_layout = QHBoxLayout()
         cards_layout.setSpacing(12)
 
-        self.card_down = TrafficMetricCard("DOWNLOAD HIỆN TẠI", "0.0 KB/s", "#38BDF8", "download")
-        self.card_up = TrafficMetricCard("UPLOAD HIỆN TẠI", "0.0 KB/s", "#818CF8", "upload")
-        self.card_peak = TrafficMetricCard("DOWNLOAD ĐỈNH", "0.0 KB/s", "#10B981", "traffic")
-        self.card_total = TrafficMetricCard("TỔNG LƯU LƯỢNG 24H", "0.0 MB", "#F59E0B", "devices")
+        self.card_down = TrafficMetricCard("DOWNLOAD HIỆN TẠI", "0.0 KB/s", "#38BDF8", "Băng thông đạt 42% công suất")
+        self.card_up = TrafficMetricCard("UPLOAD HIỆN TẠI", "0.0 KB/s", "#818CF8", "Băng thông đạt 18% công suất")
+        self.card_peak = TrafficMetricCard("DOWNLOAD ĐỈNH (PEAK)", "0.0 KB/s", "#10B981", "Ghi nhận trong phiên")
+        self.card_total = TrafficMetricCard("TỔNG LƯU LƯỢNG 24H", "0.0 MB", "#A855F7", "↓ 0.0 MB • ↑ 0.0 MB")
 
         cards_layout.addWidget(self.card_down)
         cards_layout.addWidget(self.card_up)

@@ -82,10 +82,11 @@ class NavButton(QPushButton):
             b_layout.addStretch()
             badge = QLabel(self.badge_text)
             badge.setStyleSheet("""
-                background-color: #F59E0B;
-                color: #000000;
+                background-color: rgba(245, 158, 11, 0.15);
+                color: #F59E0B;
+                border: 1px solid rgba(245, 158, 11, 0.35);
                 font-size: 9px;
-                font-weight: 900;
+                font-weight: 800;
                 border-radius: 4px;
                 padding: 1px 5px;
             """)
@@ -258,9 +259,13 @@ class MainWindow(QMainWindow):
         self.role_card.setStyleSheet("""
             QFrame {
                 background-color: #0A1124;
-                border: 1px solid rgba(255, 255, 255, 0.08);
+                border: 1px solid #1E293B;
                 border-radius: 10px;
                 margin: 0 10px 10px 10px;
+            }
+            QLabel {
+                border: none;
+                background: transparent;
             }
         """)
         rc_layout = QVBoxLayout(self.role_card)
@@ -270,7 +275,7 @@ class MainWindow(QMainWindow):
         rc_top = QHBoxLayout()
         rc_top.setSpacing(6)
         lbl_role_prefix = QLabel("Vai trò hiện tại:")
-        lbl_role_prefix.setStyleSheet("color: #94A3B8; font-size: 11px;")
+        lbl_role_prefix.setStyleSheet("color: #94A3B8; font-size: 11px; border: none; background: transparent;")
         self.lbl_current_role_badge = QLabel("ADMIN")
         self.lbl_current_role_badge.setStyleSheet("""
             background-color: rgba(245, 158, 11, 0.15);
@@ -315,9 +320,13 @@ class MainWindow(QMainWindow):
         self.waf_card.setStyleSheet("""
             QFrame {
                 background-color: #0A1124;
-                border: 1px solid rgba(255, 255, 255, 0.08);
+                border: 1px solid #1E293B;
                 border-radius: 10px;
                 margin: 0 10px 10px 10px;
+            }
+            QLabel {
+                border: none;
+                background: transparent;
             }
         """)
         waf_layout = QVBoxLayout(self.waf_card)
@@ -387,9 +396,10 @@ class MainWindow(QMainWindow):
         self.cb_quick_lang.addItems(["Tiếng Việt", "English"])
         self.cb_quick_lang.currentIndexChanged.connect(self._on_quick_lang_changed)
 
-        # Status Bar
+        # Status Bar (ẩn để không cắt ngang Sidebar và Content)
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
+        self.status_bar.hide()
 
         if self.current_iface:
             self.view_dashboard.update_network_info(self.current_iface)

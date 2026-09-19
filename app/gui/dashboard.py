@@ -78,25 +78,25 @@ class DashboardView(QWidget):
             QFrame {
                 background-color: #0D1322;
                 border: 1px solid #1E293B;
-                border-radius: 12px;
-                padding: 10px;
+                border-radius: 14px;
             }
         """)
         c1_box = QVBoxLayout(self.card_online)
-        c1_box.setContentsMargins(10, 8, 10, 8)
-        c1_box.setSpacing(4)
-        c1_header = QHBoxLayout()
+        c1_box.setContentsMargins(14, 12, 14, 12)
+        c1_box.setSpacing(6)
         lbl_c1_title = QLabel("ONLINE")
-        lbl_c1_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700;")
-        lbl_c1_icon = QLabel()
-        lbl_c1_icon.setPixmap(get_app_icon("wifi").pixmap(15, 15))
-        c1_header.addWidget(lbl_c1_title)
-        c1_header.addStretch()
-        c1_header.addWidget(lbl_c1_icon)
+        lbl_c1_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 600; text-transform: uppercase;")
+        c1_box.addWidget(lbl_c1_title)
+        val_row1 = QHBoxLayout()
+        val_row1.setSpacing(6)
+        dot1 = QLabel("●")
+        dot1.setStyleSheet("color: #10B981; font-size: 10px;")
         self.lbl_val_online = QLabel("0")
-        self.lbl_val_online.setStyleSheet("color: #10B981; font-size: 26px; font-weight: 800; font-family: 'Segoe UI';")
-        c1_box.addLayout(c1_header)
-        c1_box.addWidget(self.lbl_val_online)
+        self.lbl_val_online.setStyleSheet("color: #10B981; font-size: 24px; font-weight: 800; font-family: 'Fira Code', 'Segoe UI', monospace;")
+        val_row1.addWidget(dot1)
+        val_row1.addWidget(self.lbl_val_online)
+        val_row1.addStretch()
+        c1_box.addLayout(val_row1)
         top_cards_layout.addWidget(self.card_online, 1)
 
         # Card 2: OFFLINE
@@ -105,25 +105,25 @@ class DashboardView(QWidget):
             QFrame {
                 background-color: #0D1322;
                 border: 1px solid #1E293B;
-                border-radius: 12px;
-                padding: 10px;
+                border-radius: 14px;
             }
         """)
         c2_box = QVBoxLayout(self.card_offline)
-        c2_box.setContentsMargins(10, 8, 10, 8)
-        c2_box.setSpacing(4)
-        c2_header = QHBoxLayout()
+        c2_box.setContentsMargins(14, 12, 14, 12)
+        c2_box.setSpacing(6)
         lbl_c2_title = QLabel("OFFLINE")
-        lbl_c2_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700;")
-        lbl_c2_icon = QLabel()
-        lbl_c2_icon.setPixmap(get_app_icon("devices").pixmap(15, 15))
-        c2_header.addWidget(lbl_c2_title)
-        c2_header.addStretch()
-        c2_header.addWidget(lbl_c2_icon)
+        lbl_c2_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 600; text-transform: uppercase;")
+        c2_box.addWidget(lbl_c2_title)
+        val_row2 = QHBoxLayout()
+        val_row2.setSpacing(6)
+        dot2 = QLabel("●")
+        dot2.setStyleSheet("color: #64748B; font-size: 10px;")
         self.lbl_val_offline = QLabel("0")
-        self.lbl_val_offline.setStyleSheet("color: #F8FAFC; font-size: 26px; font-weight: 800; font-family: 'Segoe UI';")
-        c2_box.addLayout(c2_header)
-        c2_box.addWidget(self.lbl_val_offline)
+        self.lbl_val_offline.setStyleSheet("color: #94A3B8; font-size: 24px; font-weight: 800; font-family: 'Fira Code', 'Segoe UI', monospace;")
+        val_row2.addWidget(dot2)
+        val_row2.addWidget(self.lbl_val_offline)
+        val_row2.addStretch()
+        c2_box.addLayout(val_row2)
         top_cards_layout.addWidget(self.card_offline, 1)
 
         # Card 3: BLOCKED
@@ -132,25 +132,25 @@ class DashboardView(QWidget):
             QFrame {
                 background-color: #0D1322;
                 border: 1px solid #1E293B;
-                border-radius: 12px;
-                padding: 10px;
+                border-radius: 14px;
             }
         """)
         c3_box = QVBoxLayout(self.card_blocked)
-        c3_box.setContentsMargins(10, 8, 10, 8)
-        c3_box.setSpacing(4)
-        c3_header = QHBoxLayout()
+        c3_box.setContentsMargins(14, 12, 14, 12)
+        c3_box.setSpacing(6)
         lbl_c3_title = QLabel("BLOCKED")
-        lbl_c3_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700;")
-        lbl_c3_icon = QLabel()
-        lbl_c3_icon.setPixmap(get_app_icon("shield_block").pixmap(15, 15))
-        c3_header.addWidget(lbl_c3_title)
-        c3_header.addStretch()
-        c3_header.addWidget(lbl_c3_icon)
+        lbl_c3_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 600; text-transform: uppercase;")
+        c3_box.addWidget(lbl_c3_title)
+        val_row3 = QHBoxLayout()
+        val_row3.setSpacing(6)
+        dot3 = QLabel("●")
+        dot3.setStyleSheet("color: #F43F5E; font-size: 10px;")
         self.lbl_val_blocked = QLabel("0")
-        self.lbl_val_blocked.setStyleSheet("color: #F43F5E; font-size: 26px; font-weight: 800; font-family: 'Segoe UI';")
-        c3_box.addLayout(c3_header)
-        c3_box.addWidget(self.lbl_val_blocked)
+        self.lbl_val_blocked.setStyleSheet("color: #F43F5E; font-size: 24px; font-weight: 800; font-family: 'Fira Code', 'Segoe UI', monospace;")
+        val_row3.addWidget(dot3)
+        val_row3.addWidget(self.lbl_val_blocked)
+        val_row3.addStretch()
+        c3_box.addLayout(val_row3)
         top_cards_layout.addWidget(self.card_blocked, 1)
 
         # Card 4: TRAFFIC
@@ -159,26 +159,19 @@ class DashboardView(QWidget):
             QFrame {
                 background-color: #0D1322;
                 border: 1px solid #1E293B;
-                border-radius: 12px;
-                padding: 10px;
+                border-radius: 14px;
             }
         """)
         c4_box = QVBoxLayout(self.card_traffic)
-        c4_box.setContentsMargins(10, 8, 10, 8)
-        c4_box.setSpacing(4)
-        c4_header = QHBoxLayout()
+        c4_box.setContentsMargins(14, 12, 14, 12)
+        c4_box.setSpacing(5)
         lbl_c4_title = QLabel("TRAFFIC")
-        lbl_c4_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700;")
-        lbl_c4_icon = QLabel()
-        lbl_c4_icon.setPixmap(get_app_icon("traffic").pixmap(15, 15))
-        c4_header.addWidget(lbl_c4_title)
-        c4_header.addStretch()
-        c4_header.addWidget(lbl_c4_icon)
+        lbl_c4_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 600; text-transform: uppercase;")
+        c4_box.addWidget(lbl_c4_title)
         self.lbl_val_traffic_down = QLabel("↓ 0.0 KB/s")
-        self.lbl_val_traffic_down.setStyleSheet("color: #38BDF8; font-size: 13px; font-weight: 700; font-family: 'Fira Code', 'Consolas';")
+        self.lbl_val_traffic_down.setStyleSheet("color: #38BDF8; font-size: 13px; font-weight: 700; font-family: 'Fira Code', 'Consolas', monospace;")
         self.lbl_val_traffic_up = QLabel("↑ 0.0 KB/s")
-        self.lbl_val_traffic_up.setStyleSheet("color: #818CF8; font-size: 12px; font-weight: 700; font-family: 'Fira Code', 'Consolas';")
-        c4_box.addLayout(c4_header)
+        self.lbl_val_traffic_up.setStyleSheet("color: #818CF8; font-size: 11px; font-weight: 600; font-family: 'Fira Code', 'Consolas', monospace;")
         c4_box.addWidget(self.lbl_val_traffic_down)
         c4_box.addWidget(self.lbl_val_traffic_up)
         top_cards_layout.addWidget(self.card_traffic, 1)
@@ -189,26 +182,19 @@ class DashboardView(QWidget):
             QFrame {
                 background-color: #0D1322;
                 border: 1px solid #1E293B;
-                border-radius: 12px;
-                padding: 10px;
+                border-radius: 14px;
             }
         """)
         c5_box = QVBoxLayout(self.card_sys)
-        c5_box.setContentsMargins(10, 8, 10, 8)
-        c5_box.setSpacing(4)
-        c5_header = QHBoxLayout()
-        lbl_c5_title = QLabel("CPU / RAM")
-        lbl_c5_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 700;")
-        lbl_c5_icon = QLabel()
-        lbl_c5_icon.setPixmap(get_app_icon("cpu").pixmap(15, 15))
-        c5_header.addWidget(lbl_c5_title)
-        c5_header.addStretch()
-        c5_header.addWidget(lbl_c5_icon)
+        c5_box.setContentsMargins(14, 12, 14, 12)
+        c5_box.setSpacing(5)
+        lbl_c5_title = QLabel("CPU / RAM / UPTIME")
+        lbl_c5_title.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 600; text-transform: uppercase;")
+        c5_box.addWidget(lbl_c5_title)
         self.lbl_val_sys_usage = QLabel("CPU 14% | RAM 32%")
-        self.lbl_val_sys_usage.setStyleSheet("color: #F59E0B; font-size: 13px; font-weight: 700;")
+        self.lbl_val_sys_usage.setStyleSheet("color: #F59E0B; font-size: 12px; font-weight: 700; font-family: 'Fira Code', monospace;")
         self.lbl_val_sys_uptime = QLabel("99.98% (14d 6h)")
-        self.lbl_val_sys_uptime.setStyleSheet("color: #64748B; font-size: 11px; font-family: 'Fira Code';")
-        c5_box.addLayout(c5_header)
+        self.lbl_val_sys_uptime.setStyleSheet("color: #64748B; font-size: 11px; font-family: 'Fira Code', monospace;")
         c5_box.addWidget(self.lbl_val_sys_usage)
         c5_box.addWidget(self.lbl_val_sys_uptime)
         top_cards_layout.addWidget(self.card_sys, 1)
@@ -315,16 +301,25 @@ class DashboardView(QWidget):
         ])
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(5, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(6, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.Fixed)
+        self.table.setColumnWidth(1, 135)
+        header.setSectionResizeMode(2, QHeaderView.Fixed)
+        self.table.setColumnWidth(2, 145)
+        header.setSectionResizeMode(3, QHeaderView.Fixed)
+        self.table.setColumnWidth(3, 120)
+        header.setSectionResizeMode(4, QHeaderView.Fixed)
+        self.table.setColumnWidth(4, 110)
+        header.setSectionResizeMode(5, QHeaderView.Fixed)
+        self.table.setColumnWidth(5, 95)
+        header.setSectionResizeMode(6, QHeaderView.Fixed)
+        self.table.setColumnWidth(6, 110)
+
+        self.table.verticalHeader().setDefaultSectionSize(52)
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setShowGrid(False)
+        self.table.itemDoubleClicked.connect(self._on_table_double_clicked)
         self.table.setStyleSheet("""
             QTableWidget {
                 background-color: #0D1322;
@@ -541,35 +536,13 @@ class DashboardView(QWidget):
             c_status_layout.addWidget(lbl_status)
             self.table.setCellWidget(row, 5, c_status)
 
-            # Cột 6: THAO TÁC (Nút Chi tiết + Nút Chặn / Bỏ chặn kèm Vector Icons)
+            # Cột 6: THAO TÁC (Nút Chặn / Bỏ chặn dạng Pill đỏ/xanh chuẩn Demo Web)
             is_blocked = dev.status == "BLOCKED"
-            
-            btn_detail = QPushButton("Chi tiết" if is_vi else "Details")
-            btn_detail.setIcon(get_app_icon("info"))
-            btn_detail.setIconSize(QSize(13, 13))
-            btn_detail.setCursor(Qt.PointingHandCursor)
-            btn_detail.setStyleSheet("""
-                QPushButton {
-                    background-color: #101B33;
-                    color: #38BDF8;
-                    border: 1px solid rgba(56, 189, 248, 0.3);
-                    border-radius: 6px;
-                    font-weight: 600;
-                    font-size: 11px;
-                    padding: 4px 8px;
-                }
-                QPushButton:hover {
-                    background-color: #16264A;
-                    border: 1px solid #38BDF8;
-                    color: #FFFFFF;
-                }
-            """)
-            btn_detail.clicked.connect(lambda chk=False, d=dev: self._open_device_detail(d))
-
             btn_action = QPushButton(("Bỏ chặn" if is_vi else "Unblock") if is_blocked else ("Chặn" if is_vi else "Block"))
             btn_action.setIcon(get_app_icon("shield_check" if is_blocked else "shield_block"))
             btn_action.setIconSize(QSize(13, 13))
             btn_action.setCursor(Qt.PointingHandCursor)
+            btn_action.setFixedHeight(28)
             if is_blocked:
                 btn_action.setStyleSheet("""
                     QPushButton {
@@ -579,7 +552,7 @@ class DashboardView(QWidget):
                         border-radius: 6px;
                         font-weight: 700;
                         font-size: 11px;
-                        padding: 4px 10px;
+                        padding: 3px 12px;
                     }
                     QPushButton:hover {
                         background-color: rgba(16, 185, 129, 0.25);
@@ -594,7 +567,7 @@ class DashboardView(QWidget):
                         border-radius: 6px;
                         font-weight: 700;
                         font-size: 11px;
-                        padding: 4px 10px;
+                        padding: 3px 12px;
                     }
                     QPushButton:hover {
                         background-color: rgba(244, 63, 94, 0.25);
@@ -606,10 +579,18 @@ class DashboardView(QWidget):
             c_act = QWidget()
             c_act_layout = QHBoxLayout(c_act)
             c_act_layout.setContentsMargins(4, 4, 4, 4)
-            c_act_layout.setSpacing(6)
-            c_act_layout.addWidget(btn_detail)
+            c_act_layout.setAlignment(Qt.AlignCenter)
             c_act_layout.addWidget(btn_action)
             self.table.setCellWidget(row, 6, c_act)
+
+    def _on_table_double_clicked(self, item: QTableWidgetItem):
+        row = item.row()
+        item_ip = self.table.item(row, 1)
+        if item_ip:
+            ip_str = item_ip.text().strip()
+            dev = self.device_dao.get_device_by_ip(ip_str)
+            if dev:
+                self._open_device_detail(dev)
 
     def _open_device_detail(self, dev: Device):
         dlg = DeviceDetailDialog(

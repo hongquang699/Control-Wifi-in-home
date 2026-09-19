@@ -45,7 +45,7 @@ class AlertCard(QFrame):
             AlertCard {{
                 background-color: {COLOR_BG_CARD};
                 border: 1px solid {border_color};
-                border-radius: 12px;
+                border-radius: 14px;
             }}
         """)
 

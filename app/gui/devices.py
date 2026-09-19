@@ -152,18 +152,20 @@ class DevicesView(QWidget):
         layout.addLayout(filter_layout)
         self._update_pill_styles()
 
-        # 3. Bảng thiết bị chuẩn 7 cột
+        # 3. Bảng thiết bị chuẩn 8 cột (Chuẩn Demo Web)
         self.table = QTableWidget()
-        self.table.setColumnCount(7)
+        self.table.setColumnCount(8)
         self.table.setHorizontalHeaderLabels([
             "THIẾT BỊ & TÊN",
-            "IP & MAC",
-            "NHÀ SẢN XUẤT",
+            "IP ADDRESS",
+            "MAC ADDRESS",
+            "VENDOR",
             "DẢI MẠNG & KẾT NỐI",
             "ĐỘ TRỄ",
             "TRẠNG THÁI",
             "THAO TÁC"
         ])
+        self.table.verticalHeader().setDefaultSectionSize(52)
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
@@ -171,12 +173,21 @@ class DevicesView(QWidget):
 
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(5, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(6, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.Fixed)
+        self.table.setColumnWidth(1, 140)
+        header.setSectionResizeMode(2, QHeaderView.Fixed)
+        self.table.setColumnWidth(2, 135)
+        header.setSectionResizeMode(3, QHeaderView.Fixed)
+        self.table.setColumnWidth(3, 80)
+        header.setSectionResizeMode(4, QHeaderView.Fixed)
+        self.table.setColumnWidth(4, 120)
+        header.setSectionResizeMode(5, QHeaderView.Fixed)
+        self.table.setColumnWidth(5, 65)
+        header.setSectionResizeMode(6, QHeaderView.Fixed)
+        self.table.setColumnWidth(6, 85)
+        header.setSectionResizeMode(7, QHeaderView.Fixed)
+        self.table.setColumnWidth(7, 165)
+        self.table.itemDoubleClicked.connect(self._on_table_double_clicked)
 
         self.table.setStyleSheet("""
             QTableWidget {
@@ -195,7 +206,7 @@ class DevicesView(QWidget):
                 text-transform: uppercase;
                 border: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-                padding: 10px 8px;
+                padding: 10px 4px;
             }
             QTableWidget::item {
                 padding: 8px 10px;
@@ -282,8 +293,9 @@ class DevicesView(QWidget):
 
         self.table.setHorizontalHeaderLabels([
             "THIẾT BỊ & TÊN" if is_vi else "DEVICE & NAME",
-            "IP & MAC",
-            "NHÀ SẢN XUẤT" if is_vi else "VENDOR",
+            "IP ADDRESS",
+            "MAC ADDRESS",
+            "VENDOR",
             "DẢI MẠNG & KẾT NỐI" if is_vi else "NETWORK & CONN",
             "ĐỘ TRỄ" if is_vi else "LATENCY",
             "TRẠNG THÁI" if is_vi else "STATUS",
@@ -344,37 +356,51 @@ class DevicesView(QWidget):
             self.table.setRowHeight(row, 52)
 
             # Cột 0: THIẾT BỊ & TÊN (Icon trong khung vuông bo tròn 36x36)
-            icon_key = type_icons.get(dev.device_type, "devices")
-            name = dev.custom_name or dev.hostname or dev.vendor or "Thiết bị mạng"
+            name = dev.custom_name or dev.hostname or dev.vendor or ("Thiết bị mạng" if is_vi else "Network Device")
             dev_type = dev.device_type or "PC / Laptop"
+            t_lower = (dev_type + " " + (dev.vendor or "") + " " + name).lower()
+            if any(x in t_lower for x in ["router", "ap", "access point", "gateway", "switch"]):
+                icon_key = "router"
+            elif any(x in t_lower for x in ["phone", "iphone", "samsung", "xiaomi", "mobile", "android", "oppo", "vivo", "tablet", "ipad"]):
+                icon_key = "smartphone"
+            elif any(x in t_lower for x in ["laptop", "macbook", "notebook", "thinkpad"]):
+                icon_key = "laptop"
+            elif any(x in t_lower for x in ["tv", "television", "smart tv", "media", "roku", "chromecast", "firetv"]):
+                icon_key = "tv"
+            elif any(x in t_lower for x in ["printer", "canon", "epson", "hp print"]):
+                icon_key = "printer"
+            elif any(x in t_lower for x in ["camera", "cam", "cctv", "ipcam"]):
+                icon_key = "camera"
+            else:
+                icon_key = type_icons.get(dev.device_type, "devices")
 
             c_dev = QWidget()
             c_dev_layout = QHBoxLayout(c_dev)
-            c_dev_layout.setContentsMargins(6, 4, 6, 4)
-            c_dev_layout.setSpacing(10)
+            c_dev_layout.setContentsMargins(4, 4, 4, 4)
+            c_dev_layout.setSpacing(8)
 
             icon_box = QFrame()
-            icon_box.setFixedSize(36, 36)
+            icon_box.setFixedSize(32, 32)
             icon_box.setStyleSheet("""
                 QFrame {
                     background-color: #121E36;
                     border: 1px solid rgba(56, 189, 248, 0.2);
-                    border-radius: 8px;
+                    border-radius: 7px;
                 }
             """)
             ib_layout = QVBoxLayout(icon_box)
             ib_layout.setContentsMargins(0, 0, 0, 0)
             ib_layout.setAlignment(Qt.AlignCenter)
             lbl_icon = QLabel()
-            lbl_icon.setPixmap(get_app_icon(icon_key).pixmap(20, 20))
+            lbl_icon.setPixmap(get_app_icon(icon_key).pixmap(18, 18))
             lbl_icon.setAlignment(Qt.AlignCenter)
             ib_layout.addWidget(lbl_icon)
 
             text_box = QVBoxLayout()
             text_box.setSpacing(1)
             text_box.setContentsMargins(0, 0, 0, 0)
-            lbl_n = QLabel(f"<b>{name}</b>")
-            lbl_n.setStyleSheet("color: #F8FAFC; font-size: 12px; background: transparent;")
+            lbl_n = QLabel(name)
+            lbl_n.setStyleSheet("color: #F8FAFC; font-size: 11px; font-weight: 700; background: transparent;")
             lbl_t = QLabel(dev_type)
             lbl_t.setStyleSheet("color: #94A3B8; font-size: 10px; background: transparent;")
             text_box.addWidget(lbl_n)
@@ -385,25 +411,24 @@ class DevicesView(QWidget):
             c_dev_layout.addStretch()
             self.table.setCellWidget(row, 0, c_dev)
 
-            # Cột 1: IP & MAC (2 dòng: IP Cyan ở trên, MAC Slate ở dưới)
-            c_ipmac = QWidget()
-            c_ipmac_layout = QVBoxLayout(c_ipmac)
-            c_ipmac_layout.setContentsMargins(6, 6, 6, 6)
-            c_ipmac_layout.setSpacing(2)
-            lbl_ip = QLabel(dev.ip or "--")
-            lbl_ip.setStyleSheet("color: #38BDF8; font-size: 12px; font-weight: 700; font-family: 'Fira Code', monospace; background: transparent;")
-            lbl_mac = QLabel(dev.mac or "--")
-            lbl_mac.setStyleSheet("color: #94A3B8; font-size: 10px; font-family: 'Fira Code', monospace; background: transparent;")
-            c_ipmac_layout.addWidget(lbl_ip)
-            c_ipmac_layout.addWidget(lbl_mac)
-            self.table.setCellWidget(row, 1, c_ipmac)
+            # Cột 1: IP ADDRESS
+            item_ip = QTableWidgetItem(dev.ip or "--")
+            item_ip.setFont(QFont("Fira Code", 10, QFont.Bold))
+            item_ip.setForeground(QColor("#38BDF8"))
+            self.table.setItem(row, 1, item_ip)
 
-            # Cột 2: NHÀ SẢN XUẤT
+            # Cột 2: MAC ADDRESS
+            item_mac = QTableWidgetItem(dev.mac or "--")
+            item_mac.setFont(QFont("Fira Code", 9))
+            item_mac.setForeground(QColor("#94A3B8"))
+            self.table.setItem(row, 2, item_mac)
+
+            # Cột 3: NHÀ SẢN XUẤT
             item_vendor = QTableWidgetItem(dev.vendor or "Unknown")
             item_vendor.setForeground(QColor("#CBD5E1"))
-            self.table.setItem(row, 2, item_vendor)
+            self.table.setItem(row, 3, item_vendor)
 
-            # Cột 3: DẢI MẠNG & KẾT NỐI (2 dòng: Tên dải + Phương thức Wi-Fi 5GHz/LAN)
+            # Cột 4: DẢI MẠNG & KẾT NỐI (Tên dải + Phương thức Wi-Fi 5GHz/LAN)
             c_net = QWidget()
             c_net_layout = QVBoxLayout(c_net)
             c_net_layout.setContentsMargins(6, 6, 6, 6)
@@ -416,15 +441,15 @@ class DevicesView(QWidget):
             lbl_net_conn.setStyleSheet("color: #94A3B8; font-size: 10px; background: transparent;")
             c_net_layout.addWidget(lbl_net_name)
             c_net_layout.addWidget(lbl_net_conn)
-            self.table.setCellWidget(row, 3, c_net)
+            self.table.setCellWidget(row, 4, c_net)
 
-            # Cột 4: ĐỘ TRỄ
+            # Cột 5: ĐỘ TRỄ
             item_lat = QTableWidgetItem(f"● {dev.latency_ms} ms" if dev.status == "ONLINE" else "--")
             item_lat.setFont(QFont("Fira Code", 10, QFont.Bold))
             item_lat.setForeground(QColor("#10B981" if dev.status == "ONLINE" else "#64748B"))
-            self.table.setItem(row, 4, item_lat)
+            self.table.setItem(row, 5, item_lat)
 
-            # Cột 5: TRẠNG THÁI (Pill Badge)
+            # Cột 6: TRẠNG THÁI (Pill Badge)
             lbl_status = QLabel()
             lbl_status.setAlignment(Qt.AlignCenter)
             if dev.status == "ONLINE":
@@ -441,9 +466,9 @@ class DevicesView(QWidget):
             c_status_layout = QHBoxLayout(c_status)
             c_status_layout.setContentsMargins(4, 10, 4, 10)
             c_status_layout.addWidget(lbl_status)
-            self.table.setCellWidget(row, 5, c_status)
+            self.table.setCellWidget(row, 6, c_status)
 
-            # Cột 6: THAO TÁC (Nút Chi tiết + Nút Chặn dạng Pill đỏ)
+            # Cột 7: THAO TÁC (Nút Chi tiết + Nút Chặn dạng Pill đỏ)
             is_blocked = dev.status == "BLOCKED"
             c_act = QWidget()
             c_act_layout = QHBoxLayout(c_act)
@@ -454,19 +479,75 @@ class DevicesView(QWidget):
             btn_detail.setIcon(get_app_icon("info"))
             btn_detail.setIconSize(QSize(13, 13))
             btn_detail.setCursor(Qt.PointingHandCursor)
-            btn_detail.setStyleSheet(STYLE_BTN_SLATE)
+            btn_detail.setFixedHeight(28)
+            btn_detail.setStyleSheet("""
+                QPushButton {
+                    background-color: #1E293B;
+                    color: #CBD5E1;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 6px;
+                    font-weight: 600;
+                    font-size: 11px;
+                    padding: 3px 8px;
+                }
+                QPushButton:hover {
+                    background-color: #334155;
+                    color: #FFFFFF;
+                }
+            """)
             btn_detail.clicked.connect(lambda chk=False, d=dev: self._open_detail(d))
 
             btn_block = QPushButton(("Bỏ chặn" if is_vi else "Unblock") if is_blocked else ("Chặn" if is_vi else "Block"))
             btn_block.setIcon(get_app_icon("shield_check" if is_blocked else "shield_block"))
             btn_block.setIconSize(QSize(13, 13))
             btn_block.setCursor(Qt.PointingHandCursor)
-            btn_block.setStyleSheet(STYLE_BTN_UNBLOCK if is_blocked else STYLE_BTN_BLOCK)
+            btn_block.setFixedHeight(28)
+            if is_blocked:
+                btn_block.setStyleSheet("""
+                    QPushButton {
+                        background-color: rgba(16, 185, 129, 0.12);
+                        color: #34D399;
+                        border: 1px solid rgba(16, 185, 129, 0.45);
+                        border-radius: 6px;
+                        font-weight: 700;
+                        font-size: 11px;
+                        padding: 3px 8px;
+                    }
+                    QPushButton:hover {
+                        background-color: #059669;
+                        color: #FFFFFF;
+                    }
+                """)
+            else:
+                btn_block.setStyleSheet("""
+                    QPushButton {
+                        background-color: rgba(239, 68, 68, 0.12);
+                        color: #F87171;
+                        border: 1px solid rgba(239, 68, 68, 0.45);
+                        border-radius: 6px;
+                        font-weight: 700;
+                        font-size: 11px;
+                        padding: 3px 8px;
+                    }
+                    QPushButton:hover {
+                        background-color: #DC2626;
+                        color: #FFFFFF;
+                    }
+                """)
             btn_block.clicked.connect(lambda chk=False, d=dev: self._toggle_block(d))
 
             c_act_layout.addWidget(btn_detail)
             c_act_layout.addWidget(btn_block)
-            self.table.setCellWidget(row, 6, c_act)
+            self.table.setCellWidget(row, 7, c_act)
+
+    def _on_table_double_clicked(self, item: QTableWidgetItem):
+        row = item.row()
+        item_ip = self.table.item(row, 1)
+        if item_ip:
+            ip_str = item_ip.text().strip()
+            dev = self.device_dao.get_device_by_ip(ip_str)
+            if dev:
+                self._open_detail(dev)
 
     def _open_detail(self, dev: Device):
         dlg = DeviceDetailDialog(
