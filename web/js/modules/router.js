@@ -129,9 +129,7 @@ function applyLanguage(lang) {
 
   const langLabel = document.getElementById("currentLangLabel");
   if (langLabel) {
-    langLabel.innerHTML = lang === "vi"
-      ? `<i class="fi fi-rr-globe mr-1 text-sky-400"></i> Tiếng Việt`
-      : `<i class="fi fi-rr-globe mr-1 text-sky-400"></i> English`;
+    langLabel.textContent = lang === "vi" ? "Tiếng Việt" : "English";
   }
 
   renderDemoDevices();
