@@ -102,6 +102,31 @@ def build():
         if os.path.exists("run.bat"):
             shutil.copy2("run.bat", os.path.join(dist_dir, "run.bat"))
 
+        # 5. Tự động đóng gói ZIP và cập nhật vào thư mục tải xuống của Web (web/downloads/windows/)
+        repo_root = os.path.dirname(project_root)
+        web_win_dir = os.path.join(repo_root, "web", "downloads", "windows")
+        if os.path.exists(web_win_dir):
+            import zipfile
+            import hashlib
+            zip_name = "NetworkManager-v2.0.0-windows-x64.zip"
+            zip_dest = os.path.join(web_win_dir, zip_name)
+            print(f"[*] Đang tự động đóng gói file tải xuống: {zip_dest}...")
+            with zipfile.ZipFile(zip_dest, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
+                for root, _, files in os.walk(dist_dir):
+                    for f in files:
+                        full_f = os.path.join(root, f)
+                        rel_f = os.path.relpath(full_f, dist_dir)
+                        zf.write(full_f, os.path.join("NetworkManager", rel_f))
+
+            hasher = hashlib.sha256()
+            with open(zip_dest, "rb") as f:
+                while chunk := f.read(65536):
+                    hasher.update(chunk)
+            sha256_hash = hasher.hexdigest()
+            print(f"[✓] Tự động thay thế file tải xuống thành công!")
+            print(f"[✓] Tệp đích: {zip_dest} ({os.path.getsize(zip_dest) / (1024*1024):.1f} MB)")
+            print(f"[✓] SHA-256 Checksum: {sha256_hash}")
+
         print("\n" + "=" * 60)
         print("[+] ĐÓNG GÓI THÀNH CÔNG!")
         print(f"[+] Ứng dụng đã sẵn sàng tại: {os.path.abspath(dist_dir)}")

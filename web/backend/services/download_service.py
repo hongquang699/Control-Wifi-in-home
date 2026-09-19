@@ -51,7 +51,20 @@ class DownloadService:
         """
         Trả về danh mục phát hành kèm phiên bản, mã SHA-256 và trạng thái chữ ký số.
         """
-        win_path = os.path.join(self.downloads_dir, "windows", "NetworkManager-v1.0.0-windows-x64.zip")
+        win_dir = os.path.join(self.downloads_dir, "windows")
+        win_filename = "NetworkManager-v2.0.0-windows-x64.zip"
+        if os.path.exists(win_dir):
+            zips = [f for f in os.listdir(win_dir) if f.endswith(".zip")]
+            if zips:
+                # Sắp xếp lấy file zip mới nhất theo thời gian sửa đổi
+                zips.sort(key=lambda f: os.path.getmtime(os.path.join(win_dir, f)), reverse=True)
+                win_filename = zips[0]
+        win_path = os.path.join(win_dir, win_filename)
+
+        win_size = "51.5 MB"
+        if os.path.exists(win_path):
+            win_size = f"{os.path.getsize(win_path) / (1024 * 1024):.1f} MB"
+
         linux_path = os.path.join(self.downloads_dir, "linux", "NetworkManager-v1.0.0-linux-x64.tar.gz")
         macos_path = os.path.join(self.downloads_dir, "macos", "NetworkManager-v1.0.0-darwin-arm64.dmg")
 
@@ -59,14 +72,14 @@ class DownloadService:
             {
                 "platform": "windows",
                 "title": "Windows 10 / 11 (x64)",
-                "filename": "NetworkManager-v1.0.0-windows-x64.zip",
-                "version": "1.0.0",
-                "release_date": "19/09/2026",
-                "size_display": "45.2 MB",
+                "filename": win_filename,
+                "version": "2.0.0",
+                "release_date": "20/09/2026",
+                "size_display": win_size,
                 "sha256": self.get_file_sha256(win_path),
                 "digital_signature": "SHA256withRSA (DigiCert Trusted G4 Code Signing)",
                 "verified": True,
-                "url": "/downloads/windows/NetworkManager-v1.0.0-windows-x64.zip"
+                "url": f"/downloads/windows/{win_filename}"
             },
             {
                 "platform": "linux",
