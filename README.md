@@ -1,204 +1,213 @@
-# NETWORK MANAGER (Local Network Management & Monitoring Suite)
+# NETWORK MANAGER — Hệ Thống Quản Lý & Giám Sát Mạng Nội Bộ Chuyên Nghiệp
 
-A professional local network (LAN/WLAN) scanning, monitoring, and management system designed for network administrators, developed using **Python**, **PySide6**, **Nmap / Native ARP**, and **SQLite**.
+[![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
+[![PySide6](https://img.shields.io/badge/GUI-PySide6%20Qt6-brightgreen.svg)](https://pypi.org/project/PySide6/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Security](https://img.shields.io/badge/Security-Multi--Layer%20WAF%20%2B%20CSP-red.svg)](#h%E1%BB%87-th%E1%BB%91ng-b%E1%BA%A3o-m%E1%BA%ADt-%C4%91a-l%E1%BB%9Bp)
+[![Bilingual](https://img.shields.io/badge/Bilingual-Ti%E1%BA%BFng%20Vi%E1%BB%87t%20%7C%20English-blueviolet.svg)](#song-ng%E1%BB%AF-to%C3%A0n-di%E1%BB%87n-bilingual-support)
 
-The application automatically discovers all active devices across subnets, collects IP and MAC addresses, resolves hostnames, identifies hardware manufacturers (Vendor) via OUI lookup, tracks real-time Online/Offline statuses, monitors bandwidth/traffic speeds, visualizes network topology and Internet connection routes, and manages device access blocking/unblocking via Router Adapters (TP-Link, OpenWrt, MikroTik, Mock Mode) combined with Windows Host Firewall.
-
----
-
-## Key Features
-
-1. **Hybrid Multi-Method Network Scanner**:
-   - Automatically detects active network interfaces, local station IP, default Gateway, and calculates CIDR subnets (`/24`, etc.).
-   - High-speed Nmap ARP ping scanner with accurate XML parsing.
-   - Built-in multithreaded Native ARP + ICMP Ping fallback engine when Nmap is unavailable or running with standard user privileges.
-
-2. **Intelligent Device Identification & Classification**:
-   - Built-in OUI MAC vendor database (Apple, Samsung, Intel, TP-Link, Xiaomi, Espressif IoT, Realtek, Dell, HP, MikroTik, Cisco, etc.).
-   - Automatic device categorization: *PC / Laptop*, *Smartphone / Tablet*, *Router / Gateway*, *IoT Smart Device*, *Printer*, *Server*.
-
-3. **Network Topology & Internet Connection Method Analysis**:
-   - **Connected Network Detection**: Automatically maps devices to their parent network zone (e.g., *Main ISP Modem / Wi-Fi* vs. *Secondary Sub-Router / Room AP*).
-   - **Physical Link Medium**: Identifies physical link types (`📶 Wi-Fi`, `🔌 Ethernet LAN`, `🌐 WAN Uplink`).
-   - **Internet Hop Routing**: Visualizes the hop-by-hop transmission route from device through access points and gateways out to the global Internet.
-
-4. **Real-Time Traffic Monitoring & Live Waveform Chart**:
-   - Real-time download and upload bandwidth tracking.
-   - Interactive smoothed waveform chart on the Dashboard with dynamic scaling and anti-collision legend display.
-
-5. **SQLite Database & Event Auditing**:
-   - Stores device catalog with `first_seen`, `last_seen`, and status (`ONLINE`, `OFFLINE`, `BLOCKED`).
-   - Automatically records audit events: Device Joined (`DEVICE_JOINED`), Device Disconnected (`DEVICE_LEFT`), IP Changed (`IP_CHANGED`), Blocked (`BLOCKED`), and Unblocked (`UNBLOCKED`).
-
-6. **Device Blocking & Access Control (Block / Unblock)**:
-   - **Router Adapters**: Direct hardware-level network blocking (MAC Filtering / ACL / IP Firewall) for TP-Link, OpenWrt, and MikroTik routers.
-   - **Mock Router Mode**: Safe simulation mode for testing, demonstration, and development without physical router credentials.
-   - **Windows Host Firewall**: Automatically manages bidirectional (Inbound & Outbound) firewall block rules on the administrative machine.
-
-7. **Modern Bilingual UI (English 🇬🇧 & Vietnamese 🇻🇳)**:
-   - **Instant Language Switching**: Toggle between **English** and **Tiếng Việt** directly from the top bar or settings without restarting the application.
-   - **Dashboard**: High-resolution MetricCards (Total, Online, Offline, Blocked), network metadata chips, live traffic chart, and recent event stream.
-   - **Devices Table**: 8-column balanced, responsive layout with full MAC visibility, customizable aliases, vendor tags, and guaranteed visible action buttons.
-   - **Device Details**: Frameless scrollable dialog displaying hardware parameters, editable connection types, visual breadcrumb hop path, and pinned action bar.
-   - **Network Map**: Hierarchical tree topology displaying Global Internet -> Main ISP Modem -> Sub-Routers -> Endpoints.
-   - **Blacklist & Settings**: Dedicated blocked devices management and network configuration (custom subnets, scan intervals, router credentials, connection testing).
-
-8. **Standalone Windows Executable Packaging**:
-   - One-click build script (`build_app.py` / `build.bat`) using PyInstaller to produce a self-contained `dist/NetworkManager/NetworkManager.exe` ready for distribution without requiring a Python runtime.
+Hệ thống quét mạng, phân tích topo đa tầng, theo dõi băng thông thời gian thực và quản lý kiểm soát truy cập cấp phần cứng Router dành cho quản trị viên mạng và gia đình. Phát triển bằng **Python 3.12**, **PySide6 (Qt6)**, **Nmap / Native ARP Ping**, **SQLite**, cùng hệ sinh thái **Web SPA 8-trang & REST API Server** bảo mật đa lớp.
 
 ---
 
-## Giao diện ứng dụng (Screenshots)
+## 🌟 Tính Năng Nổi Bật (Key Features)
 
-| Tổng quan hệ thống (Dashboard) | Quản lý thiết bị kết nối (Devices) |
-| :---: | :---: |
-| ![Dashboard](web/images/dashboard.png) | ![Devices](web/images/devices.png) |
-| **Sơ đồ mạng đa tầng (Network Map)** | **Chi tiết & Lộ trình Internet (Device Details)** |
-| ![Network Map](web/images/network_map.png) | ![Device Details](web/images/device_detail.png) |
+### 1. Phân Hệ Ứng Dụng Desktop (Desktop App)
+- **Động cơ quét kép (Hybrid Scanner)**: Tự động nhận diện card mạng, Gateway và subnet (`/24`, `/16`). Quét siêu tốc qua Nmap ARP ping kết hợp cơ chế fallback Native ARP + ICMP Ping đa luồng khi không có Nmap hoặc chạy quyền người dùng thông thường.
+- **Nhận diện thiết bị thông minh qua MAC OUI**: Tích hợp cơ sở dữ liệu OUI hàng chục nghìn nhà sản xuất (Apple, Samsung, Intel, Dell, TP-Link, Xiaomi, Espressif IoT, Hikvision, Realtek,...), phân loại tự động thành 6 nhóm thiết bị.
+- **Phân tích Topo mạng & Internet Hop Path**: Tự động bóc tách dải Wi-Fi Tổng (192.168.1.x) và Router Phụ (192.168.110.x), xác định kết nối Wi-Fi 5GHz hay dây LAN, vẽ sơ đồ lộ trình hop từ thiết bị ra Internet.
+- **Giám sát lưu lượng & Biểu đồ sóng động**: Đo tốc độ Download / Upload thời gian thực, hiển thị biểu đồ sóng canvas mượt mà.
+- **Chặn thiết bị cấp phần cứng (Access Control)**:
+  - **Router Adapters**: Đẩy quy tắc chặn MAC Filtering / ACL trực tiếp đến router phần cứng TP-Link, OpenWrt, MikroTik.
+  - **Mock Mode**: Chế độ giả lập an toàn để thử nghiệm tính năng mà không cần can thiệp router thật.
+  - **Tường lửa Windows 2 chiều**: Tự động tạo rule Inbound & Outbound trên máy quản trị.
+- **Cơ sở dữ liệu SQLite & Kiểm toán an ninh**: Lưu trữ lịch sử `first_seen`, `last_seen`, tự động ghi nhật ký audit log cho các sự kiện gia nhập, ngắt kết nối, đổi IP, chặn/bỏ chặn.
+
+### 2. Phân Hệ Web Portal & REST API Server (Web Suite)
+- **Kiến trúc SPA 8-trong-1 mô đun hóa**: 8 trang chức năng (*Trang chủ, Giới thiệu, Tính năng, Dashboard Demo Live, Tải xuống, Tài liệu, Tin tức, Liên hệ*) được tách thành các component HTML và module JS độc lập.
+- **Bố cục hiển thị mở rộng (Full-Width Responsive)**: Sử dụng thiết kế `max-w-screen-2xl` thoáng đãng, tận dụng tối đa chiều rộng màn hình lớn, không bị bó hẹp dồn giữa.
+- **Bộ icon vector Flaticon Uicons hiện đại**: Thay thế hoàn toàn raw emoji bằng các icon vector tinh tế, căn chỉnh chuẩn xác theo hệ màu Dark Tech.
+- **Dashboard Demo tương tác trực tiếp**: Mô phỏng đầy đủ danh sách thiết bị, thao tác chặn/bỏ chặn trực tiếp, biểu đồ sóng thời gian thực, nhật ký sự kiện và cảnh báo an ninh.
+- **Trung tâm phân phối cài đặt**: Cung cấp các gói phát hành cho Windows x64, Linux x64, macOS Apple Silicon kèm mã băm SHA-256 xác thực toàn vẹn.
 
 ---
 
-## Directory Structure (Cấu trúc phân tách App & Web)
+## 🌐 Song Ngữ Toàn Diện (Bilingual Support)
 
-Dự án được phân chia độc lập và rõ ràng thành 2 phân hệ: **`app/`** (Ứng dụng Desktop) và **`web/`** (Hệ sinh thái Web & Phân phối):
+Hệ thống hỗ trợ **100% song ngữ Tiếng Việt 🇻🇳 và English 🇬🇧** xuyên suốt cả ứng dụng Desktop lẫn trang Web:
+- **Chuyển đổi tức thì**: Nhấp vào nút **Tiếng Việt / English** trên thanh điều hướng để đổi ngôn ngữ ngay lập tức mà không cần tải lại trang.
+- **Lưu trữ tùy chọn**: Tự động lưu trạng thái vào `localStorage` (`nm_lang`), duy trì ngôn ngữ người dùng đã chọn qua các phiên làm việc.
+- **Bao phủ toàn diện**: Chuyển đổi từ tiêu đề, nội dung thẻ tính năng, nghiên cứu điển hình (Case Studies), bảng thông số, hướng dẫn cài đặt, cho đến biểu mẫu và thông báo hệ thống.
+
+---
+
+## 🛡️ Hệ Thống Bảo Mật Đa Lớp (Multi-Layer Security)
+
+Máy chủ Web & REST API tích hợp kiến trúc bảo mật nhiều tầng phòng thủ:
+
+```text
+INTERNET
+   │
+   ▼
+┌───────────────────────────────────────────────┐
+│ Lớp 1: HTTP Security Headers (CSP, HSTS, ...)  │
+├───────────────────────────────────────────────┤
+│ Lớp 2: WAF (Chống SQLi, XSS, Path Traversal)  │
+├───────────────────────────────────────────────┤
+│ Lớp 3: Rate Limiting (Sliding Window IP Guard)│
+├───────────────────────────────────────────────┤
+│ Lớp 4: REST API Router & Parameter Validator   │
+├───────────────────────────────────────────────┤
+│ Lớp 5: Secure Static File Server              │
+├───────────────────────────────────────────────┤
+│ Lớp 6: Audit Logging Engine (web/logs/audit/) │
+└───────────────────────────────────────────────┘
+```
+
+1. **Content Security Policy (CSP)**: Whitelist an toàn cho tài nguyên nội bộ, Google Fonts, Tailwind CDN, Flaticon CDN. Ngăn chặn triệt để tấn công XSS và chèn script lạ.
+2. **Web Application Firewall (WAF)**: Tự động kiểm tra payload và URL query, phát hiện và chặn đứng SQL Injection, XSS, Path Traversal (`../`), và Command Injection.
+3. **Sliding-Window Rate Limiter**: Giới hạn tần suất request theo IP (API chung: 100 req/min, Tải file: 10 req/min).
+4. **Audit Logging**: Ghi nhật ký đầy đủ sự kiện truy cập, chặn WAF, vượt ngưỡng rate limit vào file audit an toàn.
+
+---
+
+## 📂 Cấu Trúc Dự Án (Directory Structure)
 
 ```text
 Control-wifi/
-├── run_app.bat                # 1-click khởi chạy ứng dụng desktop
-├── run_admin.bat              # 1-click khởi chạy ứng dụng với quyền Admin
-├── serve_website.bat          # 1-click khởi chạy máy chủ Web & REST API
-├── README.md                  # Tài liệu tổng quan
+├── run_app.bat                     # 1-Click khởi chạy ứng dụng Desktop
+├── run_admin.bat                   # 1-Click chạy Desktop với quyền Administrator
+├── serve_website.bat               # 1-Click khởi chạy Web & REST API Server (port 8080)
+├── README.md                       # Tài liệu hướng dẫn sử dụng
 │
-├── app/                       # PHÂN HỆ ỨNG DỤNG DESKTOP (PYTHON / PYSIDE6)
-│   ├── main.py                # Điểm khởi động ứng dụng (GUI / CLI)
-│   ├── run.bat                # Script chạy ứng dụng
-│   ├── run_admin.bat          # Script chạy ứng dụng quyền Admin
-│   ├── requirements.txt       # Thư viện Python cho ứng dụng
-│   ├── NetworkManager.spec   # Cấu hình đóng gói PyInstaller
-│   ├── core/                  # Bộ lõi quét mạng, topology, traffic, i18n
-│   ├── gui/                   # Giao diện PySide6 hiện đại
-│   ├── router/                # Router adapters (TP-Link, OpenWrt, MikroTik, Mock)
-│   ├── security/              # Quản lý Windows Firewall & Blocker
-│   ├── services/              # Dịch vụ discovery, identification, scheduler
-│   ├── database/              # SQLite client & DAO
-│   ├── utils/                 # Tiện ích mạng, subprocess, validators
-│   ├── config/                # config.json, routers.json
-│   ├── data/                  # network.db, logs/
-│   ├── assets/                # logo.ico, logo.png
-│   ├── scripts/               # build.bat, build_app.py, run_cli_scan.bat...
-│   └── tests/                 # Toàn bộ test suite kiểm thử (test_all.py)
+├── app/                            # PHÂN HỆ DESKTOP (PYTHON / PYSIDE6)
+│   ├── main.py                     # Điểm khởi chạy chính ứng dụng (GUI / CLI)
+│   ├── requirements.txt            # Thư viện phụ thuộc cho Desktop
+│   ├── NetworkManager.spec        # File cấu hình đóng gói PyInstaller
+│   ├── core/                       # Lõi quét mạng, phân tích topo, đo băng thông, i18n
+│   ├── gui/                        # Giao diện người dùng PySide6 hiện đại
+│   ├── router/                     # Bộ điều khiển Router (TP-Link, OpenWrt, MikroTik, Mock)
+│   ├── security/                   # Module tích hợp Windows Host Firewall
+│   ├── services/                   # Dịch vụ định danh OUI, background scheduler
+│   ├── database/                   # SQLite database & DAO
+│   ├── config/                     # File cấu hình JSON
+│   ├── assets/                     # Icon, logo phần mềm
+│   └── tests/                      # Bộ kiểm thử ứng dụng (test_all.py)
 │
-└── web/                       # PHÂN HỆ HỆ THỐNG WEB & PHÂN PHỐI
-    ├── html/                  # Thư mục tập trung toàn bộ các trang HTML
-    │   ├── index.html         # Trang web SPA 8-trong-1 hoàn chỉnh
-    │   ├── 404.html           # Trang báo lỗi 404 tùy biến
-    │   ├── thank-you.html     # Trang cảm ơn sau khi gửi biểu mẫu
-    │   └── privacy-policy.html# Trang chính sách quyền riêng tư
-    ├── serve_website.bat      # Script khởi chạy web cục bộ & REST API (cổng 8080)
-    ├── docker-compose.yml     # Docker Compose cho web & API
-    ├── Dockerfile             # Container build file cho backend API
-    ├── css/                   # Tệp stylesheet, dark mode, glassmorphism
-    ├── js/                    # Router 8 trang, song ngữ, canvas sóng
-    ├── images/                # Logo và các ảnh chụp màn hình ứng dụng
-    ├── backend/               # Máy chủ REST API (main.py, endpoints)
-    ├── downloads/             # Gói cài đặt Windows, Linux, macOS kèm SHA-256
-    └── docs/                  # Tài liệu cài đặt, sử dụng, đặc tả API
+└── web/                            # PHÂN HỆ WEB & REST API SERVER
+    ├── backend/                    # Máy chủ HTTP đa luồng bảo mật
+    │   ├── main.py                 # Điểm khởi động web server
+    │   ├── server/                 # Handler xử lý request & static file an toàn
+    │   ├── api/                    # Router định tuyến REST API (/api/v1/...)
+    │   ├── middleware/             # WAF, Rate Limiter, Security Headers CSP
+    │   ├── services/               # Dịch vụ tải file an toàn & audit log
+    │   └── tests/                  # Bộ kiểm thử bảo mật backend (test_security.py)
+    ├── html/                       # Giao diện Web SPA
+    │   ├── index.html              # Trang chủ SPA hoàn chỉnh (được biên dịch tự động)
+    │   ├── 404.html                # Trang lỗi 404
+    │   ├── thank-you.html          # Trang cảm ơn sau khi gửi biểu mẫu
+    │   ├── privacy-policy.html     # Chính sách bảo mật
+    │   └── components/             # Các khối component HTML độc lập
+    │       ├── head.html           # Thẻ meta, CDN, font, CSP
+    │       ├── navbar.html         # Thanh menu điều hướng & nút đổi ngôn ngữ
+    │       ├── home.html           # Trang chủ (Hero, Metrics, Flow, Reviews)
+    │       ├── about.html          # Trang giới thiệu (Case Studies, Core Team)
+    │       ├── features.html       # 7 card mô tả tính năng chi tiết
+    │       ├── dashboard.html      # Giao diện Dashboard demo trực quan
+    │       ├── download.html       # Khu vực tải phần mềm & SHA-256
+    │       ├── docs.html           # Tài liệu kỹ thuật, API spec, 5 FAQs
+    │       ├── news.html           # Tin tức phiên bản & lộ trình phát triển
+    │       ├── contact.html        # Biểu mẫu liên hệ & kênh hỗ trợ
+    │       ├── modals.html         # Hộp thoại chi tiết thiết bị & lightbox
+    │       └── footer.html         # Chân trang & lưu ý pháp lý
+    ├── js/                         # Bộ mã JavaScript
+    │   ├── app.js                  # Tệp JS tổng hợp (được biên dịch tự động)
+    │   └── modules/                # Các module chức năng tách rời
+    │       ├── i18n.js             # Từ điển song ngữ toàn diện (Việt - Anh)
+    │       ├── router.js           # Bộ điều hướng client-side & dynamic loader
+    │       ├── demo_devices.js     # Quản lý bảng thiết bị & bộ lọc
+    │       ├── demo_live.js        # Đồng bộ thời gian thực qua REST API
+    │       ├── demo_traffic.js     # Vẽ biểu đồ sóng lưu lượng canvas
+    │       ├── demo_alerts.js      # Hệ thống thông báo cảnh báo
+    │       ├── demo_settings.js    # Cài đặt giao diện & thông số router
+    │       └── ui_helpers.js       # Toast, lightbox, sao chép mã SHA-256
+    ├── css/                        # Stylesheet, Dark Tech theme & Glassmorphism
+    ├── downloads/                  # Thư mục chứa file cài đặt phân phối
+    └── scripts/                    # Scripts build tự động hóa
+        ├── build_html.py           # Ghép nối các component HTML thành index.html
+        ├── build_js.py             # Ghép nối các module JS thành app.js
+        └── build_all.py            # Trình biên dịch toàn bộ tài nguyên web
 ```
 
 ---
 
-## Installation & Setup
+## 🚀 Hướng Dẫn Cài Đặt & Sử Dụng
 
-### System Requirements
-- Operating System: Windows 10 / 11 (or Linux / macOS)
-- Python 3.12 or higher
-- Nmap (optional, highly recommended for maximum scanning speed): Download at [nmap.org](https://nmap.org/download.html)
+### Yêu Cầu Hệ Thống
+- Hệ điều hành: Windows 10 / 11, Linux (Ubuntu, Debian, Fedora), hoặc macOS.
+- Python: Phiên bản 3.12 trở lên.
+- Nmap *(khuyến nghị)*: Tải tại [nmap.org](https://nmap.org/download.html) để đạt tốc độ quét ARP cao nhất.
 
-### Step 1: Create Virtual Environment
+### 1. Khởi Chạy Ứng Dụng Desktop
 ```powershell
-py -3.12 -m venv venv
+# Bước 1: Tạo và kích hoạt môi trường ảo
+python -m venv venv
 .\venv\Scripts\activate
-```
 
-### Step 2: Install Dependencies
-```powershell
-pip install -r requirements.txt
-```
+# Bước 2: Cài đặt các thư viện cần thiết
+pip install -r app/requirements.txt
 
-### Step 3: Launch Application
-
-#### Run Graphical User Interface (GUI):
-```powershell
-python main.py
+# Bước 3: Khởi chạy giao diện Desktop
+python app/main.py
 ```
-*Or double-click **`run.bat`** on Windows.*
+*Hoặc nhấp đúp tệp **`run_app.bat`** (hoặc **`run_admin.bat`** để chạy với quyền quản trị viên).*
 
-#### Run Command-Line Interface (CLI Scanner):
+### 2. Khởi Chạy Trang Web & REST API Server
 ```powershell
-python main.py --cli
+# Khởi chạy server tại cổng 8080
+python web/backend/main.py 8080
 ```
-*Or specify a custom subnet:*
+*Hoặc nhấp đúp tệp **`serve_website.bat`** trên Windows.*
+
+Sau khi khởi chạy, truy cập trình duyệt tại: **`http://localhost:8080/`**
+
+---
+
+## 🛠️ Trình Biên Dịch Tự Động Hóa (Build System)
+
+Dự án áp dụng mô hình phát triển phân tách mô-đun: bạn chỉ cần chỉnh sửa các file nhỏ trong `web/html/components/` và `web/js/modules/`. Khi muốn cập nhật trang web phát hành:
+
 ```powershell
-python main.py --cli --subnet 192.168.1.0/24
+python web/scripts/build_all.py
+```
+Script sẽ tự động:
+1. Đọc và ghép nối các component HTML thành [`web/html/index.html`](web/html/index.html) tinh gọn.
+2. Ghép nối toàn bộ module JS thành [`web/js/app.js`](web/js/app.js).
+3. Đảm bảo cấu trúc chuẩn hóa, không có code thừa và đồng bộ song ngữ.
+
+---
+
+## 🧪 Kiểm Thử Hệ Thống (Automated Testing)
+
+Dự án có đầy đủ unit test cho cả phân hệ Desktop và Web:
+
+```powershell
+# Kiểm thử toàn diện Desktop (Discovery, Database, Blocker, Topology)
+.\venv\Scripts\python.exe -m unittest app/tests/test_all.py
+# Kết quả: 9/9 PASS
+
+# Kiểm thử bảo mật Web Backend (WAF, Rate Limiting, CSP, Path Traversal)
+python -m unittest web/backend/tests/test_security.py
+# Kết quả: 10/10 PASS
 ```
 
 ---
 
-## Windows Utility Batch Scripts
+## ⚖️ Lưu Ý Pháp Lý & Trách Nhiệm Sử Dụng (Legal Notice)
 
-The project includes convenient `.bat` scripts for quick one-click operation on Windows:
-
-| Script File | Purpose |
-| :--- | :--- |
-| **`serve_website.bat`** | Khởi chạy máy chủ web giới thiệu ứng dụng và tự động mở trình duyệt (Showcase Landing Page). |
-| **`run.bat`** | Launches the application (prioritizes standalone `.exe` if built, falls back to Python). |
-| **`run_admin.bat`** | Launches with Administrator privileges (optimal for Windows Firewall and raw packet scans). |
-| **`scripts/run_cli_scan.bat`** | Performs a fast terminal scan, printing discovered IP and MAC addresses in console. |
-| **`scripts/create_desktop_shortcut.bat`** | Creates a "Network Manager" shortcut icon directly on the Windows Desktop. |
-| **`scripts/build.bat`** | Packages the entire project into a standalone `NetworkManager.exe`. |
-| **`scripts/setup_env.bat`** | Automatically initializes virtualenv and installs dependencies on a fresh machine. |
+> [!IMPORTANT]
+> Phần mềm **Network Manager** được phát triển phục vụ công tác quản trị mạng được ủy quyền, giám sát an ninh hạ tầng và nghiên cứu học tập trên hệ thống mạng thuộc quyền sở hữu hợp pháp. Mọi hành vi quét mạng, can thiệp hoặc chặn truy cập trên hạ tầng không được phép đều bị nghiêm cấm theo quy định pháp luật.
 
 ---
 
-## Packaging Standalone Executable (`.exe` on Windows)
-
-1. Double-click **`scripts/build.bat`**, or execute in PowerShell:
-   ```powershell
-   python scripts/build_app.py
-   ```
-2. Upon completion, the standalone distribution folder is generated at:
-   ```text
-   dist/NetworkManager/NetworkManager.exe
-   ```
-   You can copy the entire `dist/NetworkManager/` folder to any other Windows computer and run it immediately without installing Python!
-
----
-
-## User Guide
-
-1. **Initial Network Scan**:
-   - Upon startup, Network Manager automatically detects your local subnet (e.g., `192.168.1.0/24` or `192.168.110.0/24`) and initiates an initial discovery scan.
-   - Click **"Scan Network"** on the Dashboard at any time to perform an on-demand refresh.
-2. **Assign Device Aliases**:
-   - Navigate to the **"Devices"** tab and click **"Details"** on any target device.
-   - Enter a friendly custom alias (e.g., *Work Laptop*, *Personal iPhone*, *Living Room Camera*) and click **"Save Changes"**.
-3. **Inspect Connection & Internet Route**:
-   - In the **"Device Details"** dialog, inspect the **"Connection Information & Internet Route"** section to view which AP the device is connected to, its physical medium (`Wi-Fi` / `Ethernet`), and its hop-by-hop route to the Internet.
-4. **Block Device (Access Control)**:
-   - In the device list or detail dialog, click **"Block"**.
-   - A confirmation dialog will prompt for confirmation. Once confirmed, the block rule is pushed to the active Router Adapter (MAC blacklist / ACL) and added to the Windows Host Firewall.
-   - Blocked devices move to the **"Blocked"** tab and are highlighted with a red badge in the Network Map.
-5. **Unblock Device**:
-   - Navigate to the **"Blocked"** tab or the device detail dialog and click **"Unblock"**. The device will be removed from router blacklists and firewall rules, restoring normal connectivity.
-6. **Configure Physical Router Adapters**:
-   - Go to **"Settings"** -> **"Router Adapter Configuration"**.
-   - Select your router model (TP-Link, OpenWrt, MikroTik).
-   - Enter the Gateway IP, administrative username, and password.
-   - Click **"Test Router Connection"** to verify authentication before saving.
-
----
-
-## Legal Disclaimer & Responsible Use
-
-> [!CAUTION]
-> This software is designed exclusively for network administration, monitoring, security auditing, and authorized management of networks that you own or are legally authorized to administer. Unauthorized scanning, interference, or tampering with networks without explicit permission from the owner is strictly prohibited.
+**© 2026 Network Manager Engineering Team. Phát hành theo giấy phép MIT License.**
