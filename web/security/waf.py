@@ -58,11 +58,20 @@ class WAFEngine:
         # 4. Các mẫu Command Injection / Remote Code Execution (RCE)
         self.rce_patterns = [
             re.compile(r"([;&|`]\s*(cat|ls|dir|whoami|netstat|powershell|cmd\.exe|bash|sh|wget|curl|nc)\b)", re.IGNORECASE),
-            re.compile(r"(\$\(.*\)|`.*`)"),
-            re.compile(r"(\bcmd\.exe\b|\bpowershell\.exe\b|\b/bin/(bash|sh)\b)", re.IGNORECASE),
+            re.compile(r"(\b(eval|system|exec|passthru|shell_exec)\s*\()", re.IGNORECASE),
+            re.compile(r"(\$\{.*?\})", re.IGNORECASE),
         ]
 
-        # 5. Các User-Agent độc hại và công cụ rà quét lỗ hổng tự động
+        # 5. Các mẫu NoSQL Injection (MongoDB, Document Stores)
+        self.nosql_patterns = [
+            re.compile(r"(['\"]?\$where['\"]?\s*:\s*)", re.IGNORECASE),
+            re.compile(r"(['\"]?\$(gt|gte|lt|lte|ne|nin|in|or|and|not|nor|exists|type|mod|regex|text|expr|jsonSchema)['\"]?\s*:\s*)", re.IGNORECASE),
+            re.compile(r"(\{\s*['\"]\$ne['\"]\s*:\s*(null|['\"]))", re.IGNORECASE),
+            re.compile(r"(\{\s*['\"]\$gt['\"]\s*:\s*['\"])", re.IGNORECASE),
+            re.compile(r"(tojson\s*\(|db\.[a-zA-Z0-9_]+\.(find|insert|update|remove|drop)\()", re.IGNORECASE),
+        ]
+
+        # 6. Các User-Agent độc hại và công cụ rà quét lỗ hổng tự động
         self.bad_user_agents = [
             "sqlmap", "nikto", "masscan", "nmap", "dirbuster",
             "havij", "acunetix", "w3af", "nessus", "openvas",
@@ -122,6 +131,11 @@ class WAFEngine:
         for pat in self.rce_patterns:
             if pat.search(text):
                 return False, "COMMAND_INJECTION", f"Phát hiện mẫu thực thi lệnh hệ điều hành tại {location}"
+
+        # Kiểm tra NoSQL Injection
+        for pat in self.nosql_patterns:
+            if pat.search(text):
+                return False, "NOSQL_INJECTION", f"Phát hiện mẫu NoSQL Injection độc hại tại {location}"
 
         return True, None, None
 

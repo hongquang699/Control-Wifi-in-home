@@ -26,6 +26,8 @@ from web.security.rate_limiter import RateLimiter
 from web.security.csrf import CSRFProtector
 from web.security.sanitizer import sanitize_input, sanitize_string
 from web.security.audit import AuditLogger
+from web.security.cors import cors_manager, CORSManager
+from web.security.vpn_guard import vpn_guard, VPNNetworkGuard
 
 class TestWebSecuritySuite(unittest.TestCase):
 
@@ -193,6 +195,58 @@ class TestWebSecuritySuite(unittest.TestCase):
         import shutil
         if os.path.exists(log_dir):
             shutil.rmtree(log_dir, ignore_errors=True)
+
+    def test_11_nosql_injection_detection(self):
+        waf = WAFEngine()
+        payloads = [
+            '{"username": "admin", "password": {"$ne": null}}',
+            '{"user": {"$gt": ""}}',
+            '{"$where": "this.password.length > 5"}',
+            'db.users.find({"active": true})'
+        ]
+        for p in payloads:
+            is_safe, rule, _ = waf.inspect_request("/api/v1/auth/login", {}, body=p, method="POST")
+            self.assertFalse(is_safe, f"Failed to detect NoSQL payload: {p}")
+            self.assertEqual(rule, "NOSQL_INJECTION")
+
+    def test_12_cors_policy_and_origin_validation(self):
+        cors = CORSManager(allowed_origins=["http://localhost:8080", "http://127.0.0.1:8080"])
+
+        # Allowed Origins (localhost & private subnets)
+        self.assertTrue(cors.is_origin_allowed("http://localhost:8080"))
+        self.assertTrue(cors.is_origin_allowed("http://127.0.0.1:8080"))
+        self.assertTrue(cors.is_origin_allowed("http://192.168.1.100:8080"))
+        self.assertTrue(cors.is_origin_allowed("http://10.8.0.2:3000"))
+        self.assertTrue(cors.is_origin_allowed(None)) # Same-Origin
+
+        # Disallowed Origins (External malicious sites)
+        self.assertFalse(cors.is_origin_allowed("http://malicious-attacker.com"))
+        self.assertFalse(cors.is_origin_allowed("https://phishing-site.org"))
+
+    def test_13_vpn_and_private_network_guard(self):
+        guard = VPNNetworkGuard(enforce_vpn_on_admin=True)
+
+        # Private / VPN IPs
+        self.assertTrue(guard.is_private_or_vpn("127.0.0.1"))
+        self.assertTrue(guard.is_private_or_vpn("192.168.1.1"))
+        self.assertTrue(guard.is_private_or_vpn("10.8.0.5"))     # OpenVPN / WireGuard
+        self.assertTrue(guard.is_private_or_vpn("100.64.0.1"))   # Tailscale CGNAT
+        self.assertEqual(guard.identify_network_type("100.64.0.1"), "VPN_TUNNEL_TAILSCALE")
+
+        # Public WAN IP
+        public_ip = "8.8.8.8"
+        self.assertFalse(guard.is_private_or_vpn(public_ip))
+        self.assertEqual(guard.identify_network_type(public_ip), "PUBLIC_INTERNET_WAN")
+
+        # Admin route blocked from Public WAN without VPN
+        allowed, err = guard.validate_route_access(public_ip, "/api/v1/settings")
+        self.assertFalse(allowed)
+        self.assertIn("VPN", err)
+
+        # Admin route allowed from VPN / LAN
+        allowed, err = guard.validate_route_access("10.8.0.5", "/api/v1/settings")
+        self.assertTrue(allowed)
+        self.assertIsNone(err)
 
 if __name__ == "__main__":
     unittest.main()

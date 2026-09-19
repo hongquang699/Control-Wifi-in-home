@@ -13,13 +13,15 @@ try:
     from web.security import (
         waf_engine, rate_limiter as web_rate_limiter,
         apply_security_headers as apply_web_security_headers,
-        csrf_protector, audit_logger as sec_audit_logger
+        csrf_protector, audit_logger as sec_audit_logger,
+        cors_manager, vpn_guard
     )
 except ImportError:
     from security import (
         waf_engine, rate_limiter as web_rate_limiter,
         apply_security_headers as apply_web_security_headers,
-        csrf_protector, audit_logger as sec_audit_logger
+        csrf_protector, audit_logger as sec_audit_logger,
+        cors_manager, vpn_guard
     )
 
 from backend.middleware.security_headers import apply_security_headers
@@ -41,10 +43,19 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
     - Rate Limiting (Sliding window)
     - Security Headers (CSP, HSTS, X-Content-Type-Options)
     - RBAC Authorization
+    - CORS Policy & Preflight Handlers
+    - VPN & Private Network Guard
     """
 
+    def do_OPTIONS(self):
+        """Xử lý yêu cầu CORS Preflight chuẩn RFC 6454."""
+        origin = self.headers.get("Origin")
+        cors_manager.handle_preflight(self, origin)
+
     def end_headers(self):
-        """Gắn tự động toàn bộ Security Headers trước khi gửi response."""
+        """Gắn tự động toàn bộ Security Headers và CORS trước khi gửi response."""
+        origin = self.headers.get("Origin")
+        cors_manager.apply_cors_headers(self, origin)
         apply_web_security_headers(self, is_api_response=self.path.startswith("/api/"))
         apply_security_headers(self)
         super().end_headers()
@@ -128,6 +139,25 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
                 status=429,
                 extra_headers={"Retry-After": str(retry_after)}
             )
+        # 3. Kiểm tra VPN & Mạng Riêng Tư (web.security.vpn_guard)
+        is_vpn_allowed, vpn_err = vpn_guard.validate_route_access(client_ip, path)
+        if not is_vpn_allowed:
+            sec_audit_logger.log_security_event(
+                event_type="PUBLIC_ACCESS_BLOCKED_VPN_REQUIRED",
+                actor="anonymous",
+                ip_address=client_ip,
+                details=vpn_err or f"Admin route {path} requires VPN/LAN connection",
+                severity="HIGH"
+            )
+            self.send_json(
+                {
+                    "error": "Truy cập bị từ chối bởi chính sách bảo mật mạng (403 Forbidden).",
+                    "reason": vpn_err,
+                    "client_ip": client_ip,
+                    "requirement": "Yêu cầu kết nối qua kênh VPN an toàn hoặc mạng nội bộ được ủy quyền"
+                },
+                status=403
+            )
             return False
 
         return True
@@ -196,10 +226,12 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
 
         body_bytes = self.rfile.read(content_length) if content_length > 0 else b"{}"
         try:
-            body_text = body_bytes.decode("utf-8")
-            body_json = json.loads(body_text) if body_text.strip() else {}
+            body_text = body_bytes.decode("utf-8", errors="ignore")
         except Exception:
             body_text = ""
+        try:
+            body_json = json.loads(body_text) if body_text.strip() else {}
+        except Exception:
             body_json = {}
 
         # 1. Kiểm tra WAF & Rate Limit

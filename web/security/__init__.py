@@ -51,6 +51,16 @@ from .audit import (
     audit_logger
 )
 
+from .cors import (
+    CORSManager,
+    cors_manager
+)
+
+from .vpn_guard import (
+    VPNNetworkGuard,
+    vpn_guard
+)
+
 __all__ = [
     "hash_password",
     "verify_password",
@@ -71,5 +81,9 @@ __all__ = [
     "sanitize_input",
     "sanitize_string",
     "AuditLogger",
-    "audit_logger"
+    "audit_logger",
+    "CORSManager",
+    "cors_manager",
+    "VPNNetworkGuard",
+    "vpn_guard"
 ]

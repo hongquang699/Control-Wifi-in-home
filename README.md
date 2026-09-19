@@ -42,44 +42,33 @@ Hệ thống hỗ trợ **100% song ngữ Tiếng Việt 🇻🇳 và English �
 
 ---
 
-## 🛡️ Hệ Thống Bảo Mật Độc Lập & Chuyên Sâu (Dedicated Security Architecture)
+## 🛡️ 7 Kỹ Thuật Bảo Mật API (7 Core API Security Techniques)
 
-Hệ thống được trang bị 2 gói bảo mật chuyên biệt độc lập cho cả **Web Server (`web/security/`)** và **Desktop App (`app/security/`)**, đáp ứng các tiêu chuẩn phòng thủ chiều sâu (Defense-in-Depth) theo khuyến nghị của OWASP và CIS Benchmark:
+Hệ thống đáp ứng trọn vẹn và chuyên sâu **7 kỹ thuật bảo mật API tiêu chuẩn doanh nghiệp**:
 
 ```text
-               KIẾN TRÚC PHÒNG THỦ ĐA TẦNG (DEFENSE-IN-DEPTH)
+               MA TRẬN 7 KỸ THUẬT BẢO MẬT API (ENTERPRISE API DEFENSE)
 
-  ┌───────────────────────────────────────────────┐  ┌───────────────────────────────────────────────┐
-  │         WEB SECURITY SUITE (web/security/)    │  │         APP SECURITY SUITE (app/security/)    │
-  ├───────────────────────────────────────────────┤  ├───────────────────────────────────────────────┤
-  │ 1. Enterprise Security Headers (CSP, HSTS...) │  │ 1. Safe Exec Engine (Zero Command Injection)  │
-  │ 2. OWASP Top 10 WAF (SQLi, XSS, RCE, Bots)    │  │ 2. Hardware-Bound Vault (MachineGuid Encrypt) │
-  │ 3. Sliding-Window Rate Limiter & Auto-Jail    │  │ 3. Granular RBAC (Admin, Operator, Viewer)    │
-  │ 4. Anti-CSRF Token / Double-Submit Cookies    │  │ 4. File & DB HMAC-SHA256 Integrity Guard      │
-  │ 5. Deep Recursive Input Sanitizer             │  │ 5. Anti-ARP Spoofing & Poisoning Monitor      │
-  │ 6. PBKDF2-HMAC-SHA256 (600,000 rounds) Crypto │  │ 6. Bidirectional Windows Host Firewall        │
-  │ 7. Chained-Hash Audit Logger (Tamper-evident) │  │ 7. Multi-Layer Blocker & Forensic Audit Logger│
-  └───────────────────────────────────────────────┘  └───────────────────────────────────────────────┘
+ ┌───┬──────────────────────────────────┬─────────────────────────────────────────────────────────────┐
+ │ # │ KỸ THUẬT BẢO MẬT                │ CƠ CHẾ TRIỂN KHAI TRONG DỰ ÁN                               │
+ ├───┼──────────────────────────────────┼─────────────────────────────────────────────────────────────┤
+ │ 1 │ Rate Limiting                    │ Sliding-Window Log + Auto-Jail IP phạt theo cấp số nhân     │
+ │ 2 │ CORS (Cross-Origin Sharing)      │ Whitelist Origin nghiêm ngặt + Xử lý Preflight OPTIONS RFC  │
+ │ 3 │ SQL & NoSQL Injection            │ WAF Regex Filter + Parameterized Queries 100% SQLite DAO    │
+ │ 4 │ Firewalls                        │ L7 Web Application Firewall (WAF) + L3/4 Host Firewall      │
+ │ 5 │ VPNs (Virtual Private Network)   │ VPN Network Guard (WireGuard, OpenVPN, Tailscale CGNAT)     │
+ │ 6 │ CSRF (Cross-Site Request Forgery)│ Cryptographic Double-Submit Token + Header X-CSRF-Token     │
+ │ 7 │ XSS (Cross-Site Scripting)       │ Deep Recursive Sanitizer + Strict CSP + Anti-Tamper Guard   │
+ └───┴──────────────────────────────────┴─────────────────────────────────────────────────────────────┘
 ```
 
-### 1. Web Security Suite (`web/security/`)
-- **`waf.py` - OWASP Top 10 WAF Engine**: Phát hiện và chặn đứng tấn công SQL Injection, Cross-Site Scripting (XSS), Path Traversal (`../`, `..\\`), Remote Code Execution (RCE), và các công cụ quét tự động độc hại (sqlmap, nikto, wpscan,...).
-- **`rate_limiter.py` - Sliding-Window Rate Limiter & Auto-Jail**: Giới hạn tần suất request theo IP (100 req/min cho API, 10 req/min cho download). Khi phát hiện dấu hiệu tấn công dồn dập hoặc vi phạm WAF liên tiếp, hệ thống tự động đưa IP vào danh sách **Auto-Jail** (cấm truy cập với thời gian phạt tăng theo cấp số nhân).
-- **`headers.py` - Military-Grade Security Headers**: Thiết lập Content Security Policy (CSP) nghiêm ngặt (whitelist tài nguyên), HSTS (`includeSubDomains; preload`), X-Frame-Options (`DENY`), X-Content-Type-Options (`nosniff`), Referrer-Policy và Cache-Control chống rò rỉ dữ liệu.
-- **`csrf.py` - Anti-CSRF Guard**: Xác thực token bảo mật ngẫu nhiên cao (Double-Submit Cookie & Header `X-CSRF-Token`) trên toàn bộ các endpoint thay đổi trạng thái (POST, PUT, DELETE).
-- **`sanitizer.py` - Deep Recursive Sanitizer**: Làm sạch sâu dữ liệu đầu vào JSON và biểu mẫu, loại bỏ null bytes (`\x00`), chống Prototype Pollution (`__proto__`, `constructor`), và mã hóa HTML an toàn.
-- **`crypto.py` - PBKDF2-HMAC-SHA256 & Constant-Time Crypto**: Băm mật khẩu với 600,000 vòng lặp kèm salt ngẫu nhiên 32-byte, sinh token bảo mật bằng `secrets`, ký và xác thực HMAC dữ liệu, so sánh thời gian bất biến `hmac.compare_digest` chống Timing Attacks.
-- **`audit.py` - Chained-Hash Audit Logger**: Nhật ký kiểm toán bảo mật với cơ chế băm xâu chuỗi (tương tự Blockchain log), mỗi bản ghi liên kết mã băm của bản ghi trước đó, hỗ trợ hàm `verify_log_integrity()` phát hiện mọi hành vi sửa đổi hoặc xóa nhật ký.
-- **`anti_tamper.js` - Chrome Client Anti-Tamper & DevTools Guard**: Khóa phím tắt `F12`, `Ctrl+Shift+I/J/C`, `Ctrl+U`, `Ctrl+S`, vô hiệu hóa chuột phải kiểm tra phần tử (Inspect Element), phát hiện DevTools qua kích thước và getter traps, bẫy Anti-Debugging, DOM MutationObserver triệt tiêu thẻ script lạ, đóng băng Object.prototype và in biểu ngữ cảnh báo Self-XSS.
-
-### 2. App Security Suite (`app/security/`)
-- **`safe_exec.py` - Safe Subprocess Execution**: Loại bỏ hoàn toàn lỗ hổng Command Injection bằng cách cấm tuyệt đối `shell=True`, sử dụng danh sách tham số dạng list, kiểm tra whitelist nhị phân (`netsh`, `route`, `arp`, `ping`, `nmap`), và xác thực chặt chẽ IP / MAC qua regex và thư viện chuẩn `ipaddress`.
-- **`vault.py` - Hardware-Bound Credentials Vault**: Mã hóa mật khẩu đăng nhập router bằng khóa dẫn xuất từ thông tin định danh phần cứng máy tính (Windows `MachineGuid` kết hợp entropy hệ thống), ngăn chặn đánh cắp file cấu hình mang sang máy khác giải mã.
-- **`rbac.py` - Role-Based Access Control (RBAC)**: Phân quyền chặt chẽ 3 cấp độ (*Admin, Operator, Viewer*). Cung cấp các decorator `@require_role` và `@require_permission` kiểm soát quyền chặn/bỏ chặn thiết bị, quét mạng và thay đổi cấu hình.
-- **`integrity.py` - File & Database HMAC-SHA256 Guard**: Giám sát tính toàn vẹn của cơ sở dữ liệu `network.db`, cấu hình `config.json`, và danh sách router `routers.json`, tự động phát hiện nếu file bị can thiệp trái phép.
-- **`arp_guard.py` - Anti-ARP Spoofing Monitor**: Giám sát bảng ARP của Windows theo thời gian thực, phát hiện hành vi đầu độc ARP (thay đổi MAC Gateway bất thường hoặc trùng lặp địa chỉ MAC trên mạng).
-- **`firewall.py` - Bidirectional Host Firewall**: Điều khiển tường lửa Windows (Inbound & Outbound) thông qua động cơ thực thi an toàn `safe_run_command`.
-- **`blocker.py` & `audit_logger.py` - Multi-Layer Access Control & Forensic Log**: Tích hợp kiểm tra quyền RBAC, giải mã an toàn từ Vault, thực thi chặn đa tầng (Router ACL + Host Firewall), và ghi log pháp chứng `data/audit_compliance.log`.
+1. **Rate Limiting (`web/security/rate_limiter.py`)**: Giới hạn tần suất request theo IP (100 req/min cho API, 5 req/min cho Login, 10 req/min cho Download). Tự động kích hoạt cơ chế **Auto-Jail** cách ly IP vi phạm với thời gian khóa tăng dần (60s -> 300s -> 1800s).
+2. **CORS - Cross-Origin Resource Sharing (`web/security/cors.py`)**: Kiểm soát xuất xứ Origin qua danh sách whitelist được cấp phép; xử lý yêu cầu Preflight `OPTIONS` chuẩn RFC; cô lập Cookie/Token không bao giờ dùng Wildcard `*` khi bật `Access-Control-Allow-Credentials`.
+3. **SQL & NoSQL Injection (`web/security/waf.py` & `app/database/`)**: Bộ quy tắc WAF chặn đứng các mẫu SQLi (`UNION SELECT`, stacked queries, `' OR 1=1`) và NoSQLi (`$where`, `$gt`, `$ne`, `$regex`, MongoDB operators); toàn bộ truy vấn cơ sở dữ liệu SQLite sử dụng 100% Parameterized Statements (`?` placeholder).
+4. **Firewalls (`web/security/waf.py` & `app/security/firewall.py`)**: Phòng thủ 2 tầng: Tường lửa ứng dụng L7 WAF kiểm tra payload theo thời gian thực kết hợp Tường lửa máy trạm L3/4 (Windows Defender Firewall tự động tạo rule Inbound/Outbound qua `safe_run_command`).
+5. **VPNs & Private Network Restriction (`web/security/vpn_guard.py`)**: Phân định chính xác các kênh kết nối từ VPN Tunnel (WireGuard `10.8.0.0/16`, Tailscale `100.64.0.0/10`) và mạng nội bộ riêng tư (RFC 1918). Tự động khóa các API quản trị nhạy cảm (`/api/v1/settings`, `/api/v1/backup`, `/api/v1/auth/users`) nếu truy cập từ Public Internet WAN mà không có kết nối VPN.
+6. **CSRF - Cross-Site Request Forgery (`web/security/csrf.py`)**: Triển khai giải pháp Double-Submit Cookie kết hợp header `X-CSRF-Token`, token được sinh bằng `secrets.token_hex(32)`, ràng buộc thời gian sống (TTL) và xác thực bắt buộc trên toàn bộ phương thức POST, PUT, DELETE.
+7. **XSS - Cross-Site Scripting (`web/security/sanitizer.py`, `headers.py`, `anti_tamper.js`)**: Làm sạch đệ quy JSON, mã hóa thực thể HTML (`&lt;`, `&gt;`), thiết lập Content-Security-Policy (CSP) loại bỏ `eval`, cùng động cơ DOM MutationObserver phát hiện và triệt tiêu thẻ script lạ chèn vào trang.
 
 ---
 
