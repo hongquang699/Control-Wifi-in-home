@@ -5,7 +5,7 @@ Màn hình Cấu hình Hệ thống (Settings View) - Được module hóa từ 
 import json
 import os
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QFrame,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame,
     QMessageBox, QFileDialog, QScrollArea, QLineEdit
 )
 from PySide6.QtCore import Qt, Signal
@@ -133,14 +133,25 @@ class SettingsView(QWidget):
         self.card_lang = LanguageSettingsCard()
         self.cards_layout.addWidget(self.card_lang)
 
-        self.card_scan = ScanSettingsCard()
-        self.cards_layout.addWidget(self.card_scan)
+        # 2-Column Grid matching Image 7
+        grid = QHBoxLayout()
+        grid.setSpacing(18)
 
+        # Left Column: Router Settings Card
         self.card_router = RouterSettingsCard()
-        self.cards_layout.addWidget(self.card_router)
+        grid.addWidget(self.card_router, 1)
 
+        # Right Column: Scan & Security Cards
+        right_col = QVBoxLayout()
+        right_col.setSpacing(18)
+        self.card_scan = ScanSettingsCard()
         self.card_sec = SecuritySettingsCard()
-        self.cards_layout.addWidget(self.card_sec)
+        right_col.addWidget(self.card_scan)
+        right_col.addWidget(self.card_sec)
+        right_col.addStretch()
+        grid.addLayout(right_col, 1)
+
+        self.cards_layout.addLayout(grid)
 
         self.cards_layout.addStretch()
         self.scroll_area.setWidget(scroll_content)

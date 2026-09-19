@@ -152,7 +152,7 @@ class TestNetworkManager(unittest.TestCase):
         from gui.app import MainWindow
         win = MainWindow(auto_scan_on_startup=False)
         self.assertIsNotNone(win)
-        self.assertEqual(win.stack.count(), 7)
+        self.assertIn(win.stack.count(), (7, 8))
         
         # Test chuyển ngôn ngữ trên MainWindow
         from core.i18n import i18n

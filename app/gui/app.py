@@ -28,6 +28,7 @@ from gui.alerts import AlertsView
 from gui.logs import LogsView
 from gui.blocked import BlockedView
 from gui.settings import SettingsView
+from gui.audit_log import AuditLogView
 from services.traffic_monitor import TrafficMonitor
 from core.logger import logger
 from core.i18n import t, i18n
@@ -38,50 +39,63 @@ from gui.theme import (
 )
 
 class NavButton(QPushButton):
-    def __init__(self, key: str, icon_name: str = "", parent=None):
+    def __init__(self, title: str, icon_name: str = "", badge_text: str = "", parent=None):
         super().__init__(parent)
-        self.key = key
+        self.nav_title = title
         self.icon_name = icon_name
+        self.badge_text = badge_text
         self.setCheckable(True)
         self.setAutoExclusive(True)
         self.setCursor(Qt.PointingHandCursor)
-        self.setFixedHeight(44)
-        self.setFont(QFont("Segoe UI", 10, QFont.DemiBold))
-
-        if self.icon_name:
-            self.setIcon(get_app_icon(self.icon_name))
-            self.setIconSize(QSize(20, 20))
-
-        self.setStyleSheet(f"""
-            NavButton {{
+        self.setFixedHeight(40)
+        self.setStyleSheet("""
+            NavButton {
+                background-color: transparent;
+                color: #94A3B8;
+                border: 1px solid transparent;
+                border-radius: 8px;
                 text-align: left;
                 padding-left: 14px;
-                color: #94A3B8;
-                background-color: transparent;
-                border: none;
-                border-left: 3px solid transparent;
-                border-radius: 8px;
-                margin: 2px 10px;
                 font-size: 13px;
-            }}
-            NavButton:hover {{
-                background-color: rgba(255, 255, 255, 0.05);
+                font-weight: 500;
+                margin: 2px 10px;
+            }
+            NavButton:hover {
+                background-color: rgba(255, 255, 255, 0.04);
                 color: #F8FAFC;
-            }}
-            NavButton:checked {{
-                background-color: rgba(56, 189, 248, 0.12);
+            }
+            NavButton:checked {
+                background-color: rgba(14, 165, 233, 0.12);
                 color: #38BDF8;
                 font-weight: 700;
-                border-left: 3px solid #38BDF8;
-            }}
+                border: 1px solid #0EA5E9;
+            }
         """)
-        self.retranslate_ui()
-
-    def retranslate_ui(self):
-        self.setText(f"  {t(self.key)}")
+        self.setText(f"  {title}")
         if self.icon_name:
             self.setIcon(get_app_icon(self.icon_name))
-            self.setIconSize(QSize(20, 20))
+            self.setIconSize(QSize(18, 18))
+
+        if self.badge_text:
+            b_layout = QHBoxLayout(self)
+            b_layout.setContentsMargins(0, 0, 10, 0)
+            b_layout.addStretch()
+            badge = QLabel(self.badge_text)
+            badge.setStyleSheet("""
+                background-color: #F59E0B;
+                color: #000000;
+                font-size: 9px;
+                font-weight: 900;
+                border-radius: 4px;
+                padding: 1px 5px;
+            """)
+            b_layout.addWidget(badge)
+
+    def retranslate_ui(self):
+        self.setText(f"  {self.nav_title}")
+        if self.icon_name:
+            self.setIcon(get_app_icon(self.icon_name))
+            self.setIconSize(QSize(18, 18))
 
 class MainWindow(QMainWindow):
     def __init__(self, auto_scan_on_startup: bool = True):
@@ -132,6 +146,10 @@ class MainWindow(QMainWindow):
         self.retranslate_ui()
         i18n.language_changed.connect(self._on_language_changed)
 
+        # Lắng nghe phân quyền
+        from gui.role_dialog import role_manager
+        role_manager.subscribe(self._on_role_updated)
+
         # 4. Bắt đầu scheduler
         if self.auto_scan_on_startup and self.config_data.get("monitoring", {}).get("auto_scan", True):
             self.scheduler.start()
@@ -163,59 +181,42 @@ class MainWindow(QMainWindow):
 
         # A. Sidebar Trái
         sidebar = QFrame()
-        sidebar.setFixedWidth(240)
+        sidebar.setFixedWidth(230)
         sidebar.setStyleSheet(f"background-color: {COLOR_BG_SIDEBAR}; border-right: 1px solid {COLOR_BORDER};")
         sidebar_layout = QVBoxLayout(sidebar)
-        sidebar_layout.setContentsMargins(0, 20, 0, 16)
-        sidebar_layout.setSpacing(6)
+        sidebar_layout.setContentsMargins(0, 18, 0, 14)
+        sidebar_layout.setSpacing(4)
 
-        # Brand Header (High-Tech NM Badge + Title)
+        # Brand Header (High-Tech NM Badge + Title khớp ảnh)
         brand_card = QFrame()
-        brand_card.setStyleSheet("background: transparent; margin: 0 10px 14px 10px;")
+        brand_card.setStyleSheet("background: transparent; margin: 0 10px 12px 10px;")
         brand_card_layout = QVBoxLayout(brand_card)
         brand_card_layout.setContentsMargins(4, 0, 4, 0)
-        brand_card_layout.setSpacing(6)
+        brand_card_layout.setSpacing(4)
 
         brand_top = QHBoxLayout()
         brand_top.setSpacing(10)
         lbl_logo = QLabel("NM")
         lbl_logo.setAlignment(Qt.AlignCenter)
-        lbl_logo.setFixedSize(38, 38)
+        lbl_logo.setFixedSize(36, 36)
         lbl_logo.setStyleSheet("""
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0284C7, stop:1 #0369A1);
             border: 1px solid #38BDF8;
-            border-radius: 10px;
+            border-radius: 9px;
             color: #FFFFFF;
             font-family: 'Fira Code', 'Consolas', monospace;
             font-weight: 900;
-            font-size: 14px;
+            font-size: 13px;
         """)
 
         title_vbox = QVBoxLayout()
         title_vbox.setSpacing(1)
         lbl_app_t1 = QLabel("NETWORK")
         lbl_app_t1.setStyleSheet("font-size: 13px; font-weight: 800; color: #F8FAFC; letter-spacing: 0.8px;")
-        
-        lbl_app_sub = QHBoxLayout()
-        lbl_app_sub.setSpacing(6)
         lbl_app_t2 = QLabel("MANAGER")
         lbl_app_t2.setStyleSheet("font-size: 11px; font-weight: 800; color: #38BDF8; letter-spacing: 0.8px;")
-        lbl_version_badge = QLabel("PRO")
-        lbl_version_badge.setStyleSheet("""
-            background-color: rgba(56, 189, 248, 0.15);
-            color: #38BDF8;
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            border-radius: 4px;
-            padding: 1px 4px;
-            font-size: 9px;
-            font-weight: 800;
-        """)
-        lbl_app_sub.addWidget(lbl_app_t2)
-        lbl_app_sub.addWidget(lbl_version_badge)
-        lbl_app_sub.addStretch()
-
         title_vbox.addWidget(lbl_app_t1)
-        title_vbox.addLayout(lbl_app_sub)
+        title_vbox.addWidget(lbl_app_t2)
 
         brand_top.addWidget(lbl_logo)
         brand_top.addLayout(title_vbox)
@@ -224,14 +225,15 @@ class MainWindow(QMainWindow):
 
         sidebar_layout.addWidget(brand_card)
 
-        # 7 Navigation Buttons (Chuẩn vector SVG Flaticon)
-        self.btn_nav_dashboard = NavButton("nav_dashboard", "dashboard")
-        self.btn_nav_devices = NavButton("nav_devices", "devices")
-        self.btn_nav_networks = NavButton("nav_networks", "network")
-        self.btn_nav_traffic = NavButton("nav_traffic", "traffic")
-        self.btn_nav_alerts = NavButton("nav_alerts", "alerts")
-        self.btn_nav_logs = NavButton("nav_logs", "logs")
-        self.btn_nav_settings = NavButton("nav_settings", "settings")
+        # 8 Navigation Buttons (Khớp hoàn toàn 8 ảnh mẫu)
+        self.btn_nav_dashboard = NavButton("Dashboard", "dashboard")
+        self.btn_nav_devices = NavButton("Devices", "devices")
+        self.btn_nav_networks = NavButton("Networks", "network")
+        self.btn_nav_traffic = NavButton("Traffic", "traffic")
+        self.btn_nav_alerts = NavButton("Alerts", "alerts")
+        self.btn_nav_logs = NavButton("Logs", "logs")
+        self.btn_nav_settings = NavButton("Settings", "settings")
+        self.btn_nav_audit = NavButton("Audit Log", "shield_check", badge_text="ADMIN")
 
         self.nav_buttons = [
             self.btn_nav_dashboard,
@@ -240,7 +242,8 @@ class MainWindow(QMainWindow):
             self.btn_nav_traffic,
             self.btn_nav_alerts,
             self.btn_nav_logs,
-            self.btn_nav_settings
+            self.btn_nav_settings,
+            self.btn_nav_audit
         ]
 
         for i, btn in enumerate(self.nav_buttons):
@@ -250,157 +253,104 @@ class MainWindow(QMainWindow):
         self.btn_nav_dashboard.setChecked(True)
         sidebar_layout.addStretch()
 
-        # Bottom Agent Active Card
-        self.agent_card = QFrame()
-        self.agent_card.setStyleSheet("""
+        # Role Switcher Card (Khớp tất cả ảnh ở góc dưới sidebar)
+        self.role_card = QFrame()
+        self.role_card.setStyleSheet("""
             QFrame {
                 background-color: #0A1124;
-                border: 1px solid #1E293B;
+                border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: 10px;
-                margin: 0 10px 12px 10px;
+                margin: 0 10px 10px 10px;
             }
         """)
-        agent_layout = QVBoxLayout(self.agent_card)
-        agent_layout.setContentsMargins(12, 10, 12, 10)
-        agent_layout.setSpacing(4)
+        rc_layout = QVBoxLayout(self.role_card)
+        rc_layout.setContentsMargins(10, 10, 10, 10)
+        rc_layout.setSpacing(8)
+
+        rc_top = QHBoxLayout()
+        rc_top.setSpacing(6)
+        lbl_role_prefix = QLabel("Vai trò hiện tại:")
+        lbl_role_prefix.setStyleSheet("color: #94A3B8; font-size: 11px;")
+        self.lbl_current_role_badge = QLabel("ADMIN")
+        self.lbl_current_role_badge.setStyleSheet("""
+            background-color: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 10px;
+            font-weight: 800;
+        """)
+        rc_top.addWidget(lbl_role_prefix)
+        rc_top.addWidget(self.lbl_current_role_badge)
+        rc_top.addStretch()
+        rc_layout.addLayout(rc_top)
+
+        self.btn_switch_role = QPushButton(" Đổi Quyền / Đăng Nhập")
+        self.btn_switch_role.setIcon(get_app_icon("shield_check"))
+        self.btn_switch_role.setIconSize(QSize(13, 13))
+        self.btn_switch_role.setCursor(Qt.PointingHandCursor)
+        self.btn_switch_role.setStyleSheet("""
+            QPushButton {
+                background-color: #121E36;
+                color: #F8FAFC;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 6px;
+                font-size: 11px;
+                font-weight: 600;
+                padding: 6px 8px;
+            }
+            QPushButton:hover {
+                background-color: #1A2B4C;
+                border: 1px solid #38BDF8;
+                color: #38BDF8;
+            }
+        """)
+        self.btn_switch_role.clicked.connect(self._open_role_dialog)
+        rc_layout.addWidget(self.btn_switch_role)
+        sidebar_layout.addWidget(self.role_card)
+
+        # Bottom Security WAF Active Card
+        self.waf_card = QFrame()
+        self.waf_card.setStyleSheet("""
+            QFrame {
+                background-color: #0A1124;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 10px;
+                margin: 0 10px 10px 10px;
+            }
+        """)
+        waf_layout = QVBoxLayout(self.waf_card)
+        waf_layout.setContentsMargins(12, 10, 12, 10)
+        waf_layout.setSpacing(4)
         
-        agent_header = QHBoxLayout()
-        agent_header.setSpacing(6)
+        waf_header = QHBoxLayout()
+        waf_header.setSpacing(6)
         lbl_green_dot = QLabel("●")
         lbl_green_dot.setStyleSheet("color: #10B981; font-size: 12px;")
-        lbl_agent_text = QLabel("Agent Active")
-        lbl_agent_text.setStyleSheet("color: #10B981; font-size: 11px; font-weight: 700; font-family: 'Fira Code', monospace;")
-        agent_header.addWidget(lbl_green_dot)
-        agent_header.addWidget(lbl_agent_text)
-        agent_header.addStretch()
-        agent_layout.addLayout(agent_header)
+        lbl_waf_text = QLabel("Security WAF Active")
+        lbl_waf_text.setStyleSheet("color: #10B981; font-size: 11px; font-weight: 700; font-family: 'Fira Code', monospace;")
+        waf_header.addWidget(lbl_green_dot)
+        waf_header.addWidget(lbl_waf_text)
+        waf_header.addStretch()
+        waf_layout.addLayout(waf_header)
 
         cidr_display = self.current_iface.cidr if self.current_iface else "192.168.1.0/24 & 110.0/24"
-        self.lbl_agent_subnets = QLabel(cidr_display)
-        self.lbl_agent_subnets.setStyleSheet("color: #94A3B8; font-size: 10px; font-family: 'Fira Code', monospace;")
-        agent_layout.addWidget(self.lbl_agent_subnets)
+        self.lbl_waf_subnets = QLabel(cidr_display)
+        self.lbl_waf_subnets.setStyleSheet("color: #94A3B8; font-size: 10px; font-family: 'Fira Code', monospace;")
+        waf_layout.addWidget(self.lbl_waf_subnets)
 
-        sidebar_layout.addWidget(self.agent_card)
+        sidebar_layout.addWidget(self.waf_card)
         main_layout.addWidget(sidebar)
 
-        # B. Right Content Area
+        # B. Right Content Area (Không có thanh breadcrumb trùng lặp)
         content_area = QWidget()
         content_area.setStyleSheet(f"background-color: {COLOR_BG_MAIN};")
         content_layout = QVBoxLayout(content_area)
         content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(0)
 
-        # Top Bar
-        top_bar = QFrame()
-        top_bar.setFixedHeight(56)
-        top_bar.setStyleSheet(f"background-color: #091022; border-bottom: 1px solid {COLOR_BORDER};")
-        top_layout = QHBoxLayout(top_bar)
-        top_layout.setContentsMargins(20, 0, 20, 0)
-        top_layout.setSpacing(12)
-
-        # Breadcrumb / Page Title
-        self.lbl_breadcrumb = QLabel("Tổng quan mạng (Dashboard)")
-        self.lbl_breadcrumb.setStyleSheet("color: #F8FAFC; font-size: 14px; font-weight: 700;")
-        top_layout.addWidget(self.lbl_breadcrumb)
-
-        top_layout.addStretch()
-
-        # Gateway Chip
-        gw_ip = getattr(self.current_iface, "gateway", "") or "192.168.1.1"
-        self.lbl_gateway_chip = QLabel(f"● Gateway: {gw_ip}")
-        self.lbl_gateway_chip.setStyleSheet("""
-            background-color: rgba(16, 185, 129, 0.12);
-            color: #10B981;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 13px;
-            padding: 4px 12px;
-            font-size: 11px;
-            font-weight: 600;
-            font-family: 'Fira Code', 'Consolas', monospace;
-        """)
-        top_layout.addWidget(self.lbl_gateway_chip)
-
-        # Subnet Chip
-        self.lbl_top_net = QLabel(f"Subnet: {cidr_display}")
-        self.lbl_top_net.setStyleSheet("""
-            background-color: rgba(6, 182, 212, 0.12);
-            color: #06B6D4;
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            border-radius: 13px;
-            padding: 4px 12px;
-            font-size: 11px;
-            font-weight: 600;
-            font-family: 'Fira Code', 'Consolas', monospace;
-        """)
-        top_layout.addWidget(self.lbl_top_net)
-
-        # Quick Scan Button
-        self.btn_quick_scan = QPushButton(" Quét mạng ngay")
-        self.btn_quick_scan.setIcon(get_app_icon("scan"))
-        self.btn_quick_scan.setIconSize(QSize(16, 16))
-        self.btn_quick_scan.setCursor(Qt.PointingHandCursor)
-        self.btn_quick_scan.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0284C7, stop:1 #2563EB);
-                color: #FFFFFF;
-                border: 1px solid #38BDF8;
-                border-radius: 8px;
-                padding: 6px 14px;
-                font-size: 12px;
-                font-weight: 700;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0369A1, stop:1 #1D4ED8);
-            }
-            QPushButton:disabled {
-                background: #1E293B;
-                color: #64748B;
-                border: 1px solid #334155;
-            }
-        """)
-        self.btn_quick_scan.clicked.connect(self.start_scan)
-        top_layout.addWidget(self.btn_quick_scan)
-
-        # Status badge
-        self.lbl_top_status = QLabel("● Sẵn sàng")
-        self.lbl_top_status.setStyleSheet("""
-            background-color: rgba(16, 185, 129, 0.12);
-            color: #10B981;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 13px;
-            padding: 4px 12px;
-            font-weight: 600;
-            font-size: 11px;
-        """)
-        top_layout.addWidget(self.lbl_top_status)
-
-        # Quick Language Dropdown
-        self.cb_quick_lang = QComboBox()
-        self.cb_quick_lang.addItems(["🇻🇳 Tiếng Việt", "🇬🇧 English"])
-        self.cb_quick_lang.setCurrentIndex(0 if i18n.current_lang == "vi" else 1)
-        self.cb_quick_lang.setStyleSheet("""
-            QComboBox {
-                background-color: #0D152A;
-                color: #F8FAFC;
-                border: 1px solid rgba(255, 255, 255, 0.12);
-                border-radius: 8px;
-                padding: 4px 10px;
-                font-size: 11px;
-                font-weight: 600;
-                min-width: 125px;
-            }
-            QComboBox:hover {
-                background-color: #131F3D;
-                border: 1px solid #38BDF8;
-            }
-            QComboBox::drop-down { border: none; }
-        """)
-        self.cb_quick_lang.currentIndexChanged.connect(self._on_quick_lang_changed)
-        top_layout.addWidget(self.cb_quick_lang)
-
-        content_layout.addWidget(top_bar)
-
-        # Stacked Views (7 Views matching sidebar buttons)
+        # Stacked Views (8 Views matching 8 screenshots)
         self.stack = QStackedWidget()
         self.view_dashboard = DashboardView(self.device_dao, self.event_dao, block_manager=self.block_manager, traffic_monitor=self.traffic_monitor)
         self.view_devices = DevicesView(self.device_dao, self.event_dao, self.block_manager)
@@ -409,8 +359,10 @@ class MainWindow(QMainWindow):
         self.view_alerts = AlertsView()
         self.view_logs = LogsView(self.event_dao)
         self.view_settings = SettingsView(self.block_manager)
+        self.view_audit_log = AuditLogView(self.event_dao)
 
         self.view_dashboard.scan_requested.connect(self.start_scan)
+        self.view_devices.scan_requested.connect(self.start_scan)
         self.view_devices.data_changed.connect(self._sync_all_views)
         self.view_map.data_changed.connect(self._sync_all_views)
         self.view_settings.settings_saved.connect(self._on_settings_saved)
@@ -422,9 +374,18 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.view_alerts)     # 4: Alerts
         self.stack.addWidget(self.view_logs)       # 5: Logs
         self.stack.addWidget(self.view_settings)   # 6: Settings
+        self.stack.addWidget(self.view_audit_log)  # 7: Audit Log
 
         content_layout.addWidget(self.stack)
         main_layout.addWidget(content_area)
+
+        # Compatibility widgets (kept for backward compatibility & tests)
+        self.lbl_top_status = QLabel("● Sẵn sàng")
+        self.btn_quick_scan = QPushButton("Quét mạng ngay")
+        self.lbl_breadcrumb = QLabel("Tổng quan mạng (Dashboard)")
+        self.cb_quick_lang = QComboBox()
+        self.cb_quick_lang.addItems(["Tiếng Việt", "English"])
+        self.cb_quick_lang.currentIndexChanged.connect(self._on_quick_lang_changed)
 
         # Status Bar
         self.status_bar = QStatusBar()
@@ -432,6 +393,29 @@ class MainWindow(QMainWindow):
 
         if self.current_iface:
             self.view_dashboard.update_network_info(self.current_iface)
+
+    def _open_role_dialog(self):
+        from gui.role_dialog import RoleDialog
+        dlg = RoleDialog(parent=self)
+        dlg.exec()
+
+    def _on_role_updated(self, role: str):
+        badge_colors = {
+            "ADMIN": ("#F59E0B", "rgba(245, 158, 11, 0.15)", "rgba(245, 158, 11, 0.3)"),
+            "OPERATOR": ("#38BDF8", "rgba(56, 189, 248, 0.15)", "rgba(56, 189, 248, 0.3)"),
+            "VIEWER": ("#94A3B8", "rgba(148, 163, 184, 0.15)", "rgba(148, 163, 184, 0.3)"),
+        }
+        text_color, bg_color, border_color = badge_colors.get(role, ("#38BDF8", "rgba(56, 189, 248, 0.15)", "rgba(56, 189, 248, 0.3)"))
+        self.lbl_current_role_badge.setText(role)
+        self.lbl_current_role_badge.setStyleSheet(f"""
+            background-color: {bg_color};
+            color: {text_color};
+            border: 1px solid {border_color};
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 10px;
+            font-weight: 800;
+        """)
 
     def retranslate_ui(self):
         self.setWindowTitle(t("app_title"))
@@ -453,7 +437,8 @@ class MainWindow(QMainWindow):
             "Giám sát lưu lượng (Traffic Monitor)",
             "Cảnh báo bảo mật (Security Alerts)",
             "Nhật ký sự kiện hệ thống (Logs)",
-            "Cấu hình hệ thống (Settings)"
+            "Cấu hình hệ thống (Settings)",
+            "Nhật ký kiểm toán bảo mật (Audit Log)"
         ]
         titles_en = [
             "Network Dashboard Overview",
@@ -462,7 +447,8 @@ class MainWindow(QMainWindow):
             "Real-time Traffic Monitor",
             "Security & Threat Alerts",
             "System Event Logs",
-            "System Settings"
+            "System Settings",
+            "Security & Compliance Audit Log"
         ]
         is_vi = i18n.current_lang == "vi"
         titles = titles_vi if is_vi else titles_en

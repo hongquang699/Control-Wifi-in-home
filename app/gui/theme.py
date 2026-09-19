@@ -9,11 +9,11 @@ from PySide6.QtGui import QFont, QColor
 from core.i18n import t
 
 # 1. Bảng màu cao cấp (Modern Luxury Dark Palette)
-COLOR_BG_MAIN = "#060A14"         # Nền chính không gian sâu
-COLOR_BG_SIDEBAR = "#091022"      # Nền sidebar kính mờ
-COLOR_BG_CARD = "#0E172E"         # Nền thẻ container (Glass Card)
-COLOR_BG_CARD_HOVER = "#142244"   # Thẻ khi hover
-COLOR_BG_INPUT = "#0A1224"        # Nền ô nhập liệu / combobox
+COLOR_BG_MAIN = "#050B18"         # Nền chính không gian sâu (Dark Tech Canvas)
+COLOR_BG_SIDEBAR = "#070E1E"      # Nền sidebar sắc nét
+COLOR_BG_CARD = "#0A1326"         # Nền thẻ container (Glass Card)
+COLOR_BG_CARD_HOVER = "#0F1C36"   # Thẻ khi hover
+COLOR_BG_INPUT = "#080F1E"        # Nền ô nhập liệu / combobox
 
 COLOR_BORDER = "rgba(255, 255, 255, 0.08)"
 COLOR_BORDER_LIGHT = "rgba(255, 255, 255, 0.15)"
@@ -24,10 +24,141 @@ COLOR_TEXT_SECONDARY = "#94A3B8"  # Chữ phụ
 COLOR_TEXT_MUTED = "#64748B"      # Chữ làm mờ
 
 COLOR_ACCENT_INDIGO = "#6366F1"   # Indigo chủ đạo
-COLOR_ACCENT_CYAN = "#0EA5E9"     # Xanh Cyan công nghệ
+COLOR_ACCENT_CYAN = "#38BDF8"     # Xanh Cyan công nghệ
+COLOR_ACCENT_PURPLE = "#A855F7"   # Tím sóng / Uplink
 COLOR_ACCENT_EMERALD = "#10B981"  # Xanh ngọc trực tuyến / thành công
 COLOR_ACCENT_AMBER = "#F59E0B"    # Hổ phách / Cảnh báo
-COLOR_ACCENT_ROSE = "#F43F5E"     # Đỏ hồng / Chặn / Nguy hiểm
+COLOR_ACCENT_ROSE = "#EF4444"     # Đỏ hồng / Chặn
+
+# Bộ định kiểu nút bấm chuẩn Cyber Dark-Tech
+STYLE_PILL_ACTIVE = """
+    QPushButton {
+        background-color: #0284C7;
+        color: #FFFFFF;
+        border: 1px solid #38BDF8;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 6px 14px;
+    }
+"""
+
+STYLE_PILL_INACTIVE = """
+    QPushButton {
+        background-color: #0A1224;
+        color: #94A3B8;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 12px;
+        padding: 6px 14px;
+    }
+    QPushButton:hover {
+        background-color: #121E36;
+        color: #F8FAFC;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+"""
+
+STYLE_BTN_BLOCK = """
+    QPushButton {
+        background-color: rgba(239, 68, 68, 0.12);
+        color: #F87171;
+        border: 1px solid rgba(239, 68, 68, 0.45);
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 5px 14px;
+    }
+    QPushButton:hover {
+        background-color: #DC2626;
+        color: #FFFFFF;
+        border: 1px solid #EF4444;
+    }
+"""
+
+STYLE_BTN_UNBLOCK = """
+    QPushButton {
+        background-color: rgba(16, 185, 129, 0.12);
+        color: #34D399;
+        border: 1px solid rgba(16, 185, 129, 0.45);
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 5px 14px;
+    }
+    QPushButton:hover {
+        background-color: #059669;
+        color: #FFFFFF;
+        border: 1px solid #10B981;
+    }
+"""
+
+STYLE_BTN_SLATE = """
+    QPushButton {
+        background-color: #1E293B;
+        color: #CBD5E1;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 12px;
+        padding: 5px 12px;
+    }
+    QPushButton:hover {
+        background-color: #334155;
+        color: #FFFFFF;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+"""
+
+STYLE_BTN_PRIMARY = """
+    QPushButton {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0284C7, stop:1 #2563EB);
+        color: #FFFFFF;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 7px 18px;
+    }
+    QPushButton:hover {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0EA5E9, stop:1 #3B82F6);
+    }
+"""
+
+STYLE_BTN_AMBER = """
+    QPushButton {
+        background-color: rgba(245, 158, 11, 0.15);
+        color: #FBBF24;
+        border: 1px solid rgba(245, 158, 11, 0.45);
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 7px 16px;
+    }
+    QPushButton:hover {
+        background-color: #D97706;
+        color: #FFFFFF;
+        border: 1px solid #F59E0B;
+    }
+"""
+
+STYLE_BTN_EMERALD = """
+    QPushButton {
+        background-color: rgba(16, 185, 129, 0.15);
+        color: #34D399;
+        border: 1px solid rgba(16, 185, 129, 0.45);
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 7px 16px;
+    }
+    QPushButton:hover {
+        background-color: #059669;
+        color: #FFFFFF;
+        border: 1px solid #10B981;
+    }
+"""
 
 # 2. QSS Toàn cục (Global StyleSheet)
 GLOBAL_QSS = """

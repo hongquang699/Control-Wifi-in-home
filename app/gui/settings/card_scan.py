@@ -44,32 +44,58 @@ class ScanSettingsCard(SettingsCard):
         timer_row = QHBoxLayout()
         timer_row.setSpacing(20)
 
-        # Cột Chu kỳ quét
+        # Cột Chu kỳ quét (Slider + SpinBox)
         col_interval = QVBoxLayout()
-        col_interval.setSpacing(4)
+        col_interval.setSpacing(6)
         self.lbl_scan_interval = QLabel()
         self.lbl_scan_interval.setStyleSheet("font-size: 13px; font-weight: 600; color: #CBD5E1;")
+
+        slider_box = QHBoxLayout()
+        slider_box.setSpacing(10)
+        from PySide6.QtWidgets import QSlider
+        self.slider_interval = QSlider(Qt.Horizontal)
+        self.slider_interval.setRange(10, 300)
+        self.slider_interval.setValue(60)
+        self.slider_interval.setStyleSheet("""
+            QSlider::groove:horizontal {
+                height: 6px;
+                background: #1E293B;
+                border-radius: 3px;
+            }
+            QSlider::sub-page:horizontal {
+                background: #38BDF8;
+                border-radius: 3px;
+            }
+            QSlider::handle:horizontal {
+                background: #F8FAFC;
+                border: 2px solid #0284C7;
+                width: 16px;
+                margin-top: -5px;
+                margin-bottom: -5px;
+                border-radius: 8px;
+            }
+        """)
+
+        self.lbl_slider_val = QLabel("60 giây")
+        self.lbl_slider_val.setStyleSheet("color: #38BDF8; font-family: 'Fira Code', monospace; font-weight: 700; font-size: 12px; min-width: 60px;")
+
+        slider_box.addWidget(self.slider_interval, 1)
+        slider_box.addWidget(self.lbl_slider_val)
+
         self.spin_interval = QSpinBox()
         self.spin_interval.setRange(10, 3600)
-        self.spin_interval.setMinimumHeight(38)
-        self.spin_interval.setStyleSheet(f"""
-            QSpinBox {{
-                background-color: {COLOR_BG_INPUT};
-                border: 1px solid #1E293B;
-                border-radius: 8px;
-                color: #F8FAFC;
-                padding: 6px 12px;
-                font-size: 13px;
-                font-weight: 600;
-            }}
-            QSpinBox:focus {{
-                border: 1px solid {COLOR_ACCENT_INDIGO};
-            }}
-        """)
+        self.spin_interval.setValue(60)
+        self.spin_interval.setVisible(False)  # Giữ cho backward compatibility & test
+
+        # Sync slider and spinbox
+        self.slider_interval.valueChanged.connect(lambda v: (self.spin_interval.setValue(v), self.lbl_slider_val.setText(f"{v} giây")))
+        self.spin_interval.valueChanged.connect(lambda v: (self.slider_interval.setValue(v) if v <= 300 else None, self.lbl_slider_val.setText(f"{v} giây")))
+
         self.lbl_hint_interval = QLabel()
         self.lbl_hint_interval.setStyleSheet("font-size: 11px; color: #64748B;")
 
         col_interval.addWidget(self.lbl_scan_interval)
+        col_interval.addLayout(slider_box)
         col_interval.addWidget(self.spin_interval)
         col_interval.addWidget(self.lbl_hint_interval)
         timer_row.addLayout(col_interval, stretch=1)

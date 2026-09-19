@@ -38,9 +38,9 @@ class LiveWaveformWidget(QWidget):
         h = float(self.height())
         mid_y = h / 2.0
 
-        # Nền tối tinh tế
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(QColor("#0A101D"))
+        # Nền tối tinh tế khớp giao diện
+        painter.setPen(QPen(QColor(255, 255, 255, 15), 1))
+        painter.setBrush(QColor("#070E1E"))
         painter.drawRoundedRect(QRectF(0, 0, w, h), 10, 10)
 
         # 1. Đường sóng Download (Cyan #38BDF8)
@@ -59,14 +59,14 @@ class LiveWaveformWidget(QWidget):
         down_fill.closeSubpath()
 
         grad_cyan = QLinearGradient(0, 0, 0, h)
-        grad_cyan.setColorAt(0, QColor(56, 189, 248, 40))
+        grad_cyan.setColorAt(0, QColor(56, 189, 248, 45))
         grad_cyan.setColorAt(1, QColor(56, 189, 248, 0))
         painter.fillPath(down_fill, grad_cyan)
 
         pen_cyan = QPen(QColor("#38BDF8"), 2.2)
         painter.strokePath(down_path, pen_cyan)
 
-        # 2. Đường sóng Upload (Purple / Indigo #818CF8)
+        # 2. Đường sóng Upload (Purple #A855F7)
         up_path = QPainterPath()
         up_path.moveTo(0, mid_y)
         for x in range(0, int(w) + 1, 3):
@@ -76,5 +76,5 @@ class LiveWaveformWidget(QWidget):
             y = mid_y + math.cos(rad) * amp + math.sin(rad2) * 6.0
             up_path.lineTo(x, y)
 
-        pen_purple = QPen(QColor("#818CF8"), 1.8)
+        pen_purple = QPen(QColor("#A855F7"), 2.0)
         painter.strokePath(up_path, pen_purple)
