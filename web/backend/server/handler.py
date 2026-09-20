@@ -16,7 +16,7 @@ try:
         csrf_protector, audit_logger as sec_audit_logger,
         cors_manager, vpn_guard,
         request_guard, mask_sensitive_data,
-        dos_manager
+        dos_manager, ip_ban_bot
     )
 except ImportError:
     from security import (
@@ -25,7 +25,7 @@ except ImportError:
         csrf_protector, audit_logger as sec_audit_logger,
         cors_manager, vpn_guard,
         request_guard, mask_sensitive_data,
-        dos_manager
+        dos_manager, ip_ban_bot
     )
 
 from backend.middleware.waf import inspect_request
@@ -60,6 +60,8 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
         origin = self.headers.get("Origin")
         cors_manager.apply_cors_headers(self, origin)
         apply_web_security_headers(self, is_api_response=self.path.startswith("/api/"))
+        self.send_header("Connection", "close")
+        self.close_connection = True
         super().end_headers()
 
     def get_client_ip(self) -> str:
@@ -85,6 +87,56 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
+    def is_html_client(self) -> bool:
+        """Xác định client đang duyệt trang bằng trình duyệt Web hay gọi REST API thuần."""
+        if self.path.startswith("/api/"):
+            return False
+        accept = self.headers.get("Accept", "")
+        return "text/html" in accept or accept == "*/*" or not accept
+
+    def send_html_response(self, html_content: str, status: int = 200, extra_headers: Optional[Dict[str, str]] = None):
+        """Gửi phản hồi HTML an toàn với đầy đủ Security Headers."""
+        payload = html_content.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(payload)))
+        if extra_headers:
+            for k, v in extra_headers.items():
+                self.send_header(k, v)
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def _render_429_page(self, client_ip: str, retry_after: int) -> str:
+        """Đọc và điền tham số vào trang 429 Bạn bấm quá nhanh vui lòng thử lại."""
+        file_path = os.path.join(self.server.base_dir, "html", "429.html")
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    content = content.replace('let secondsLeft = parseInt(urlParams.get(\'retry\')) || 60;', f'let secondsLeft = {retry_after};')
+                    content = content.replace('<span id="countdown">60</span>', f'<span id="countdown">{retry_after}</span>')
+                    content = content.replace('<strong class="text-slate-200" id="clientIp">Đang xác định...</strong>', f'<strong class="text-slate-200" id="clientIp">{client_ip}</strong>')
+                    return content
+            except Exception:
+                pass
+        # Fallback inline nếu file không đọc được
+        return f"""<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><title>429 - Bạn Bấm Quá Nhanh</title><style>body{{background:#0b0f19;color:#fff;font-family:sans-serif;text-align:center;padding:10vh 20px;}}h1{{color:#f59e0b;font-size:2rem;}}p{{color:#94a3b8;}}</style></head><body><h1>Bạn Bấm Quá Nhanh, Vui Lòng Thử Lại!</h1><p>IP {client_ip} đã gửi hơn 100 requests/lần. Vui lòng thử lại sau {retry_after} giây.</p><p><a href="/" style="color:#38bdf8;">Quay về Trang chủ</a></p></body></html>"""
+
+    def _render_banned_page(self, client_ip: str, incident_id: str = "BOT-BAN-1000", reason: str = "Vượt quá 1000 requests") -> str:
+        """Đọc và điền tham số vào trang 403 Banned do Bot Ban IP."""
+        file_path = os.path.join(self.server.base_dir, "html", "banned.html")
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    content = content.replace('<span class="text-white font-bold" id="bannedIp">Đang xác định...</span>', f'<span class="text-white font-bold" id="bannedIp">{client_ip}</span>')
+                    content = content.replace('<span class="text-red-400 font-bold" id="incidentId">BOT-BAN-AUTO-998</span>', f'<span class="text-red-400 font-bold" id="incidentId">{incident_id}</span>')
+                    return content
+            except Exception:
+                pass
+        # Fallback inline nếu file không đọc được
+        return f"""<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><title>403 - IP Đã Bị Cấm Bởi Bot An Ninh</title><style>body{{background:#090b12;color:#fff;font-family:sans-serif;text-align:center;padding:10vh 20px;}}h1{{color:#ef4444;font-size:2rem;}}p{{color:#94a3b8;}}</style></head><body><h1>Truy Cập Bị Cấm - IP Đã Bị Khóa Bởi Bot An Ninh</h1><p>Địa chỉ IP {client_ip} đã gửi hơn 1,000 requests và bị Bot Ban IP cấm.</p><p>Mã sự cố: {incident_id}</p></body></html>"""
+
     def _enforce_waf_and_rate_limit(self, body_text: str = "") -> bool:
         """
         Kiểm tra Request Guard, WAF và Rate Limit trước khi cho phép xử lý request.
@@ -94,6 +146,32 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = parsed.query
+
+        # -2. Kiểm tra xem IP có đang bị Bot Ban (ngưỡng 1000 requests) hay không
+        if ip_ban_bot:
+            is_banned, ban_meta = ip_ban_bot.is_banned(client_ip)
+            if is_banned:
+                incident = ban_meta.get("incident_id", "BOT-BAN-1000") if ban_meta else "BOT-BAN-1000"
+                reason = ban_meta.get("reason", "Vượt quá 1000 requests - Bị Bot cấm") if ban_meta else "Bị Bot cấm"
+                sec_audit_logger.log_security_event(
+                    event_type="BOT_BANNED_REQUEST_DROPPED",
+                    actor="anonymous",
+                    ip_address=client_ip,
+                    details=f"Yêu cầu từ IP bị cấm {client_ip} đến {path} bị từ chối",
+                    severity="HIGH"
+                )
+                if self.is_html_client():
+                    banned_html = self._render_banned_page(client_ip, incident, reason)
+                    self.send_html_response(banned_html, status=403)
+                else:
+                    self.send_json({
+                        "error": "Truy cập bị từ chối: IP của bạn đã bị Bot an ninh cấm (Vượt quá 1000 requests).",
+                        "status": 403,
+                        "incident_id": incident,
+                        "client_ip": client_ip,
+                        "reason": reason
+                    }, status=403)
+                return False
 
         # -1. Kiểm tra Anti-DoS: Micro-burst và Trạng thái Under Attack (web.security.dos_guard)
         is_burst_ok, burst_code, burst_err = dos_manager.check_request(client_ip, endpoint=path)
@@ -105,15 +183,19 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
                 details=burst_err or f"Micro-burst DoS blocked on {path}",
                 severity="CRITICAL"
             )
-            self.send_json(
-                {
-                    "error": burst_err or "Yêu cầu bị từ chối bởi hệ thống phòng thủ Anti-DoS.",
-                    "status": burst_code,
-                    "client_ip": client_ip
-                },
-                status=burst_code,
-                extra_headers={"Retry-After": "60"}
-            )
+            if self.is_html_client():
+                cooldown_html = self._render_429_page(client_ip, 60)
+                self.send_html_response(cooldown_html, status=burst_code, extra_headers={"Retry-After": "60"})
+            else:
+                self.send_json(
+                    {
+                        "error": burst_err or "Yêu cầu bị từ chối bởi hệ thống phòng thủ Anti-DoS.",
+                        "status": burst_code,
+                        "client_ip": client_ip
+                    },
+                    status=burst_code,
+                    extra_headers={"Retry-After": "60"}
+                )
             return False
 
         # 0. Kiểm tra kích thước và MIME type của Request (web.security.request_guard)
@@ -160,26 +242,46 @@ class MultiLayerSecureHandler(http.server.SimpleHTTPRequestHandler):
             )
             return False
 
-        # 2. Kiểm tra Rate Limiting & Auto-Jail (web.security.rate_limiter)
+        # 2. Kiểm tra Rate Limiting (100 req) & Bot Ban (1000 req) (web.security.rate_limiter)
         allowed, retry_after, jail_reason = web_rate_limiter.is_allowed(client_ip, endpoint=path)
         if not allowed:
+            # Nếu lý do là do Bot Ban (vừa chạm mốc 1000 requests)
+            if jail_reason and "BOT_BANNED" in jail_reason:
+                if self.is_html_client():
+                    banned_html = self._render_banned_page(client_ip, "BOT-BAN-1000", jail_reason)
+                    self.send_html_response(banned_html, status=403)
+                else:
+                    self.send_json({
+                        "error": "Địa chỉ IP đã gửi hơn 1000 requests và bị Bot Ban IP cấm.",
+                        "status": 403,
+                        "client_ip": client_ip,
+                        "reason": jail_reason
+                    }, status=403)
+                return False
+
+            # Vượt quá 100 requests: Hiện trang "bạn bấm quá nhanh vui lòng thử lại"
             sec_audit_logger.log_security_event(
                 event_type="RATE_LIMIT_HIT",
                 actor="anonymous",
                 ip_address=client_ip,
-                details=jail_reason or f"Rate limit exceeded on {path}",
+                details=jail_reason or f"Rate limit 100 req exceeded on {path}",
                 severity="WARNING"
             )
-            self.send_json(
-                {
-                    "error": "Quá nhiều yêu cầu trong thời gian ngắn (429 Too Many Requests).",
-                    "reason": jail_reason,
-                    "retry_after_seconds": retry_after,
-                    "client_ip": client_ip
-                },
-                status=429,
-                extra_headers={"Retry-After": str(retry_after)}
-            )
+            if self.is_html_client():
+                cooldown_html = self._render_429_page(client_ip, retry_after)
+                self.send_html_response(cooldown_html, status=429, extra_headers={"Retry-After": str(retry_after)})
+            else:
+                self.send_json(
+                    {
+                        "error": "Bạn bấm quá nhanh, vui lòng thử lại sau.",
+                        "reason": jail_reason,
+                        "retry_after_seconds": retry_after,
+                        "client_ip": client_ip,
+                        "limit": 100
+                    },
+                    status=429,
+                    extra_headers={"Retry-After": str(retry_after)}
+                )
             return False
 
         # 3. Kiểm tra VPN & Mạng Riêng Tư (web.security.vpn_guard)

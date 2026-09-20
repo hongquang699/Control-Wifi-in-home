@@ -16,6 +16,16 @@
     "api_limit_per_minute": 100,
     "ban_duration_seconds": 900
   },
+  "firewall_rules": {
+    "enabled": true,
+    "max_requests_per_ip": 100,
+    "rate_limit_window_seconds": 60,
+    "page_429_warning": "Bạn bấm quá nhanh vui lòng thử lại",
+    "bot_ban_threshold": 1000,
+    "bot_ban_enabled": true,
+    "bot_ban_duration_seconds": 2592000,
+    "host_firewall_integration": true
+  },
   "authentication": {
     "password_hash_algorithm": "PBKDF2-HMAC-SHA256",
     "pbkdf2_iterations": 200000,

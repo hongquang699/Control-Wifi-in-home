@@ -42,6 +42,7 @@ app/data/logs/
 app/data/.integrity.sig
 .integrity.sig
 web/logs/
+web/data/
 *.log
 
 # Development / scratch captures

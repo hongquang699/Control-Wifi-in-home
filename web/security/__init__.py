@@ -82,6 +82,11 @@ from .dos_guard import (
     dos_manager
 )
 
+from .ip_ban_bot import (
+    IPBanBot,
+    ip_ban_bot
+)
+
 __all__ = [
     "hash_password",
     "verify_password",
@@ -115,6 +120,8 @@ __all__ = [
     "mask_sensitive_data",
     "is_sensitive_key",
     "DoSProtectionManager",
-    "dos_manager"
+    "dos_manager",
+    "IPBanBot",
+    "ip_ban_bot"
 ]
 

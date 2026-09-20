@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>403 - IP Đã Bị Cấm Bởi Bot An Ninh | Network Manager</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../images/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .gradient-text-red {
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .red-glow {
+      box-shadow: 0 0 50px rgba(239, 68, 68, 0.35);
+    }
+  </style>
+</head>
+<body class="bg-[#090b12] text-slate-100 font-sans min-h-screen flex flex-col justify-between items-center p-6 relative overflow-hidden">
+  
+  <div class="ambient-glow-1" style="background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, transparent 70%);"></div>
+  <div class="ambient-glow-2" style="background: radial-gradient(circle, rgba(185, 28, 28, 0.20) 0%, transparent 70%);"></div>
+
+  <!-- Header Logo -->
+  <header class="w-full max-w-screen-2xl flex items-center justify-between py-4 border-b border-red-500/20 relative z-10">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <img src="../images/logo.png" alt="Network Manager Logo" class="w-9 h-9 rounded-xl">
+      <span class="font-extrabold text-sm tracking-wider text-white">NETWORK <span class="text-red-400">MANAGER</span></span>
+    </a>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 text-xs font-mono font-semibold">
+      <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+      BOT BAN IP: ĐÃ CÁCH LY
+    </div>
+  </header>
+
+  <!-- Main Banned Card -->
+  <main class="text-center max-w-2xl mx-auto my-auto relative z-10 space-y-6">
+    <div class="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-red-500/10 border border-red-500/40 text-red-400 text-5xl red-glow mb-2">
+      🛑
+    </div>
+
+    <div class="text-6xl sm:text-8xl font-extrabold font-mono gradient-text-red tracking-widest">
+      403 BANNED
+    </div>
+
+    <div class="space-y-3">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        Truy Cập Bị Cấm - IP Đã Bị Khóa Bởi Bot An Ninh
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-lg mx-auto">
+        Hệ thống ghi nhận địa chỉ IP của bạn đã gửi <span class="text-red-400 font-bold font-mono">vượt quá 1,000 requests</span> dồn dập. Bot bảo vệ tự động (<code class="text-red-300 font-mono">IPBanBot</code>) đã kích hoạt lệnh cấm cách ly hoàn toàn để ngăn chặn tấn công DoS/DDoS.
+      </p>
+    </div>
+
+    <!-- Forensic Incident Telemetry Card -->
+    <div class="glass-card p-6 rounded-3xl border border-red-500/30 bg-red-950/20 max-w-lg mx-auto text-left space-y-3 font-mono text-xs">
+      <div class="flex items-center justify-between border-b border-red-500/20 pb-2">
+        <span class="text-slate-400">MÃ SỰ CỐ (INCIDENT ID):</span>
+        <span class="text-red-400 font-bold" id="incidentId">BOT-BAN-AUTO-998</span>
+      </div>
+      <div class="flex items-center justify-between border-b border-red-500/20 pb-2">
+        <span class="text-slate-400">ĐỊA CHỈ IP BỊ CẤM:</span>
+        <span class="text-white font-bold" id="bannedIp">Đang xác định...</span>
+      </div>
+      <div class="flex items-center justify-between border-b border-red-500/20 pb-2">
+        <span class="text-slate-400">TỔNG LẦN GỬI REQUEST:</span>
+        <span class="text-red-400 font-bold">&gt; 1,000 requests</span>
+      </div>
+      <div class="flex items-center justify-between border-b border-red-500/20 pb-2">
+        <span class="text-slate-400">TƯỜNG LỬA HỆ ĐIỀU HÀNH:</span>
+        <span class="text-emerald-400 font-bold">Windows Firewall Block Rule</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-slate-400">HÀNH ĐỘNG CỦA BOT:</span>
+        <span class="text-amber-300 font-bold">Auto-Drop Connection</span>
+      </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 max-w-lg mx-auto">
+      💡 Nếu bạn cho rằng đây là sự cố nhầm lẫn (False Positive), vui lòng liên hệ quản trị viên mạng nội bộ hoặc chạy lệnh mở khóa qua console máy chủ: <code class="text-sky-400 font-mono">python -c "from web.security.ip_ban_bot import ip_ban_bot; ip_ban_bot.unban_ip('IP_CUA_BAN')"</code>.
+    </div>
+
+    <div class="pt-2 text-xs font-mono text-slate-500">
+      Security Policy: OWASP Top 10 • Bot Ban Trigger: Cumulative Limit 1000 Req
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full max-w-screen-2xl py-4 border-t border-red-500/20 text-center text-xs text-slate-500 relative z-10">
+    © 2026 Network Manager v2.0.0. Hệ thống bảo mật phòng thủ chiều sâu.
+  </footer>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const ip = urlParams.get('ip');
+    const incident = urlParams.get('incident');
+    if (ip) document.getElementById('bannedIp').textContent = ip;
+    if (incident) document.getElementById('incidentId').textContent = incident;
+  </script>
+</body>
+</html>
